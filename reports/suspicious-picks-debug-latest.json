@@ -1,0 +1,1241 @@
+{
+  "generatedAt": "2026-03-19T10:18:00.958Z",
+  "totalSuspiciousMatches": 20,
+  "summary": {
+    "legacyTotalsLeadCount": 18,
+    "currentOneXTwoReferenceCount": 20,
+    "noBetCount": 20
+  },
+  "matches": [
+    {
+      "matchId": 7387,
+      "utcDate": "2026-03-17T17:45:00.000Z",
+      "competition": "CL",
+      "homeTeam": "Sporting CP",
+      "awayTeam": "Bodø / Glimt",
+      "totalExpectedGoals": 3.06,
+      "expectedGoals": {
+        "home": 1.58,
+        "away": 1.48
+      },
+      "bestBet": {
+        "hasBet": false,
+        "headline": "No Bet across the three main markets."
+      },
+      "legacyPrimary": {
+        "marketKey": "oneXTwo",
+        "marketName": "1X2",
+        "role": "secondary",
+        "selectionLabel": "Bodø / Glimt",
+        "action": "No Bet",
+        "confidence": "Low",
+        "trust": "Fragile",
+        "credibility": "Fragile",
+        "edge": 79.55,
+        "reason": "The other side still comes out ahead on the model."
+      },
+      "currentPrimary": {
+        "marketKey": "oneXTwo",
+        "marketName": "1X2",
+        "role": "secondary",
+        "selectionLabel": "Bodø / Glimt",
+        "action": "No Bet",
+        "confidence": "Low",
+        "trust": "Fragile",
+        "credibility": "Fragile",
+        "edge": 79.55,
+        "reason": "No Bet across the three main markets."
+      },
+      "oneXTwo": {
+        "selection": "Bodø / Glimt",
+        "probability": 0.315,
+        "odds": 5.7,
+        "edge": 79.55,
+        "action": "No Bet"
+      },
+      "totals25": {
+        "selection": "Under 2.5",
+        "probability": 0.4232,
+        "odds": 3.35,
+        "edge": 41.77,
+        "action": "No Bet",
+        "boardQualityTier": "weak",
+        "staleOdds": true,
+        "blockReasons": [
+          "stale-odds",
+          "weak-board",
+          "missing-bookmaker-depth"
+        ]
+      }
+    },
+    {
+      "matchId": 7388,
+      "utcDate": "2026-03-17T20:00:00.000Z",
+      "competition": "CL",
+      "homeTeam": "Chelsea FC",
+      "awayTeam": "Paris Saint Germain",
+      "totalExpectedGoals": 3.27,
+      "expectedGoals": {
+        "home": 1.54,
+        "away": 1.73
+      },
+      "bestBet": {
+        "hasBet": false,
+        "headline": "No Bet across the three main markets."
+      },
+      "legacyPrimary": {
+        "marketKey": "oneXTwo",
+        "marketName": "1X2",
+        "role": "secondary",
+        "selectionLabel": "Paris Saint Germain",
+        "action": "No Bet",
+        "confidence": "Low",
+        "trust": "Fair",
+        "credibility": "Moderate",
+        "edge": 26.24,
+        "reason": "No Bet. The trust score is not strong enough."
+      },
+      "currentPrimary": {
+        "marketKey": "oneXTwo",
+        "marketName": "1X2",
+        "role": "secondary",
+        "selectionLabel": "Paris Saint Germain",
+        "action": "No Bet",
+        "confidence": "Low",
+        "trust": "Fair",
+        "credibility": "Moderate",
+        "edge": 26.24,
+        "reason": "No Bet across the three main markets."
+      },
+      "oneXTwo": {
+        "selection": "Paris Saint Germain",
+        "probability": 0.3945,
+        "odds": 3.2,
+        "edge": 26.24,
+        "action": "No Bet"
+      },
+      "totals25": {
+        "selection": "Under 2.5",
+        "probability": 0.3891,
+        "odds": 2.75,
+        "edge": 7,
+        "action": "No Bet",
+        "boardQualityTier": "unusable",
+        "staleOdds": true,
+        "blockReasons": [
+          "stale-odds",
+          "unusable-board",
+          "missing-bookmaker-depth"
+        ]
+      }
+    },
+    {
+      "matchId": 7602,
+      "utcDate": "2026-03-17T20:00:00.000Z",
+      "competition": "CL",
+      "homeTeam": "Arsenal FC",
+      "awayTeam": "Bayer 04 Leverkusen",
+      "totalExpectedGoals": 2.98,
+      "expectedGoals": {
+        "home": 2.11,
+        "away": 0.87
+      },
+      "bestBet": {
+        "hasBet": false,
+        "headline": "No Bet across the three main markets."
+      },
+      "legacyPrimary": {
+        "marketKey": "totals25",
+        "marketName": "Over / Under 2.5",
+        "role": "primary",
+        "selectionLabel": "Under 2.5",
+        "action": "No Bet",
+        "confidence": "Low",
+        "trust": "Fair",
+        "credibility": "Moderate",
+        "edge": -0.03,
+        "reason": "No Bet. Stored odds are too old for the current kickoff window."
+      },
+      "currentPrimary": {
+        "marketKey": "oneXTwo",
+        "marketName": "1X2",
+        "role": "secondary",
+        "selectionLabel": "Arsenal FC",
+        "action": "No Bet",
+        "confidence": "Low",
+        "trust": "Fair",
+        "credibility": "Moderate",
+        "edge": -2.06,
+        "reason": "No Bet across the three main markets."
+      },
+      "oneXTwo": {
+        "selection": "Arsenal FC",
+        "probability": 0.7364,
+        "odds": 1.33,
+        "edge": -2.06,
+        "action": "No Bet"
+      },
+      "totals25": {
+        "selection": "Under 2.5",
+        "probability": 0.4443,
+        "odds": 2.25,
+        "edge": -0.03,
+        "action": "No Bet",
+        "boardQualityTier": "weak",
+        "staleOdds": true,
+        "blockReasons": [
+          "stale-odds",
+          "weak-board"
+        ]
+      }
+    },
+    {
+      "matchId": 7822,
+      "utcDate": "2026-03-18T15:30:00.000Z",
+      "competition": "EL",
+      "homeTeam": "Sporting Braga",
+      "awayTeam": "Ferencvárosi",
+      "totalExpectedGoals": 2.42,
+      "expectedGoals": {
+        "home": 1.63,
+        "away": 0.79
+      },
+      "bestBet": {
+        "hasBet": false,
+        "headline": "No Bet across the three main markets."
+      },
+      "legacyPrimary": {
+        "marketKey": "totals25",
+        "marketName": "Over / Under 2.5",
+        "role": "primary",
+        "selectionLabel": "Under 2.5",
+        "action": "No Bet",
+        "confidence": "Low",
+        "trust": "Fragile",
+        "credibility": "Fragile",
+        "edge": null,
+        "reason": "No Bet. The setup is too fragile."
+      },
+      "currentPrimary": {
+        "marketKey": "oneXTwo",
+        "marketName": "1X2",
+        "role": "secondary",
+        "selectionLabel": "Sporting Braga",
+        "action": "No Bet",
+        "confidence": "Low",
+        "trust": "Fragile",
+        "credibility": "Fragile",
+        "edge": null,
+        "reason": "No Bet across the three main markets."
+      },
+      "oneXTwo": {
+        "selection": "Sporting Braga",
+        "probability": 0.525,
+        "odds": null,
+        "edge": null,
+        "action": "No Bet"
+      },
+      "totals25": {
+        "selection": "Under 2.5",
+        "probability": 0.5591,
+        "odds": null,
+        "edge": null,
+        "action": "No Bet",
+        "boardQualityTier": "unusable",
+        "staleOdds": false,
+        "blockReasons": [
+          "missing-bookmaker-odds",
+          "missing-implied-probability",
+          "unusable-board",
+          "missing-bookmaker-depth"
+        ]
+      }
+    },
+    {
+      "matchId": 7415,
+      "utcDate": "2026-03-18T17:45:00.000Z",
+      "competition": "CL",
+      "homeTeam": "FC Barcelona",
+      "awayTeam": "Newcastle United FC",
+      "totalExpectedGoals": 3.22,
+      "expectedGoals": {
+        "home": 2.01,
+        "away": 1.21
+      },
+      "bestBet": {
+        "hasBet": false,
+        "headline": "No Bet across the three main markets."
+      },
+      "legacyPrimary": {
+        "marketKey": "totals25",
+        "marketName": "Over / Under 2.5",
+        "role": "primary",
+        "selectionLabel": "Under 2.5",
+        "action": "No Bet",
+        "confidence": "Low",
+        "trust": "Fragile",
+        "credibility": "Fragile",
+        "edge": 34.1,
+        "reason": "No Bet. The setup is too fragile."
+      },
+      "currentPrimary": {
+        "marketKey": "oneXTwo",
+        "marketName": "1X2",
+        "role": "secondary",
+        "selectionLabel": "FC Barcelona",
+        "action": "No Bet",
+        "confidence": "Low",
+        "trust": "Fair",
+        "credibility": "Moderate",
+        "edge": -2.11,
+        "reason": "No Bet across the three main markets."
+      },
+      "oneXTwo": {
+        "selection": "FC Barcelona",
+        "probability": 0.6118,
+        "odds": 1.6,
+        "edge": -2.11,
+        "action": "No Bet"
+      },
+      "totals25": {
+        "selection": "Under 2.5",
+        "probability": 0.4003,
+        "odds": 3.35,
+        "edge": 34.1,
+        "action": "No Bet",
+        "boardQualityTier": "weak",
+        "staleOdds": true,
+        "blockReasons": [
+          "stale-odds",
+          "weak-board",
+          "missing-bookmaker-depth"
+        ]
+      }
+    },
+    {
+      "matchId": 7376,
+      "utcDate": "2026-03-18T20:00:00.000Z",
+      "competition": "CL",
+      "homeTeam": "FC Bayern München",
+      "awayTeam": "Atalanta",
+      "totalExpectedGoals": 3.06,
+      "expectedGoals": {
+        "home": 2.28,
+        "away": 0.78
+      },
+      "bestBet": {
+        "hasBet": false,
+        "headline": "No Bet across the three main markets."
+      },
+      "legacyPrimary": {
+        "marketKey": "totals25",
+        "marketName": "Over / Under 2.5",
+        "role": "primary",
+        "selectionLabel": "Under 2.5",
+        "action": "No Bet",
+        "confidence": "Low",
+        "trust": "Fragile",
+        "credibility": "Moderate",
+        "edge": 39.52,
+        "reason": "No Bet. Stored odds are too old for the current kickoff window."
+      },
+      "currentPrimary": {
+        "marketKey": "oneXTwo",
+        "marketName": "1X2",
+        "role": "secondary",
+        "selectionLabel": "FC Bayern München",
+        "action": "No Bet",
+        "confidence": "Low",
+        "trust": "Fair",
+        "credibility": "Moderate",
+        "edge": -1,
+        "reason": "No Bet across the three main markets."
+      },
+      "oneXTwo": {
+        "selection": "FC Bayern München",
+        "probability": 0.7174,
+        "odds": 1.38,
+        "edge": -1,
+        "action": "No Bet"
+      },
+      "totals25": {
+        "selection": "Under 2.5",
+        "probability": 0.4293,
+        "odds": 3.25,
+        "edge": 39.52,
+        "action": "No Bet",
+        "boardQualityTier": "weak",
+        "staleOdds": true,
+        "blockReasons": [
+          "stale-odds",
+          "weak-board"
+        ]
+      }
+    },
+    {
+      "matchId": 7416,
+      "utcDate": "2026-03-18T20:00:00.000Z",
+      "competition": "CL",
+      "homeTeam": "Liverpool FC",
+      "awayTeam": "Galatasaray",
+      "totalExpectedGoals": 3,
+      "expectedGoals": {
+        "home": 1.95,
+        "away": 1.05
+      },
+      "bestBet": {
+        "hasBet": false,
+        "headline": "No Bet across the three main markets."
+      },
+      "legacyPrimary": {
+        "marketKey": "totals25",
+        "marketName": "Over / Under 2.5",
+        "role": "primary",
+        "selectionLabel": "Under 2.5",
+        "action": "No Bet",
+        "confidence": "Low",
+        "trust": "Fragile",
+        "credibility": "Fragile",
+        "edge": 37.55,
+        "reason": "No Bet. The setup is too fragile."
+      },
+      "currentPrimary": {
+        "marketKey": "oneXTwo",
+        "marketName": "1X2",
+        "role": "secondary",
+        "selectionLabel": "Liverpool FC",
+        "action": "No Bet",
+        "confidence": "Low",
+        "trust": "Fair",
+        "credibility": "Moderate",
+        "edge": -9.57,
+        "reason": "No Bet across the three main markets."
+      },
+      "oneXTwo": {
+        "selection": "Liverpool FC",
+        "probability": 0.6903,
+        "odds": 1.31,
+        "edge": -9.57,
+        "action": "No Bet"
+      },
+      "totals25": {
+        "selection": "Under 2.5",
+        "probability": 0.4437,
+        "odds": 3.1,
+        "edge": 37.55,
+        "action": "No Bet",
+        "boardQualityTier": "unusable",
+        "staleOdds": true,
+        "blockReasons": [
+          "stale-odds",
+          "unusable-board",
+          "missing-bookmaker-depth"
+        ]
+      }
+    },
+    {
+      "matchId": 7676,
+      "utcDate": "2026-03-19T17:45:00.000Z",
+      "competition": "EL",
+      "homeTeam": "Olympique Lyonnais",
+      "awayTeam": "RC Celta de Vigo",
+      "totalExpectedGoals": 2.58,
+      "expectedGoals": {
+        "home": 1.35,
+        "away": 1.23
+      },
+      "bestBet": {
+        "hasBet": false,
+        "headline": "No Bet across the three main markets."
+      },
+      "legacyPrimary": {
+        "marketKey": "totals25",
+        "marketName": "Over / Under 2.5",
+        "role": "primary",
+        "selectionLabel": "Under 2.5",
+        "action": "No Bet",
+        "confidence": "Low",
+        "trust": "Fragile",
+        "credibility": "Fragile",
+        "edge": null,
+        "reason": "No Bet. The setup is too fragile."
+      },
+      "currentPrimary": {
+        "marketKey": "oneXTwo",
+        "marketName": "1X2",
+        "role": "secondary",
+        "selectionLabel": "Olympique Lyonnais",
+        "action": "No Bet",
+        "confidence": "Low",
+        "trust": "Fragile",
+        "credibility": "Fragile",
+        "edge": null,
+        "reason": "No Bet across the three main markets."
+      },
+      "oneXTwo": {
+        "selection": "Olympique Lyonnais",
+        "probability": 0.3933,
+        "odds": null,
+        "edge": null,
+        "action": "No Bet"
+      },
+      "totals25": {
+        "selection": "Under 2.5",
+        "probability": 0.5203,
+        "odds": null,
+        "edge": null,
+        "action": "No Bet",
+        "boardQualityTier": "unusable",
+        "staleOdds": false,
+        "blockReasons": [
+          "missing-bookmaker-odds",
+          "missing-implied-probability",
+          "unusable-board",
+          "missing-bookmaker-depth"
+        ]
+      }
+    },
+    {
+      "matchId": 7872,
+      "utcDate": "2026-03-19T17:45:00.000Z",
+      "competition": "EL",
+      "homeTeam": "SC Freiburg",
+      "awayTeam": "Dinamo Zagreb",
+      "totalExpectedGoals": 2.75,
+      "expectedGoals": {
+        "home": 1.54,
+        "away": 1.21
+      },
+      "bestBet": {
+        "hasBet": false,
+        "headline": "No Bet across the three main markets."
+      },
+      "legacyPrimary": {
+        "marketKey": "totals25",
+        "marketName": "Over / Under 2.5",
+        "role": "primary",
+        "selectionLabel": "Over 2.5",
+        "action": "No Bet",
+        "confidence": "Low",
+        "trust": "Fragile",
+        "credibility": "Fragile",
+        "edge": null,
+        "reason": "No Bet. The setup is too fragile."
+      },
+      "currentPrimary": {
+        "marketKey": "oneXTwo",
+        "marketName": "1X2",
+        "role": "secondary",
+        "selectionLabel": "SC Freiburg",
+        "action": "No Bet",
+        "confidence": "Low",
+        "trust": "Fragile",
+        "credibility": "Fragile",
+        "edge": null,
+        "reason": "No Bet across the three main markets."
+      },
+      "oneXTwo": {
+        "selection": "SC Freiburg",
+        "probability": 0.4376,
+        "odds": null,
+        "edge": null,
+        "action": "No Bet"
+      },
+      "totals25": {
+        "selection": "Over 2.5",
+        "probability": 0.515,
+        "odds": null,
+        "edge": null,
+        "action": "No Bet",
+        "boardQualityTier": "unusable",
+        "staleOdds": false,
+        "blockReasons": [
+          "missing-bookmaker-odds",
+          "missing-implied-probability",
+          "unusable-board",
+          "missing-bookmaker-depth"
+        ]
+      }
+    },
+    {
+      "matchId": 7697,
+      "utcDate": "2026-03-19T20:00:00.000Z",
+      "competition": "EL",
+      "homeTeam": "Real Betis Balompié",
+      "awayTeam": "Panathinaikos",
+      "totalExpectedGoals": 2.47,
+      "expectedGoals": {
+        "home": 1.43,
+        "away": 1.04
+      },
+      "bestBet": {
+        "hasBet": false,
+        "headline": "No Bet across the three main markets."
+      },
+      "legacyPrimary": {
+        "marketKey": "totals25",
+        "marketName": "Over / Under 2.5",
+        "role": "primary",
+        "selectionLabel": "Under 2.5",
+        "action": "No Bet",
+        "confidence": "Low",
+        "trust": "Fair",
+        "credibility": "Good",
+        "edge": 16.2,
+        "reason": "No Bet. Stored odds are too old for the current kickoff window."
+      },
+      "currentPrimary": {
+        "marketKey": "oneXTwo",
+        "marketName": "1X2",
+        "role": "secondary",
+        "selectionLabel": "Real Betis Balompié",
+        "action": "No Bet",
+        "confidence": "Low",
+        "trust": "Fair",
+        "credibility": "Moderate",
+        "edge": -10.48,
+        "reason": "No Bet across the three main markets."
+      },
+      "oneXTwo": {
+        "selection": "Real Betis Balompié",
+        "probability": 0.6217,
+        "odds": 1.44,
+        "edge": -10.48,
+        "action": "No Bet"
+      },
+      "totals25": {
+        "selection": "Under 2.5",
+        "probability": 0.543,
+        "odds": 2.14,
+        "edge": 16.2,
+        "action": "No Bet",
+        "boardQualityTier": "weak",
+        "staleOdds": true,
+        "blockReasons": [
+          "stale-odds",
+          "weak-board"
+        ]
+      }
+    },
+    {
+      "matchId": 2237,
+      "utcDate": "2026-03-20T17:30:00Z",
+      "competition": "SA",
+      "homeTeam": "Cagliari Calcio",
+      "awayTeam": "SSC Napoli",
+      "totalExpectedGoals": 2.5,
+      "expectedGoals": {
+        "home": 0.94,
+        "away": 1.56
+      },
+      "bestBet": {
+        "hasBet": false,
+        "headline": "No Bet across the three main markets."
+      },
+      "legacyPrimary": {
+        "marketKey": "totals25",
+        "marketName": "Over / Under 2.5",
+        "role": "primary",
+        "selectionLabel": "Under 2.5",
+        "action": "No Bet",
+        "confidence": "Low",
+        "trust": "Fragile",
+        "credibility": "Fragile",
+        "edge": null,
+        "reason": "No Bet. The setup is too fragile."
+      },
+      "currentPrimary": {
+        "marketKey": "oneXTwo",
+        "marketName": "1X2",
+        "role": "secondary",
+        "selectionLabel": "SSC Napoli",
+        "action": "No Bet",
+        "confidence": "Low",
+        "trust": "Fragile",
+        "credibility": "Fragile",
+        "edge": null,
+        "reason": "No Bet across the three main markets."
+      },
+      "oneXTwo": {
+        "selection": "SSC Napoli",
+        "probability": 0.4883,
+        "odds": null,
+        "edge": null,
+        "action": "No Bet"
+      },
+      "totals25": {
+        "selection": "Under 2.5",
+        "probability": 0.5356,
+        "odds": null,
+        "edge": null,
+        "action": "No Bet",
+        "boardQualityTier": "unusable",
+        "staleOdds": false,
+        "blockReasons": [
+          "missing-bookmaker-odds",
+          "missing-implied-probability",
+          "unusable-board",
+          "missing-bookmaker-depth"
+        ]
+      }
+    },
+    {
+      "matchId": 1875,
+      "utcDate": "2026-03-20T19:30:00Z",
+      "competition": "BL1",
+      "homeTeam": "RB Leipzig",
+      "awayTeam": "TSG 1899 Hoffenheim",
+      "totalExpectedGoals": 3.28,
+      "expectedGoals": {
+        "home": 1.61,
+        "away": 1.67
+      },
+      "bestBet": {
+        "hasBet": false,
+        "headline": "No Bet across the three main markets."
+      },
+      "legacyPrimary": {
+        "marketKey": "totals25",
+        "marketName": "Over / Under 2.5",
+        "role": "primary",
+        "selectionLabel": "Over 2.5",
+        "action": "No Bet",
+        "confidence": "Low",
+        "trust": "Fragile",
+        "credibility": "Fragile",
+        "edge": null,
+        "reason": "No Bet. The setup is too fragile."
+      },
+      "currentPrimary": {
+        "marketKey": "oneXTwo",
+        "marketName": "1X2",
+        "role": "secondary",
+        "selectionLabel": "TSG 1899 Hoffenheim",
+        "action": "No Bet",
+        "confidence": "Low",
+        "trust": "Fragile",
+        "credibility": "Fragile",
+        "edge": null,
+        "reason": "No Bet across the three main markets."
+      },
+      "oneXTwo": {
+        "selection": "TSG 1899 Hoffenheim",
+        "probability": 0.3903,
+        "odds": null,
+        "edge": null,
+        "action": "No Bet"
+      },
+      "totals25": {
+        "selection": "Over 2.5",
+        "probability": 0.6016,
+        "odds": null,
+        "edge": null,
+        "action": "No Bet",
+        "boardQualityTier": "unusable",
+        "staleOdds": false,
+        "blockReasons": [
+          "missing-bookmaker-odds",
+          "missing-implied-probability",
+          "unusable-board",
+          "missing-bookmaker-depth"
+        ]
+      }
+    },
+    {
+      "matchId": 2238,
+      "utcDate": "2026-03-20T19:45:00Z",
+      "competition": "SA",
+      "homeTeam": "Genoa CFC",
+      "awayTeam": "Udinese Calcio",
+      "totalExpectedGoals": 2.59,
+      "expectedGoals": {
+        "home": 1.84,
+        "away": 0.75
+      },
+      "bestBet": {
+        "hasBet": false,
+        "headline": "No Bet across the three main markets."
+      },
+      "legacyPrimary": {
+        "marketKey": "totals25",
+        "marketName": "Over / Under 2.5",
+        "role": "primary",
+        "selectionLabel": "Under 2.5",
+        "action": "No Bet",
+        "confidence": "Low",
+        "trust": "Fragile",
+        "credibility": "Fragile",
+        "edge": null,
+        "reason": "No Bet. The setup is too fragile."
+      },
+      "currentPrimary": {
+        "marketKey": "oneXTwo",
+        "marketName": "1X2",
+        "role": "secondary",
+        "selectionLabel": "Genoa CFC",
+        "action": "No Bet",
+        "confidence": "Low",
+        "trust": "Fragile",
+        "credibility": "Fragile",
+        "edge": null,
+        "reason": "No Bet across the three main markets."
+      },
+      "oneXTwo": {
+        "selection": "Genoa CFC",
+        "probability": 0.5661,
+        "odds": null,
+        "edge": null,
+        "action": "No Bet"
+      },
+      "totals25": {
+        "selection": "Under 2.5",
+        "probability": 0.5181,
+        "odds": null,
+        "edge": null,
+        "action": "No Bet",
+        "boardQualityTier": "unusable",
+        "staleOdds": false,
+        "blockReasons": [
+          "missing-bookmaker-odds",
+          "missing-implied-probability",
+          "unusable-board",
+          "missing-bookmaker-depth"
+        ]
+      }
+    },
+    {
+      "matchId": 7251,
+      "utcDate": "2026-03-20T19:45:00Z",
+      "competition": "FL1",
+      "homeTeam": "Racing Club de Lens",
+      "awayTeam": "Angers SCO",
+      "totalExpectedGoals": 2.69,
+      "expectedGoals": {
+        "home": 2.26,
+        "away": 0.43
+      },
+      "bestBet": {
+        "hasBet": false,
+        "headline": "No Bet across the three main markets."
+      },
+      "legacyPrimary": {
+        "marketKey": "totals25",
+        "marketName": "Over / Under 2.5",
+        "role": "primary",
+        "selectionLabel": "Under 2.5",
+        "action": "No Bet",
+        "confidence": "Low",
+        "trust": "Fragile",
+        "credibility": "Fragile",
+        "edge": null,
+        "reason": "No Bet. The setup is too fragile."
+      },
+      "currentPrimary": {
+        "marketKey": "oneXTwo",
+        "marketName": "1X2",
+        "role": "secondary",
+        "selectionLabel": "Racing Club de Lens",
+        "action": "No Bet",
+        "confidence": "Low",
+        "trust": "Fragile",
+        "credibility": "Fragile",
+        "edge": null,
+        "reason": "No Bet across the three main markets."
+      },
+      "oneXTwo": {
+        "selection": "Racing Club de Lens",
+        "probability": 0.6838,
+        "odds": null,
+        "edge": null,
+        "action": "No Bet"
+      },
+      "totals25": {
+        "selection": "Under 2.5",
+        "probability": 0.5038,
+        "odds": null,
+        "edge": null,
+        "action": "No Bet",
+        "boardQualityTier": "unusable",
+        "staleOdds": false,
+        "blockReasons": [
+          "missing-bookmaker-odds",
+          "missing-implied-probability",
+          "unusable-board",
+          "missing-bookmaker-depth"
+        ]
+      }
+    },
+    {
+      "matchId": 1182,
+      "utcDate": "2026-03-20T20:00:00Z",
+      "competition": "PL",
+      "homeTeam": "AFC Bournemouth",
+      "awayTeam": "Manchester United FC",
+      "totalExpectedGoals": 2.47,
+      "expectedGoals": {
+        "home": 1.16,
+        "away": 1.31
+      },
+      "bestBet": {
+        "hasBet": false,
+        "headline": "No Bet across the three main markets."
+      },
+      "legacyPrimary": {
+        "marketKey": "totals25",
+        "marketName": "Over / Under 2.5",
+        "role": "primary",
+        "selectionLabel": "Under 2.5",
+        "action": "No Bet",
+        "confidence": "Low",
+        "trust": "Fragile",
+        "credibility": "Fragile",
+        "edge": null,
+        "reason": "No Bet. The setup is too fragile."
+      },
+      "currentPrimary": {
+        "marketKey": "oneXTwo",
+        "marketName": "1X2",
+        "role": "secondary",
+        "selectionLabel": "Manchester United FC",
+        "action": "No Bet",
+        "confidence": "Low",
+        "trust": "Fragile",
+        "credibility": "Fragile",
+        "edge": null,
+        "reason": "No Bet across the three main markets."
+      },
+      "oneXTwo": {
+        "selection": "Manchester United FC",
+        "probability": 0.3937,
+        "odds": null,
+        "edge": null,
+        "action": "No Bet"
+      },
+      "totals25": {
+        "selection": "Under 2.5",
+        "probability": 0.5402,
+        "odds": null,
+        "edge": null,
+        "action": "No Bet",
+        "boardQualityTier": "unusable",
+        "staleOdds": false,
+        "blockReasons": [
+          "missing-bookmaker-odds",
+          "missing-implied-probability",
+          "unusable-board",
+          "missing-bookmaker-depth"
+        ]
+      }
+    },
+    {
+      "matchId": 1541,
+      "utcDate": "2026-03-20T20:00:00Z",
+      "competition": "PD",
+      "homeTeam": "Villarreal CF",
+      "awayTeam": "Real Sociedad de Fútbol",
+      "totalExpectedGoals": 3.34,
+      "expectedGoals": {
+        "home": 2.11,
+        "away": 1.23
+      },
+      "bestBet": {
+        "hasBet": false,
+        "headline": "No Bet across the three main markets."
+      },
+      "legacyPrimary": {
+        "marketKey": "totals25",
+        "marketName": "Over / Under 2.5",
+        "role": "primary",
+        "selectionLabel": "Over 2.5",
+        "action": "No Bet",
+        "confidence": "Low",
+        "trust": "Fragile",
+        "credibility": "Fragile",
+        "edge": null,
+        "reason": "No Bet. The setup is too fragile."
+      },
+      "currentPrimary": {
+        "marketKey": "oneXTwo",
+        "marketName": "1X2",
+        "role": "secondary",
+        "selectionLabel": "Villarreal CF",
+        "action": "No Bet",
+        "confidence": "Low",
+        "trust": "Fragile",
+        "credibility": "Fragile",
+        "edge": null,
+        "reason": "No Bet across the three main markets."
+      },
+      "oneXTwo": {
+        "selection": "Villarreal CF",
+        "probability": 0.5269,
+        "odds": null,
+        "edge": null,
+        "action": "No Bet"
+      },
+      "totals25": {
+        "selection": "Over 2.5",
+        "probability": 0.6084,
+        "odds": null,
+        "edge": null,
+        "action": "No Bet",
+        "boardQualityTier": "unusable",
+        "staleOdds": false,
+        "blockReasons": [
+          "missing-bookmaker-odds",
+          "missing-implied-probability",
+          "unusable-board",
+          "missing-bookmaker-depth"
+        ]
+      }
+    },
+    {
+      "matchId": 1183,
+      "utcDate": "2026-03-21T00:00:00Z",
+      "competition": "PL",
+      "homeTeam": "Manchester City FC",
+      "awayTeam": "Crystal Palace FC",
+      "totalExpectedGoals": 2.67,
+      "expectedGoals": {
+        "home": 1.6,
+        "away": 1.07
+      },
+      "bestBet": {
+        "hasBet": false,
+        "headline": "No Bet across the three main markets."
+      },
+      "legacyPrimary": {
+        "marketKey": "totals25",
+        "marketName": "Over / Under 2.5",
+        "role": "primary",
+        "selectionLabel": "Under 2.5",
+        "action": "No Bet",
+        "confidence": "Low",
+        "trust": "Fragile",
+        "credibility": "Fragile",
+        "edge": null,
+        "reason": "No Bet. The setup is too fragile."
+      },
+      "currentPrimary": {
+        "marketKey": "oneXTwo",
+        "marketName": "1X2",
+        "role": "secondary",
+        "selectionLabel": "Manchester City FC",
+        "action": "No Bet",
+        "confidence": "Low",
+        "trust": "Fragile",
+        "credibility": "Fragile",
+        "edge": null,
+        "reason": "No Bet across the three main markets."
+      },
+      "oneXTwo": {
+        "selection": "Manchester City FC",
+        "probability": 0.4693,
+        "odds": null,
+        "edge": null,
+        "action": "No Bet"
+      },
+      "totals25": {
+        "selection": "Under 2.5",
+        "probability": 0.5031,
+        "odds": null,
+        "edge": null,
+        "action": "No Bet",
+        "boardQualityTier": "unusable",
+        "staleOdds": false,
+        "blockReasons": [
+          "missing-bookmaker-odds",
+          "missing-implied-probability",
+          "unusable-board",
+          "missing-bookmaker-depth"
+        ]
+      }
+    },
+    {
+      "matchId": 1184,
+      "utcDate": "2026-03-21T12:30:00Z",
+      "competition": "PL",
+      "homeTeam": "Brighton & Hove Albion FC",
+      "awayTeam": "Liverpool FC",
+      "totalExpectedGoals": 2.49,
+      "expectedGoals": {
+        "home": 1.4,
+        "away": 1.09
+      },
+      "bestBet": {
+        "hasBet": false,
+        "headline": "No Bet across the three main markets."
+      },
+      "legacyPrimary": {
+        "marketKey": "totals25",
+        "marketName": "Over / Under 2.5",
+        "role": "primary",
+        "selectionLabel": "Under 2.5",
+        "action": "No Bet",
+        "confidence": "Low",
+        "trust": "Fragile",
+        "credibility": "Fragile",
+        "edge": null,
+        "reason": "No Bet. The setup is too fragile."
+      },
+      "currentPrimary": {
+        "marketKey": "oneXTwo",
+        "marketName": "1X2",
+        "role": "secondary",
+        "selectionLabel": "Brighton & Hove Albion FC",
+        "action": "No Bet",
+        "confidence": "Low",
+        "trust": "Fragile",
+        "credibility": "Fragile",
+        "edge": null,
+        "reason": "No Bet across the three main markets."
+      },
+      "oneXTwo": {
+        "selection": "Brighton & Hove Albion FC",
+        "probability": 0.4269,
+        "odds": null,
+        "edge": null,
+        "action": "No Bet"
+      },
+      "totals25": {
+        "selection": "Under 2.5",
+        "probability": 0.5368,
+        "odds": null,
+        "edge": null,
+        "action": "No Bet",
+        "boardQualityTier": "unusable",
+        "staleOdds": false,
+        "blockReasons": [
+          "missing-bookmaker-odds",
+          "missing-implied-probability",
+          "unusable-board",
+          "missing-bookmaker-depth"
+        ]
+      }
+    },
+    {
+      "matchId": 1542,
+      "utcDate": "2026-03-21T13:00:00Z",
+      "competition": "PD",
+      "homeTeam": "Elche CF",
+      "awayTeam": "RCD Mallorca",
+      "totalExpectedGoals": 2.8,
+      "expectedGoals": {
+        "home": 1.75,
+        "away": 1.05
+      },
+      "bestBet": {
+        "hasBet": false,
+        "headline": "No Bet across the three main markets."
+      },
+      "legacyPrimary": {
+        "marketKey": "totals25",
+        "marketName": "Over / Under 2.5",
+        "role": "primary",
+        "selectionLabel": "Over 2.5",
+        "action": "No Bet",
+        "confidence": "Low",
+        "trust": "Fragile",
+        "credibility": "Fragile",
+        "edge": null,
+        "reason": "No Bet. The setup is too fragile."
+      },
+      "currentPrimary": {
+        "marketKey": "oneXTwo",
+        "marketName": "1X2",
+        "role": "secondary",
+        "selectionLabel": "Elche CF",
+        "action": "No Bet",
+        "confidence": "Low",
+        "trust": "Fragile",
+        "credibility": "Fragile",
+        "edge": null,
+        "reason": "No Bet across the three main markets."
+      },
+      "oneXTwo": {
+        "selection": "Elche CF",
+        "probability": 0.501,
+        "odds": null,
+        "edge": null,
+        "action": "No Bet"
+      },
+      "totals25": {
+        "selection": "Over 2.5",
+        "probability": 0.52,
+        "odds": null,
+        "edge": null,
+        "action": "No Bet",
+        "boardQualityTier": "unusable",
+        "staleOdds": false,
+        "blockReasons": [
+          "missing-bookmaker-odds",
+          "missing-implied-probability",
+          "unusable-board",
+          "missing-bookmaker-depth"
+        ]
+      }
+    },
+    {
+      "matchId": 2239,
+      "utcDate": "2026-03-21T14:00:00Z",
+      "competition": "SA",
+      "homeTeam": "Parma Calcio 1913",
+      "awayTeam": "US Cremonese",
+      "totalExpectedGoals": 2.57,
+      "expectedGoals": {
+        "home": 2.08,
+        "away": 0.49
+      },
+      "bestBet": {
+        "hasBet": false,
+        "headline": "No Bet across the three main markets."
+      },
+      "legacyPrimary": {
+        "marketKey": "totals25",
+        "marketName": "Over / Under 2.5",
+        "role": "primary",
+        "selectionLabel": "Under 2.5",
+        "action": "No Bet",
+        "confidence": "Low",
+        "trust": "Fragile",
+        "credibility": "Fragile",
+        "edge": null,
+        "reason": "No Bet. The setup is too fragile."
+      },
+      "currentPrimary": {
+        "marketKey": "oneXTwo",
+        "marketName": "1X2",
+        "role": "secondary",
+        "selectionLabel": "Parma Calcio 1913",
+        "action": "No Bet",
+        "confidence": "Low",
+        "trust": "Fragile",
+        "credibility": "Fragile",
+        "edge": null,
+        "reason": "No Bet across the three main markets."
+      },
+      "oneXTwo": {
+        "selection": "Parma Calcio 1913",
+        "probability": 0.6484,
+        "odds": null,
+        "edge": null,
+        "action": "No Bet"
+      },
+      "totals25": {
+        "selection": "Under 2.5",
+        "probability": 0.5237,
+        "odds": null,
+        "edge": null,
+        "action": "No Bet",
+        "boardQualityTier": "unusable",
+        "staleOdds": false,
+        "blockReasons": [
+          "missing-bookmaker-odds",
+          "missing-implied-probability",
+          "unusable-board",
+          "missing-bookmaker-depth"
+        ]
+      }
+    }
+  ]
+}

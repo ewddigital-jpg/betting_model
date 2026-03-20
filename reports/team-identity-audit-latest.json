@@ -1,0 +1,830 @@
+{
+  "generatedAt": "2026-03-19T11:12:04.118Z",
+  "matchingLogic": [
+    {
+      "area": "odds ingestion and event matching",
+      "file": "src/modules/data/syncService.js",
+      "functions": [
+        "teamNameSimilarity",
+        "matchOddsEvent",
+        "pickOutcomePrice",
+        "mapBookmakerMarketRows"
+      ]
+    },
+    {
+      "area": "historical enrichment and team normalization",
+      "file": "src/modules/data/historicalCrawlerService.js",
+      "functions": [
+        "resolveTeamCandidates",
+        "resolveMatch",
+        "scoreCandidate",
+        "repairKnownIdentityIssues"
+      ]
+    },
+    {
+      "area": "shared source-side normalization",
+      "file": "src/modules/data/publicSources/historicalCrawlShared.js",
+      "functions": [
+        "normalizeName",
+        "namesShareCoreTokens"
+      ]
+    },
+    {
+      "area": "availability import team assignment",
+      "file": "src/modules/data/importers/availabilityImporter.js",
+      "functions": [
+        "teamIdForName"
+      ]
+    },
+    {
+      "area": "news import team assignment",
+      "file": "src/modules/data/importers/newsImporter.js",
+      "functions": [
+        "teamIdForName"
+      ]
+    },
+    {
+      "area": "advanced stats import matching",
+      "file": "src/modules/data/importers/xgImporter.js",
+      "functions": [
+        "resolveMatch",
+        "resolveTeamId"
+      ]
+    },
+    {
+      "area": "historical odds import matching",
+      "file": "src/modules/data/importers/historicalOddsImporter.js",
+      "functions": [
+        "resolveMatch",
+        "normalizeOutcomeKey"
+      ]
+    },
+    {
+      "area": "shared safe team-side resolution",
+      "file": "src/modules/data/teamIdentity.js",
+      "functions": [
+        "resolveMatchTeamSide",
+        "resolveMatchTeamId"
+      ]
+    }
+  ],
+  "preRepair": {
+    "advancedWrongTeamCount": 0,
+    "advancedWrongTeamExamples": [],
+    "domesticCompetitionLeaks": [],
+    "tlaCollisions": [
+      {
+        "tla": "FCB",
+        "count": 3,
+        "teams": "FC Bayern München | FC Barcelona | FC Bayern München"
+      },
+      {
+        "tla": "ATA",
+        "count": 2,
+        "teams": "Atalanta BC | Atalanta"
+      },
+      {
+        "tla": "BRE",
+        "count": 2,
+        "teams": "Stade Brestois 29 | Brentford"
+      },
+      {
+        "tla": "PSG",
+        "count": 2,
+        "teams": "Paris Saint Germain | Paris Saint-Germain FC"
+      },
+      {
+        "tla": "VIL",
+        "count": 2,
+        "teams": "Villarreal CF | Villarreal"
+      }
+    ],
+    "nullOrWrongTeamAssignments": {
+      "sourceLinksWrongTeam": 0,
+      "newsWrongTeam": 0,
+      "injuriesWrongTeam": 0,
+      "lineupsWrongTeam": 0
+    },
+    "mergedSample": [
+      {
+        "match_id": 7668,
+        "competition_code": "EL",
+        "utc_date": "2026-03-19T20:00:00.000Z",
+        "home_team": "AS Roma",
+        "away_team": "Bologna FC 1909",
+        "odds_rows": 725,
+        "advanced_rows": 0,
+        "lineup_rows": 22,
+        "news_rows": 0
+      },
+      {
+        "match_id": 7697,
+        "competition_code": "EL",
+        "utc_date": "2026-03-19T20:00:00.000Z",
+        "home_team": "Real Betis Balompié",
+        "away_team": "Panathinaikos",
+        "odds_rows": 1283,
+        "advanced_rows": 0,
+        "lineup_rows": 22,
+        "news_rows": 0
+      },
+      {
+        "match_id": 7700,
+        "competition_code": "EL",
+        "utc_date": "2026-03-19T20:00:00.000Z",
+        "home_team": "Porto",
+        "away_team": "VfB Stuttgart",
+        "odds_rows": 1242,
+        "advanced_rows": 0,
+        "lineup_rows": 22,
+        "news_rows": 0
+      },
+      {
+        "match_id": 7871,
+        "competition_code": "EL",
+        "utc_date": "2026-03-19T20:00:00.000Z",
+        "home_team": "Aston Villa FC",
+        "away_team": "LOSC Lille",
+        "odds_rows": 812,
+        "advanced_rows": 0,
+        "lineup_rows": 22,
+        "news_rows": 0
+      },
+      {
+        "match_id": 7676,
+        "competition_code": "EL",
+        "utc_date": "2026-03-19T17:45:00.000Z",
+        "home_team": "Olympique Lyonnais",
+        "away_team": "RC Celta de Vigo",
+        "odds_rows": 0,
+        "advanced_rows": 0,
+        "lineup_rows": 22,
+        "news_rows": 0
+      },
+      {
+        "match_id": 7703,
+        "competition_code": "EL",
+        "utc_date": "2026-03-19T17:45:00.000Z",
+        "home_team": "FC Metz",
+        "away_team": "Nottingham Forest FC",
+        "odds_rows": 1256,
+        "advanced_rows": 0,
+        "lineup_rows": 22,
+        "news_rows": 0
+      },
+      {
+        "match_id": 7872,
+        "competition_code": "EL",
+        "utc_date": "2026-03-19T17:45:00.000Z",
+        "home_team": "SC Freiburg",
+        "away_team": "Dinamo Zagreb",
+        "odds_rows": 0,
+        "advanced_rows": 0,
+        "lineup_rows": 22,
+        "news_rows": 0
+      },
+      {
+        "match_id": 7376,
+        "competition_code": "CL",
+        "utc_date": "2026-03-18T20:00:00.000Z",
+        "home_team": "FC Bayern München",
+        "away_team": "Atalanta",
+        "odds_rows": 482,
+        "advanced_rows": 0,
+        "lineup_rows": 22,
+        "news_rows": 0
+      },
+      {
+        "match_id": 7389,
+        "competition_code": "CL",
+        "utc_date": "2026-03-18T20:00:00.000Z",
+        "home_team": "Tottenham Hotspur FC",
+        "away_team": "Atlético Madrid",
+        "odds_rows": 1276,
+        "advanced_rows": 0,
+        "lineup_rows": 22,
+        "news_rows": 0
+      },
+      {
+        "match_id": 7416,
+        "competition_code": "CL",
+        "utc_date": "2026-03-18T20:00:00.000Z",
+        "home_team": "Liverpool FC",
+        "away_team": "Galatasaray",
+        "odds_rows": 1165,
+        "advanced_rows": 0,
+        "lineup_rows": 22,
+        "news_rows": 0
+      },
+      {
+        "match_id": 7415,
+        "competition_code": "CL",
+        "utc_date": "2026-03-18T17:45:00.000Z",
+        "home_team": "FC Barcelona",
+        "away_team": "Newcastle United FC",
+        "odds_rows": 1480,
+        "advanced_rows": 0,
+        "lineup_rows": 22,
+        "news_rows": 0
+      },
+      {
+        "match_id": 7822,
+        "competition_code": "EL",
+        "utc_date": "2026-03-18T15:30:00.000Z",
+        "home_team": "Sporting Braga",
+        "away_team": "Ferencvárosi",
+        "odds_rows": 0,
+        "advanced_rows": 0,
+        "lineup_rows": 22,
+        "news_rows": 0
+      },
+      {
+        "match_id": 7388,
+        "competition_code": "CL",
+        "utc_date": "2026-03-17T20:00:00.000Z",
+        "home_team": "Chelsea FC",
+        "away_team": "Paris Saint Germain",
+        "odds_rows": 1393,
+        "advanced_rows": 0,
+        "lineup_rows": 22,
+        "news_rows": 0
+      },
+      {
+        "match_id": 7417,
+        "competition_code": "CL",
+        "utc_date": "2026-03-17T20:00:00.000Z",
+        "home_team": "Manchester City FC",
+        "away_team": "Real Madrid CF",
+        "odds_rows": 1431,
+        "advanced_rows": 0,
+        "lineup_rows": 22,
+        "news_rows": 0
+      },
+      {
+        "match_id": 7602,
+        "competition_code": "CL",
+        "utc_date": "2026-03-17T20:00:00.000Z",
+        "home_team": "Arsenal FC",
+        "away_team": "Bayer 04 Leverkusen",
+        "odds_rows": 688,
+        "advanced_rows": 0,
+        "lineup_rows": 22,
+        "news_rows": 0
+      },
+      {
+        "match_id": 7387,
+        "competition_code": "CL",
+        "utc_date": "2026-03-17T17:45:00.000Z",
+        "home_team": "Sporting CP",
+        "away_team": "Bodø / Glimt",
+        "odds_rows": 517,
+        "advanced_rows": 0,
+        "lineup_rows": 22,
+        "news_rows": 0
+      },
+      {
+        "match_id": 1181,
+        "competition_code": "PL",
+        "utc_date": "2026-03-16T20:00:00Z",
+        "home_team": "Brentford",
+        "away_team": "Wolverhampton Wanderers FC",
+        "odds_rows": 0,
+        "advanced_rows": 2,
+        "lineup_rows": 0,
+        "news_rows": 0
+      },
+      {
+        "match_id": 1540,
+        "competition_code": "PD",
+        "utc_date": "2026-03-16T20:00:00Z",
+        "home_team": "Rayo Vallecano de Madrid",
+        "away_team": "Levante UD",
+        "odds_rows": 0,
+        "advanced_rows": 2,
+        "lineup_rows": 0,
+        "news_rows": 0
+      },
+      {
+        "match_id": 2236,
+        "competition_code": "SA",
+        "utc_date": "2026-03-16T19:45:00Z",
+        "home_team": "US Cremonese",
+        "away_team": "ACF Fiorentina",
+        "odds_rows": 0,
+        "advanced_rows": 2,
+        "lineup_rows": 0,
+        "news_rows": 0
+      },
+      {
+        "match_id": 1539,
+        "competition_code": "PD",
+        "utc_date": "2026-03-15T20:00:00Z",
+        "home_team": "Real Sociedad de Fútbol",
+        "away_team": "CA Osasuna",
+        "odds_rows": 0,
+        "advanced_rows": 2,
+        "lineup_rows": 0,
+        "news_rows": 0
+      },
+      {
+        "match_id": 2235,
+        "competition_code": "SA",
+        "utc_date": "2026-03-15T19:45:00Z",
+        "home_team": "SS Lazio",
+        "away_team": "AC Milan",
+        "odds_rows": 0,
+        "advanced_rows": 2,
+        "lineup_rows": 0,
+        "news_rows": 0
+      },
+      {
+        "match_id": 1874,
+        "competition_code": "BL1",
+        "utc_date": "2026-03-15T18:30:00Z",
+        "home_team": "VfB Stuttgart",
+        "away_team": "RB Leipzig",
+        "odds_rows": 0,
+        "advanced_rows": 2,
+        "lineup_rows": 0,
+        "news_rows": 0
+      },
+      {
+        "match_id": 1538,
+        "competition_code": "PD",
+        "utc_date": "2026-03-15T17:30:00Z",
+        "home_team": "Real Betis Balompié",
+        "away_team": "RC Celta de Vigo",
+        "odds_rows": 0,
+        "advanced_rows": 2,
+        "lineup_rows": 0,
+        "news_rows": 0
+      },
+      {
+        "match_id": 2234,
+        "competition_code": "SA",
+        "utc_date": "2026-03-15T17:00:00Z",
+        "home_team": "Como 1907",
+        "away_team": "AS Roma",
+        "odds_rows": 0,
+        "advanced_rows": 2,
+        "lineup_rows": 0,
+        "news_rows": 0
+      },
+      {
+        "match_id": 1180,
+        "competition_code": "PL",
+        "utc_date": "2026-03-15T16:30:00Z",
+        "home_team": "Liverpool FC",
+        "away_team": "Tottenham Hotspur FC",
+        "odds_rows": 0,
+        "advanced_rows": 2,
+        "lineup_rows": 0,
+        "news_rows": 0
+      },
+      {
+        "match_id": 1873,
+        "competition_code": "BL1",
+        "utc_date": "2026-03-15T16:30:00Z",
+        "home_team": "SC Freiburg",
+        "away_team": "1. FC Union Berlin",
+        "odds_rows": 0,
+        "advanced_rows": 2,
+        "lineup_rows": 0,
+        "news_rows": 0
+      },
+      {
+        "match_id": 1537,
+        "competition_code": "PD",
+        "utc_date": "2026-03-15T15:15:00Z",
+        "home_team": "FC Barcelona",
+        "away_team": "Sevilla FC",
+        "odds_rows": 0,
+        "advanced_rows": 2,
+        "lineup_rows": 0,
+        "news_rows": 0
+      },
+      {
+        "match_id": 1872,
+        "competition_code": "BL1",
+        "utc_date": "2026-03-15T14:30:00Z",
+        "home_team": "SV Werder Bremen",
+        "away_team": "1. FSV Mainz 05",
+        "odds_rows": 0,
+        "advanced_rows": 2,
+        "lineup_rows": 0,
+        "news_rows": 0
+      },
+      {
+        "match_id": 1177,
+        "competition_code": "PL",
+        "utc_date": "2026-03-15T14:00:00Z",
+        "home_team": "Crystal Palace FC",
+        "away_team": "Leeds United FC",
+        "odds_rows": 0,
+        "advanced_rows": 2,
+        "lineup_rows": 0,
+        "news_rows": 0
+      },
+      {
+        "match_id": 1178,
+        "competition_code": "PL",
+        "utc_date": "2026-03-15T14:00:00Z",
+        "home_team": "Manchester United FC",
+        "away_team": "Aston Villa FC",
+        "odds_rows": 0,
+        "advanced_rows": 2,
+        "lineup_rows": 0,
+        "news_rows": 0
+      }
+    ]
+  },
+  "repair": {
+    "applied": false,
+    "repairedBrentfordMatches": 0,
+    "repairedAdvancedRows": 0,
+    "createdBrentfordTeam": true
+  },
+  "postRepair": {
+    "advancedWrongTeamCount": 0,
+    "advancedWrongTeamExamples": [],
+    "domesticCompetitionLeaks": [],
+    "tlaCollisions": [
+      {
+        "tla": "FCB",
+        "count": 3,
+        "teams": "FC Bayern München | FC Barcelona | FC Bayern München"
+      },
+      {
+        "tla": "ATA",
+        "count": 2,
+        "teams": "Atalanta BC | Atalanta"
+      },
+      {
+        "tla": "BRE",
+        "count": 2,
+        "teams": "Stade Brestois 29 | Brentford"
+      },
+      {
+        "tla": "PSG",
+        "count": 2,
+        "teams": "Paris Saint Germain | Paris Saint-Germain FC"
+      },
+      {
+        "tla": "VIL",
+        "count": 2,
+        "teams": "Villarreal CF | Villarreal"
+      }
+    ],
+    "nullOrWrongTeamAssignments": {
+      "sourceLinksWrongTeam": 0,
+      "newsWrongTeam": 0,
+      "injuriesWrongTeam": 0,
+      "lineupsWrongTeam": 0
+    },
+    "mergedSample": [
+      {
+        "match_id": 7668,
+        "competition_code": "EL",
+        "utc_date": "2026-03-19T20:00:00.000Z",
+        "home_team": "AS Roma",
+        "away_team": "Bologna FC 1909",
+        "odds_rows": 725,
+        "advanced_rows": 0,
+        "lineup_rows": 22,
+        "news_rows": 0
+      },
+      {
+        "match_id": 7697,
+        "competition_code": "EL",
+        "utc_date": "2026-03-19T20:00:00.000Z",
+        "home_team": "Real Betis Balompié",
+        "away_team": "Panathinaikos",
+        "odds_rows": 1283,
+        "advanced_rows": 0,
+        "lineup_rows": 22,
+        "news_rows": 0
+      },
+      {
+        "match_id": 7700,
+        "competition_code": "EL",
+        "utc_date": "2026-03-19T20:00:00.000Z",
+        "home_team": "Porto",
+        "away_team": "VfB Stuttgart",
+        "odds_rows": 1242,
+        "advanced_rows": 0,
+        "lineup_rows": 22,
+        "news_rows": 0
+      },
+      {
+        "match_id": 7871,
+        "competition_code": "EL",
+        "utc_date": "2026-03-19T20:00:00.000Z",
+        "home_team": "Aston Villa FC",
+        "away_team": "LOSC Lille",
+        "odds_rows": 812,
+        "advanced_rows": 0,
+        "lineup_rows": 22,
+        "news_rows": 0
+      },
+      {
+        "match_id": 7676,
+        "competition_code": "EL",
+        "utc_date": "2026-03-19T17:45:00.000Z",
+        "home_team": "Olympique Lyonnais",
+        "away_team": "RC Celta de Vigo",
+        "odds_rows": 0,
+        "advanced_rows": 0,
+        "lineup_rows": 22,
+        "news_rows": 0
+      },
+      {
+        "match_id": 7703,
+        "competition_code": "EL",
+        "utc_date": "2026-03-19T17:45:00.000Z",
+        "home_team": "FC Metz",
+        "away_team": "Nottingham Forest FC",
+        "odds_rows": 1256,
+        "advanced_rows": 0,
+        "lineup_rows": 22,
+        "news_rows": 0
+      },
+      {
+        "match_id": 7872,
+        "competition_code": "EL",
+        "utc_date": "2026-03-19T17:45:00.000Z",
+        "home_team": "SC Freiburg",
+        "away_team": "Dinamo Zagreb",
+        "odds_rows": 0,
+        "advanced_rows": 0,
+        "lineup_rows": 22,
+        "news_rows": 0
+      },
+      {
+        "match_id": 7376,
+        "competition_code": "CL",
+        "utc_date": "2026-03-18T20:00:00.000Z",
+        "home_team": "FC Bayern München",
+        "away_team": "Atalanta",
+        "odds_rows": 482,
+        "advanced_rows": 0,
+        "lineup_rows": 22,
+        "news_rows": 0
+      },
+      {
+        "match_id": 7389,
+        "competition_code": "CL",
+        "utc_date": "2026-03-18T20:00:00.000Z",
+        "home_team": "Tottenham Hotspur FC",
+        "away_team": "Atlético Madrid",
+        "odds_rows": 1276,
+        "advanced_rows": 0,
+        "lineup_rows": 22,
+        "news_rows": 0
+      },
+      {
+        "match_id": 7416,
+        "competition_code": "CL",
+        "utc_date": "2026-03-18T20:00:00.000Z",
+        "home_team": "Liverpool FC",
+        "away_team": "Galatasaray",
+        "odds_rows": 1165,
+        "advanced_rows": 0,
+        "lineup_rows": 22,
+        "news_rows": 0
+      },
+      {
+        "match_id": 7415,
+        "competition_code": "CL",
+        "utc_date": "2026-03-18T17:45:00.000Z",
+        "home_team": "FC Barcelona",
+        "away_team": "Newcastle United FC",
+        "odds_rows": 1480,
+        "advanced_rows": 0,
+        "lineup_rows": 22,
+        "news_rows": 0
+      },
+      {
+        "match_id": 7822,
+        "competition_code": "EL",
+        "utc_date": "2026-03-18T15:30:00.000Z",
+        "home_team": "Sporting Braga",
+        "away_team": "Ferencvárosi",
+        "odds_rows": 0,
+        "advanced_rows": 0,
+        "lineup_rows": 22,
+        "news_rows": 0
+      },
+      {
+        "match_id": 7388,
+        "competition_code": "CL",
+        "utc_date": "2026-03-17T20:00:00.000Z",
+        "home_team": "Chelsea FC",
+        "away_team": "Paris Saint Germain",
+        "odds_rows": 1393,
+        "advanced_rows": 0,
+        "lineup_rows": 22,
+        "news_rows": 0
+      },
+      {
+        "match_id": 7417,
+        "competition_code": "CL",
+        "utc_date": "2026-03-17T20:00:00.000Z",
+        "home_team": "Manchester City FC",
+        "away_team": "Real Madrid CF",
+        "odds_rows": 1431,
+        "advanced_rows": 0,
+        "lineup_rows": 22,
+        "news_rows": 0
+      },
+      {
+        "match_id": 7602,
+        "competition_code": "CL",
+        "utc_date": "2026-03-17T20:00:00.000Z",
+        "home_team": "Arsenal FC",
+        "away_team": "Bayer 04 Leverkusen",
+        "odds_rows": 688,
+        "advanced_rows": 0,
+        "lineup_rows": 22,
+        "news_rows": 0
+      },
+      {
+        "match_id": 7387,
+        "competition_code": "CL",
+        "utc_date": "2026-03-17T17:45:00.000Z",
+        "home_team": "Sporting CP",
+        "away_team": "Bodø / Glimt",
+        "odds_rows": 517,
+        "advanced_rows": 0,
+        "lineup_rows": 22,
+        "news_rows": 0
+      },
+      {
+        "match_id": 1181,
+        "competition_code": "PL",
+        "utc_date": "2026-03-16T20:00:00Z",
+        "home_team": "Brentford",
+        "away_team": "Wolverhampton Wanderers FC",
+        "odds_rows": 0,
+        "advanced_rows": 2,
+        "lineup_rows": 0,
+        "news_rows": 0
+      },
+      {
+        "match_id": 1540,
+        "competition_code": "PD",
+        "utc_date": "2026-03-16T20:00:00Z",
+        "home_team": "Rayo Vallecano de Madrid",
+        "away_team": "Levante UD",
+        "odds_rows": 0,
+        "advanced_rows": 2,
+        "lineup_rows": 0,
+        "news_rows": 0
+      },
+      {
+        "match_id": 2236,
+        "competition_code": "SA",
+        "utc_date": "2026-03-16T19:45:00Z",
+        "home_team": "US Cremonese",
+        "away_team": "ACF Fiorentina",
+        "odds_rows": 0,
+        "advanced_rows": 2,
+        "lineup_rows": 0,
+        "news_rows": 0
+      },
+      {
+        "match_id": 1539,
+        "competition_code": "PD",
+        "utc_date": "2026-03-15T20:00:00Z",
+        "home_team": "Real Sociedad de Fútbol",
+        "away_team": "CA Osasuna",
+        "odds_rows": 0,
+        "advanced_rows": 2,
+        "lineup_rows": 0,
+        "news_rows": 0
+      },
+      {
+        "match_id": 2235,
+        "competition_code": "SA",
+        "utc_date": "2026-03-15T19:45:00Z",
+        "home_team": "SS Lazio",
+        "away_team": "AC Milan",
+        "odds_rows": 0,
+        "advanced_rows": 2,
+        "lineup_rows": 0,
+        "news_rows": 0
+      },
+      {
+        "match_id": 1874,
+        "competition_code": "BL1",
+        "utc_date": "2026-03-15T18:30:00Z",
+        "home_team": "VfB Stuttgart",
+        "away_team": "RB Leipzig",
+        "odds_rows": 0,
+        "advanced_rows": 2,
+        "lineup_rows": 0,
+        "news_rows": 0
+      },
+      {
+        "match_id": 1538,
+        "competition_code": "PD",
+        "utc_date": "2026-03-15T17:30:00Z",
+        "home_team": "Real Betis Balompié",
+        "away_team": "RC Celta de Vigo",
+        "odds_rows": 0,
+        "advanced_rows": 2,
+        "lineup_rows": 0,
+        "news_rows": 0
+      },
+      {
+        "match_id": 2234,
+        "competition_code": "SA",
+        "utc_date": "2026-03-15T17:00:00Z",
+        "home_team": "Como 1907",
+        "away_team": "AS Roma",
+        "odds_rows": 0,
+        "advanced_rows": 2,
+        "lineup_rows": 0,
+        "news_rows": 0
+      },
+      {
+        "match_id": 1180,
+        "competition_code": "PL",
+        "utc_date": "2026-03-15T16:30:00Z",
+        "home_team": "Liverpool FC",
+        "away_team": "Tottenham Hotspur FC",
+        "odds_rows": 0,
+        "advanced_rows": 2,
+        "lineup_rows": 0,
+        "news_rows": 0
+      },
+      {
+        "match_id": 1873,
+        "competition_code": "BL1",
+        "utc_date": "2026-03-15T16:30:00Z",
+        "home_team": "SC Freiburg",
+        "away_team": "1. FC Union Berlin",
+        "odds_rows": 0,
+        "advanced_rows": 2,
+        "lineup_rows": 0,
+        "news_rows": 0
+      },
+      {
+        "match_id": 1537,
+        "competition_code": "PD",
+        "utc_date": "2026-03-15T15:15:00Z",
+        "home_team": "FC Barcelona",
+        "away_team": "Sevilla FC",
+        "odds_rows": 0,
+        "advanced_rows": 2,
+        "lineup_rows": 0,
+        "news_rows": 0
+      },
+      {
+        "match_id": 1872,
+        "competition_code": "BL1",
+        "utc_date": "2026-03-15T14:30:00Z",
+        "home_team": "SV Werder Bremen",
+        "away_team": "1. FSV Mainz 05",
+        "odds_rows": 0,
+        "advanced_rows": 2,
+        "lineup_rows": 0,
+        "news_rows": 0
+      },
+      {
+        "match_id": 1177,
+        "competition_code": "PL",
+        "utc_date": "2026-03-15T14:00:00Z",
+        "home_team": "Crystal Palace FC",
+        "away_team": "Leeds United FC",
+        "odds_rows": 0,
+        "advanced_rows": 2,
+        "lineup_rows": 0,
+        "news_rows": 0
+      },
+      {
+        "match_id": 1178,
+        "competition_code": "PL",
+        "utc_date": "2026-03-15T14:00:00Z",
+        "home_team": "Manchester United FC",
+        "away_team": "Aston Villa FC",
+        "odds_rows": 0,
+        "advanced_rows": 2,
+        "lineup_rows": 0,
+        "news_rows": 0
+      }
+    ]
+  },
+  "severitySummary": [
+    {
+      "severity": "high",
+      "title": "TLA collisions make abbreviation-based matching unsafe",
+      "count": 5,
+      "details": "FCB: FC Bayern München | FC Barcelona | FC Bayern München; ATA: Atalanta BC | Atalanta; BRE: Stade Brestois 29 | Brentford; PSG: Paris Saint Germain | Paris Saint-Germain FC; VIL: Villarreal CF | Villarreal"
+    }
+  ],
+  "remainingRisks": [
+    "Historical enrichment previously allowed exact TLA matching, which is unsafe for collisions like BRE and FCB. This audit removed TLA from exact historical team matching.",
+    "Odds rows do not preserve source-side team labels, so odds-side identity validation is limited to event linkage and not raw source labels.",
+    "Provider-specific source IDs are still stored in a single teams.source_team_id column, which limits multi-provider identity provenance."
+  ]
+}

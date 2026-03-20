@@ -1,0 +1,36 @@
+{
+  "name": "ucl-uel-betting-analysis-app",
+  "version": "1.0.0",
+  "description": "Professional football betting analysis app for UEFA Champions League and UEFA Europa League.",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "collect": "node scripts/collect-data.js",
+    "crawl:historical": "node scripts/crawl-historical-data.js",
+    "sync": "node scripts/sync-data.js",
+    "availability:import": "node scripts/import-availability.js",
+    "news:import": "node scripts/import-news.js",
+    "xg:import": "node scripts/import-xg.js",
+    "historical-odds:import": "node scripts/import-historical-odds.js",
+    "lineups:backfill": "node scripts/backfill-lineups.js",
+    "self-review": "node scripts/self-review.js",
+    "train": "node scripts/train-model.js",
+    "train:decision": "node scripts/train-decision-policies.js",
+    "reminders": "node scripts/check-reminders.js",
+    "backtest": "node scripts/backtest.js",
+    "odds:coverage": "node scripts/odds-coverage.js",
+    "quant-review": "node scripts/quant-review.js",
+    "forward-validation": "node scripts/forward-validation.js",
+    "debug:suspicious-picks": "node scripts/debug-suspicious-picks.js",
+    "forensic:unrealistic": "node scripts/forensic-unrealistic-recommendations.js",
+    "audit:team-identity": "node scripts/team-identity-audit.js",
+    "audit:board-quality": "node scripts/audit-board-quality.js",
+    "audit:calibration": "node scripts/audit-calibration.js",
+    "test": "node tests/model.test.js"
+  },
+  "engines": {
+    "node": ">=24.0.0"
+  }
+}

@@ -1,0 +1,492 @@
+{
+  "generatedAt": "2026-03-18T10:39:56.980Z",
+  "requestedSample": 1000,
+  "warnings": [
+    "Historical price archive missing - betting performance cannot be validated.",
+    "Odds snapshots exist only for upcoming scheduled matches, not for finished matches.",
+    "The current odds collector is archiving live/upcoming boards only, so historical match prices were never stored before those matches finished.",
+    "All stored snapshots belong to matches that are still scheduled, which means the archive started too late for historical validation.",
+    "The current historical replay generated zero bets, so ROI and CLV conclusions are not yet available."
+  ],
+  "summary": {
+    "totalModeledMatches": 1000,
+    "totalMarketOpportunities": 3000,
+    "totalBets": 0,
+    "totalWithOdds": 0,
+    "betsPerMarket": {
+      "1X2": 0,
+      "Over / Under 2.5": 0,
+      "BTTS": 0
+    },
+    "oddsCoveragePerMarket": {
+      "1X2": 0,
+      "Over / Under 2.5": 0,
+      "BTTS": 0
+    },
+    "noBetFrequency": 100,
+    "averageEdge": null,
+    "averageRoi": null,
+    "totalRoi": null,
+    "netUnits": null,
+    "averageOdds": null,
+    "averageClv": null,
+    "historicalOddsCoverage": 0,
+    "oddsArchive": {
+      "totalSnapshots": 13750,
+      "totalQuotes": 38526,
+      "upcomingSnapshots": 13750,
+      "finishedSnapshots": 0,
+      "preKickoffSnapshots": 13750,
+      "postKickoffSnapshots": 0,
+      "matchesWithAnySnapshots": 13,
+      "finishedMatchesWithAnySnapshots": 0,
+      "finishedMatchesWithPreKickoffOdds": 0,
+      "finishedMatchesWithOpeningOdds": 0,
+      "finishedMatchesWithClosingOdds": 0,
+      "totalFinishedMatches": 1869,
+      "finishedCoveragePct": 0,
+      "preKickoffCoveragePct": 0,
+      "closingCoveragePct": 0,
+      "warnings": [
+        "Odds snapshots exist only for upcoming scheduled matches, not for finished matches.",
+        "The current odds collector is archiving live/upcoming boards only, so historical match prices were never stored before those matches finished.",
+        "All stored snapshots belong to matches that are still scheduled, which means the archive started too late for historical validation."
+      ]
+    },
+    "leanAccuracy": {
+      "oneXTwo": 49.8,
+      "totals25": 55.7,
+      "btts": 50.4
+    },
+    "logLoss": {
+      "oneXTwo": 1.0295,
+      "totals25": 0.6926,
+      "btts": 0.7001
+    },
+    "dataCoverageAverage": 0.96,
+    "forwardSettledLikeSample": 0,
+    "firstMatchDate": "2025-11-22T12:30:00Z",
+    "lastMatchDate": "2026-03-16T20:00:00Z"
+  },
+  "byMarket": {
+    "1X2": {
+      "bets": 0,
+      "noBetFrequency": 100,
+      "hitRate": null,
+      "averageEdge": null,
+      "averageOdds": null,
+      "averageRoi": null,
+      "totalRoi": null,
+      "netUnits": null,
+      "confidenceDistribution": {},
+      "modeledMatches": 1000,
+      "leanAccuracy": 49.8,
+      "logLoss": 1.0295,
+      "brier": 0.3997,
+      "bookmakerBaselineLogLoss": null,
+      "bookmakerBaselineBrier": null
+    },
+    "Over / Under 2.5": {
+      "bets": 0,
+      "noBetFrequency": 100,
+      "hitRate": null,
+      "averageEdge": null,
+      "averageOdds": null,
+      "averageRoi": null,
+      "totalRoi": null,
+      "netUnits": null,
+      "confidenceDistribution": {},
+      "modeledMatches": 1000,
+      "leanAccuracy": 55.7,
+      "logLoss": 0.6926,
+      "brier": 0.2496,
+      "bookmakerBaselineLogLoss": null,
+      "bookmakerBaselineBrier": null
+    },
+    "BTTS": {
+      "bets": 0,
+      "noBetFrequency": 100,
+      "hitRate": null,
+      "averageEdge": null,
+      "averageOdds": null,
+      "averageRoi": null,
+      "totalRoi": null,
+      "netUnits": null,
+      "confidenceDistribution": {},
+      "modeledMatches": 1000,
+      "leanAccuracy": 50.4,
+      "logLoss": 0.7001,
+      "brier": 0.2532,
+      "bookmakerBaselineLogLoss": null,
+      "bookmakerBaselineBrier": null
+    }
+  },
+  "edgeBucketAnalysis": {
+    "0-2%": {
+      "count": 0,
+      "hitRate": null,
+      "averageOdds": null,
+      "roi": null
+    },
+    "2-4%": {
+      "count": 0,
+      "hitRate": null,
+      "averageOdds": null,
+      "roi": null
+    },
+    "4-6%": {
+      "count": 0,
+      "hitRate": null,
+      "averageOdds": null,
+      "roi": null
+    },
+    "6%+": {
+      "count": 0,
+      "hitRate": null,
+      "averageOdds": null,
+      "roi": null
+    }
+  },
+  "favoriteVsUnderdogAnalysis": {
+    "favorites": {
+      "count": 0,
+      "bets": 0,
+      "noBetFrequency": null,
+      "hitRate": null,
+      "averageEdge": null,
+      "averageOdds": null,
+      "averageRoi": null,
+      "totalRoi": null,
+      "netUnits": null,
+      "confidenceDistribution": {}
+    },
+    "balanced": {
+      "count": 0,
+      "bets": 0,
+      "noBetFrequency": null,
+      "hitRate": null,
+      "averageEdge": null,
+      "averageOdds": null,
+      "averageRoi": null,
+      "totalRoi": null,
+      "netUnits": null,
+      "confidenceDistribution": {}
+    },
+    "underdogs": {
+      "count": 0,
+      "bets": 0,
+      "noBetFrequency": null,
+      "hitRate": null,
+      "averageEdge": null,
+      "averageOdds": null,
+      "averageRoi": null,
+      "totalRoi": null,
+      "netUnits": null,
+      "confidenceDistribution": {}
+    }
+  },
+  "competitionSplit": {
+    "CL": {
+      "matches": 107,
+      "bets": 0,
+      "hitRate": null,
+      "averageEdge": null,
+      "roi": null
+    },
+    "EL": {
+      "matches": 96,
+      "bets": 0,
+      "hitRate": null,
+      "averageEdge": null,
+      "roi": null
+    },
+    "UECL": {
+      "matches": 0,
+      "bets": 0,
+      "hitRate": null,
+      "averageEdge": null,
+      "roi": null
+    }
+  },
+  "dataQualityAnalysis": {
+    "coverage": {
+      "high": {
+        "count": 0,
+        "bets": 0,
+        "noBetFrequency": null,
+        "hitRate": null,
+        "averageEdge": null,
+        "averageOdds": null,
+        "averageRoi": null,
+        "totalRoi": null,
+        "netUnits": null,
+        "confidenceDistribution": {}
+      },
+      "medium": {
+        "count": 0,
+        "bets": 0,
+        "noBetFrequency": null,
+        "hitRate": null,
+        "averageEdge": null,
+        "averageOdds": null,
+        "averageRoi": null,
+        "totalRoi": null,
+        "netUnits": null,
+        "confidenceDistribution": {}
+      },
+      "low": {
+        "count": 0,
+        "bets": 0,
+        "noBetFrequency": null,
+        "hitRate": null,
+        "averageEdge": null,
+        "averageOdds": null,
+        "averageRoi": null,
+        "totalRoi": null,
+        "netUnits": null,
+        "confidenceDistribution": {}
+      }
+    },
+    "lineupUncertainty": {
+      "clear": {
+        "count": 0,
+        "bets": 0,
+        "noBetFrequency": null,
+        "hitRate": null,
+        "averageEdge": null,
+        "averageOdds": null,
+        "averageRoi": null,
+        "totalRoi": null,
+        "netUnits": null,
+        "confidenceDistribution": {}
+      },
+      "mixed": {
+        "count": 0,
+        "bets": 0,
+        "noBetFrequency": null,
+        "hitRate": null,
+        "averageEdge": null,
+        "averageOdds": null,
+        "averageRoi": null,
+        "totalRoi": null,
+        "netUnits": null,
+        "confidenceDistribution": {}
+      },
+      "uncertain": {
+        "count": 0,
+        "bets": 0,
+        "noBetFrequency": null,
+        "hitRate": null,
+        "averageEdge": null,
+        "averageOdds": null,
+        "averageRoi": null,
+        "totalRoi": null,
+        "netUnits": null,
+        "confidenceDistribution": {}
+      }
+    },
+    "missingData": {
+      "strong": {
+        "count": 0,
+        "bets": 0,
+        "noBetFrequency": null,
+        "hitRate": null,
+        "averageEdge": null,
+        "averageOdds": null,
+        "averageRoi": null,
+        "totalRoi": null,
+        "netUnits": null,
+        "confidenceDistribution": {}
+      },
+      "partial": {
+        "count": 0,
+        "bets": 0,
+        "noBetFrequency": null,
+        "hitRate": null,
+        "averageEdge": null,
+        "averageOdds": null,
+        "averageRoi": null,
+        "totalRoi": null,
+        "netUnits": null,
+        "confidenceDistribution": {}
+      },
+      "thin": {
+        "count": 0,
+        "bets": 0,
+        "noBetFrequency": null,
+        "hitRate": null,
+        "averageEdge": null,
+        "averageOdds": null,
+        "averageRoi": null,
+        "totalRoi": null,
+        "netUnits": null,
+        "confidenceDistribution": {}
+      }
+    }
+  },
+  "closingLineAnalysis": {
+    "totalClvBets": 0,
+    "averageClv": null,
+    "beatClosingLineRate": null,
+    "byMarket": {
+      "1X2": {
+        "bets": 0,
+        "averageClv": null,
+        "beatClosingLineRate": null
+      },
+      "Over / Under 2.5": {
+        "bets": 0,
+        "averageClv": null,
+        "beatClosingLineRate": null
+      },
+      "BTTS": {
+        "bets": 0,
+        "averageClv": null,
+        "beatClosingLineRate": null
+      }
+    }
+  },
+  "calibration": {
+    "1X2": {
+      "brier": 0.3997,
+      "bookmakerBaselineBrier": null,
+      "calibrationBuckets": [
+        {
+          "bucket": "30-40%",
+          "count": 137,
+          "expected": 38.1,
+          "actual": 44.5,
+          "gap": 6.4
+        },
+        {
+          "bucket": "40-50%",
+          "count": 417,
+          "expected": 44.9,
+          "actual": 43.9,
+          "gap": -1
+        },
+        {
+          "bucket": "50-60%",
+          "count": 309,
+          "expected": 54.6,
+          "actual": 54.7,
+          "gap": 0.1
+        },
+        {
+          "bucket": "60-70%",
+          "count": 119,
+          "expected": 64.1,
+          "actual": 58.8,
+          "gap": -5.2
+        },
+        {
+          "bucket": "70-80%",
+          "count": 18,
+          "expected": 72.9,
+          "actual": 83.3,
+          "gap": 10.5
+        }
+      ],
+      "overconfidenceGap": 0.0003
+    },
+    "Over / Under 2.5": {
+      "brier": 0.2496,
+      "bookmakerBaselineBrier": null,
+      "calibrationBuckets": [
+        {
+          "bucket": "50-60%",
+          "count": 928,
+          "expected": 54,
+          "actual": 56.4,
+          "gap": 2.3
+        },
+        {
+          "bucket": "60-70%",
+          "count": 72,
+          "expected": 62,
+          "actual": 47.2,
+          "gap": -14.8
+        }
+      ],
+      "overconfidenceGap": 0.0111
+    },
+    "BTTS": {
+      "brier": 0.2532,
+      "bookmakerBaselineBrier": null,
+      "calibrationBuckets": [
+        {
+          "bucket": "50-60%",
+          "count": 960,
+          "expected": 53.8,
+          "actual": 49.9,
+          "gap": -3.9
+        },
+        {
+          "bucket": "60-70%",
+          "count": 40,
+          "expected": 62.1,
+          "actual": 62.5,
+          "gap": 0.4
+        }
+      ],
+      "overconfidenceGap": -0.0371
+    }
+  },
+  "bookmakerBaselineComparison": {
+    "1X2": {
+      "comparableMatches": 0,
+      "logLossDelta": null,
+      "brierDelta": null,
+      "modelBetterLogLoss": null,
+      "modelBetterBrier": null
+    },
+    "Over / Under 2.5": {
+      "comparableMatches": 0,
+      "logLossDelta": null,
+      "brierDelta": null,
+      "modelBetterLogLoss": null,
+      "modelBetterBrier": null
+    },
+    "BTTS": {
+      "comparableMatches": 0,
+      "logLossDelta": null,
+      "brierDelta": null,
+      "modelBetterLogLoss": null,
+      "modelBetterBrier": null
+    }
+  },
+  "finalDiagnosis": {
+    "biggestStrengths": [
+      "The model does not show a strong repeatable strength across all three markets."
+    ],
+    "biggestWeaknesses": [
+      "Historical odds coverage is only 0%, so the betting layer is being judged on a starved price archive.",
+      "1X2 is weak or negative, with n/a% ROI over 0 bets.",
+      "BTTS is weak or negative, with n/a% ROI over 0 bets.",
+      "The system passes too often for a practical betting workflow, with a 100% no-bet rate.",
+      "CLV is not convincingly positive, so the edge is not clearly beating the market before kickoff.",
+      "Even this larger replay still leans on historical simulation rather than a large forward tracked sample."
+    ],
+    "showsRealSignal": false,
+    "beatsNaiveBookmakerBaseline": {
+      "oneXTwo": null,
+      "totals25": null,
+      "btts": null
+    },
+    "shouldTrustForRealBetting": false,
+    "highlights": [
+      "This review used 1000 historical matches and 3000 market opportunities.",
+      "The model barely bet at all, which means the betting layer is still too thin to validate seriously.",
+      "No market stood out positively.",
+      "No market had enough bets to rank.",
+      "The current model reads more like noise plus bookmaker anchoring than a robust betting edge."
+    ],
+    "topImprovements": [
+      "Archive much deeper historical odds so the betting layer is not judged on thin price coverage.",
+      "Import real xG data into team_match_advanced_stats so the new xG hooks stop running on neutral fallbacks.",
+      "Improve lineup quality near kickoff and keep penalizing uncertain lineups hard.",
+      "Retune the 1X2 decision policy separately from totals and BTTS, because those markets behave differently.",
+      "Build a larger forward tracked sample and grade it; historical replay alone is not enough proof."
+    ]
+  }
+}

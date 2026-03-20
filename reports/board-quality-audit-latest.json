@@ -1,0 +1,2025 @@
+{
+  "generatedAt": "2026-03-19T11:01:39.074Z",
+  "inventory": {
+    "persistedBoards": 0,
+    "totalOddsSnapshots": 13750,
+    "recentOddsSnapshots": 0,
+    "latestQuotaCompetitions": [
+      "CL",
+      "EL"
+    ]
+  },
+  "summary": {
+    "sampledBoards": 42,
+    "byTier": [
+      {
+        "tier": "strong",
+        "boards": 0
+      },
+      {
+        "tier": "usable",
+        "boards": 0
+      },
+      {
+        "tier": "weak",
+        "boards": 0
+      },
+      {
+        "tier": "unusable",
+        "boards": 42
+      }
+    ],
+    "staleBoards": 10,
+    "quotaDegradedBoards": 21,
+    "missingDepthBoards": 32,
+    "falseNegatives": 0
+  },
+  "boards": [
+    {
+      "match": {
+        "id": 7676,
+        "competitionCode": "EL",
+        "kickoffTime": "2026-03-19T17:45:00.000Z",
+        "status": "SCHEDULED",
+        "homeTeam": "Olympique Lyonnais",
+        "awayTeam": "RC Celta de Vigo"
+      },
+      "market": {
+        "key": "h2h",
+        "label": "1X2"
+      },
+      "provider": "unknown",
+      "sourceTimestamps": [],
+      "boardRecordedAt": null,
+      "bookmakerTitles": [],
+      "boardQuality": {
+        "tier": "unusable",
+        "score": 0,
+        "bookmakerCount": 0,
+        "freshnessMinutes": null,
+        "completenessScore": 0,
+        "impliedConsistencyScore": 0,
+        "sourceReliabilityScore": 0,
+        "refreshedRecently": false,
+        "acceptableFreshnessMinutes": 30,
+        "coverageStatus": "missing"
+      },
+      "blockReasons": [
+        "missing-board",
+        "missing-bookmaker-depth",
+        "unusable-board",
+        "quota-degraded"
+      ],
+      "syncError": "Request failed with 401: {\"message\":\"Usage quota has been reached. See usage plans at https://the-odds-api.com\",\"error_code\":\"OUT_OF_USAGE_CREDITS\",\"details_url\":\"https://the-odds-api.com/liveapi/guides/v4/api-error-codes.html#out-of-usage-credits\"}\n",
+      "falseNegative": false
+    },
+    {
+      "match": {
+        "id": 7676,
+        "competitionCode": "EL",
+        "kickoffTime": "2026-03-19T17:45:00.000Z",
+        "status": "SCHEDULED",
+        "homeTeam": "Olympique Lyonnais",
+        "awayTeam": "RC Celta de Vigo"
+      },
+      "market": {
+        "key": "totals_2_5",
+        "label": "Over / Under 2.5"
+      },
+      "provider": "unknown",
+      "sourceTimestamps": [],
+      "boardRecordedAt": null,
+      "bookmakerTitles": [],
+      "boardQuality": {
+        "tier": "unusable",
+        "score": 0,
+        "bookmakerCount": 0,
+        "freshnessMinutes": null,
+        "completenessScore": 0,
+        "impliedConsistencyScore": 0,
+        "sourceReliabilityScore": 0,
+        "refreshedRecently": false,
+        "acceptableFreshnessMinutes": 30,
+        "coverageStatus": "missing"
+      },
+      "blockReasons": [
+        "missing-board",
+        "missing-bookmaker-depth",
+        "unusable-board",
+        "quota-degraded"
+      ],
+      "syncError": "Request failed with 401: {\"message\":\"Usage quota has been reached. See usage plans at https://the-odds-api.com\",\"error_code\":\"OUT_OF_USAGE_CREDITS\",\"details_url\":\"https://the-odds-api.com/liveapi/guides/v4/api-error-codes.html#out-of-usage-credits\"}\n",
+      "falseNegative": false
+    },
+    {
+      "match": {
+        "id": 7676,
+        "competitionCode": "EL",
+        "kickoffTime": "2026-03-19T17:45:00.000Z",
+        "status": "SCHEDULED",
+        "homeTeam": "Olympique Lyonnais",
+        "awayTeam": "RC Celta de Vigo"
+      },
+      "market": {
+        "key": "btts",
+        "label": "BTTS"
+      },
+      "provider": "unknown",
+      "sourceTimestamps": [],
+      "boardRecordedAt": null,
+      "bookmakerTitles": [],
+      "boardQuality": {
+        "tier": "unusable",
+        "score": 0,
+        "bookmakerCount": 0,
+        "freshnessMinutes": null,
+        "completenessScore": 0,
+        "impliedConsistencyScore": 0,
+        "sourceReliabilityScore": 0,
+        "refreshedRecently": false,
+        "acceptableFreshnessMinutes": 30,
+        "coverageStatus": "missing"
+      },
+      "blockReasons": [
+        "missing-board",
+        "missing-bookmaker-depth",
+        "unusable-board",
+        "quota-degraded"
+      ],
+      "syncError": "Request failed with 401: {\"message\":\"Usage quota has been reached. See usage plans at https://the-odds-api.com\",\"error_code\":\"OUT_OF_USAGE_CREDITS\",\"details_url\":\"https://the-odds-api.com/liveapi/guides/v4/api-error-codes.html#out-of-usage-credits\"}\n",
+      "falseNegative": false
+    },
+    {
+      "match": {
+        "id": 7703,
+        "competitionCode": "EL",
+        "kickoffTime": "2026-03-19T17:45:00.000Z",
+        "status": "SCHEDULED",
+        "homeTeam": "FC Metz",
+        "awayTeam": "Nottingham Forest FC"
+      },
+      "market": {
+        "key": "h2h",
+        "label": "1X2"
+      },
+      "provider": "unknown",
+      "sourceTimestamps": [
+        "2026-03-17T13:16:04Z",
+        "2026-03-17T13:16:03Z",
+        "2026-03-17T13:16:02Z",
+        "2026-03-17T13:16:02Z",
+        "2026-03-17T13:16:02Z",
+        "2026-03-17T13:16:02Z",
+        "2026-03-17T13:15:55Z",
+        "2026-03-17T13:15:53Z",
+        "2026-03-17T13:15:47Z",
+        "2026-03-17T13:15:46Z",
+        "2026-03-17T13:15:39Z",
+        "2026-03-17T13:15:39Z",
+        "2026-03-17T13:15:32Z",
+        "2026-03-17T13:15:31Z",
+        "2026-03-17T13:10:53Z",
+        "2026-03-17T13:10:21Z",
+        "2026-03-17T13:05:51Z",
+        "2026-03-13T14:54:33Z",
+        "2026-03-13T14:54:31Z",
+        "2026-03-13T14:54:29Z",
+        "2026-03-13T14:54:23Z",
+        "2026-03-13T14:54:23Z",
+        "2026-03-13T14:54:14Z",
+        "2026-03-13T14:54:07Z",
+        "2026-03-13T14:54:02Z",
+        "2026-03-13T14:54:00Z",
+        "2026-03-13T14:53:59Z",
+        "2026-03-13T14:53:48Z",
+        "2026-03-13T14:53:46Z",
+        "2026-03-13T14:53:45Z",
+        "2026-03-13T14:53:44Z",
+        "2026-03-13T14:53:37Z",
+        "2026-03-13T14:53:37Z",
+        "2026-03-13T14:51:24Z",
+        "2026-03-13T14:51:15Z"
+      ],
+      "boardRecordedAt": "2026-03-17T13:16:04Z",
+      "bookmakerTitles": [
+        "Betsson",
+        "Smarkets",
+        "BetOnline.ag",
+        "Betfair",
+        "Nordic Bet",
+        "Matchbook",
+        "Betfair",
+        "LeoVegas (SE)",
+        "Unibet (NL)",
+        "1xBet",
+        "Pinnacle",
+        "Unibet (SE)",
+        "Codere (IT)",
+        "William Hill",
+        "Coolbet",
+        "Casumo",
+        "Grosvenor",
+        "Winamax (FR)",
+        "PMU (FR)",
+        "Sky Bet",
+        "Everygame",
+        "Marathon Bet",
+        "LiveScore Bet",
+        "Virgin Bet",
+        "Parions Sport (FR)",
+        "Bet Victor",
+        "888sport",
+        "Betway",
+        "BoyleSports",
+        "Paddy Power",
+        "Coral",
+        "Winamax (DE)",
+        "Ladbrokes",
+        "Betclic (FR)",
+        "Suprabets"
+      ],
+      "boardQuality": {
+        "tier": "unusable",
+        "score": 0.39,
+        "bookmakerCount": 35,
+        "freshnessMinutes": 5658.3,
+        "completenessScore": 1,
+        "impliedConsistencyScore": 0.95,
+        "sourceReliabilityScore": 0,
+        "refreshedRecently": false,
+        "acceptableFreshnessMinutes": 30,
+        "coverageStatus": "complete"
+      },
+      "blockReasons": [
+        "stale-odds",
+        "unusable-board",
+        "quota-degraded"
+      ],
+      "syncError": "Request failed with 401: {\"message\":\"Usage quota has been reached. See usage plans at https://the-odds-api.com\",\"error_code\":\"OUT_OF_USAGE_CREDITS\",\"details_url\":\"https://the-odds-api.com/liveapi/guides/v4/api-error-codes.html#out-of-usage-credits\"}\n",
+      "falseNegative": false
+    },
+    {
+      "match": {
+        "id": 7703,
+        "competitionCode": "EL",
+        "kickoffTime": "2026-03-19T17:45:00.000Z",
+        "status": "SCHEDULED",
+        "homeTeam": "FC Metz",
+        "awayTeam": "Nottingham Forest FC"
+      },
+      "market": {
+        "key": "totals_2_5",
+        "label": "Over / Under 2.5"
+      },
+      "provider": "unknown",
+      "sourceTimestamps": [
+        "2026-03-17T13:16:04Z",
+        "2026-03-17T13:16:02Z",
+        "2026-03-17T13:15:53Z",
+        "2026-03-17T13:15:47Z",
+        "2026-03-17T13:15:46Z",
+        "2026-03-17T13:15:39Z",
+        "2026-03-17T13:15:39Z",
+        "2026-03-17T13:15:32Z",
+        "2026-03-17T13:15:31Z",
+        "2026-03-17T13:10:53Z",
+        "2026-03-17T13:10:21Z",
+        "2026-03-17T13:05:51Z",
+        "2026-03-16T18:56:17Z"
+      ],
+      "boardRecordedAt": "2026-03-17T13:16:04Z",
+      "bookmakerTitles": [
+        "Betsson",
+        "Nordic Bet",
+        "LeoVegas (SE)",
+        "Unibet (NL)",
+        "1xBet",
+        "Pinnacle",
+        "Unibet (SE)",
+        "Codere (IT)",
+        "William Hill",
+        "Coolbet",
+        "Casumo",
+        "Grosvenor",
+        "BetOnline.ag"
+      ],
+      "boardQuality": {
+        "tier": "unusable",
+        "score": 0.39,
+        "bookmakerCount": 13,
+        "freshnessMinutes": 2832,
+        "completenessScore": 1,
+        "impliedConsistencyScore": 0.94,
+        "sourceReliabilityScore": 0,
+        "refreshedRecently": false,
+        "acceptableFreshnessMinutes": 30,
+        "coverageStatus": "complete"
+      },
+      "blockReasons": [
+        "stale-odds",
+        "unusable-board",
+        "quota-degraded"
+      ],
+      "syncError": "Request failed with 401: {\"message\":\"Usage quota has been reached. See usage plans at https://the-odds-api.com\",\"error_code\":\"OUT_OF_USAGE_CREDITS\",\"details_url\":\"https://the-odds-api.com/liveapi/guides/v4/api-error-codes.html#out-of-usage-credits\"}\n",
+      "falseNegative": false
+    },
+    {
+      "match": {
+        "id": 7703,
+        "competitionCode": "EL",
+        "kickoffTime": "2026-03-19T17:45:00.000Z",
+        "status": "SCHEDULED",
+        "homeTeam": "FC Metz",
+        "awayTeam": "Nottingham Forest FC"
+      },
+      "market": {
+        "key": "btts",
+        "label": "BTTS"
+      },
+      "provider": "unknown",
+      "sourceTimestamps": [],
+      "boardRecordedAt": null,
+      "bookmakerTitles": [],
+      "boardQuality": {
+        "tier": "unusable",
+        "score": 0,
+        "bookmakerCount": 0,
+        "freshnessMinutes": null,
+        "completenessScore": 0,
+        "impliedConsistencyScore": 0,
+        "sourceReliabilityScore": 0,
+        "refreshedRecently": false,
+        "acceptableFreshnessMinutes": 30,
+        "coverageStatus": "missing"
+      },
+      "blockReasons": [
+        "missing-board",
+        "missing-bookmaker-depth",
+        "unusable-board",
+        "quota-degraded"
+      ],
+      "syncError": "Request failed with 401: {\"message\":\"Usage quota has been reached. See usage plans at https://the-odds-api.com\",\"error_code\":\"OUT_OF_USAGE_CREDITS\",\"details_url\":\"https://the-odds-api.com/liveapi/guides/v4/api-error-codes.html#out-of-usage-credits\"}\n",
+      "falseNegative": false
+    },
+    {
+      "match": {
+        "id": 7872,
+        "competitionCode": "EL",
+        "kickoffTime": "2026-03-19T17:45:00.000Z",
+        "status": "SCHEDULED",
+        "homeTeam": "SC Freiburg",
+        "awayTeam": "Dinamo Zagreb"
+      },
+      "market": {
+        "key": "h2h",
+        "label": "1X2"
+      },
+      "provider": "unknown",
+      "sourceTimestamps": [],
+      "boardRecordedAt": null,
+      "bookmakerTitles": [],
+      "boardQuality": {
+        "tier": "unusable",
+        "score": 0,
+        "bookmakerCount": 0,
+        "freshnessMinutes": null,
+        "completenessScore": 0,
+        "impliedConsistencyScore": 0,
+        "sourceReliabilityScore": 0,
+        "refreshedRecently": false,
+        "acceptableFreshnessMinutes": 30,
+        "coverageStatus": "missing"
+      },
+      "blockReasons": [
+        "missing-board",
+        "missing-bookmaker-depth",
+        "unusable-board",
+        "quota-degraded"
+      ],
+      "syncError": "Request failed with 401: {\"message\":\"Usage quota has been reached. See usage plans at https://the-odds-api.com\",\"error_code\":\"OUT_OF_USAGE_CREDITS\",\"details_url\":\"https://the-odds-api.com/liveapi/guides/v4/api-error-codes.html#out-of-usage-credits\"}\n",
+      "falseNegative": false
+    },
+    {
+      "match": {
+        "id": 7872,
+        "competitionCode": "EL",
+        "kickoffTime": "2026-03-19T17:45:00.000Z",
+        "status": "SCHEDULED",
+        "homeTeam": "SC Freiburg",
+        "awayTeam": "Dinamo Zagreb"
+      },
+      "market": {
+        "key": "totals_2_5",
+        "label": "Over / Under 2.5"
+      },
+      "provider": "unknown",
+      "sourceTimestamps": [],
+      "boardRecordedAt": null,
+      "bookmakerTitles": [],
+      "boardQuality": {
+        "tier": "unusable",
+        "score": 0,
+        "bookmakerCount": 0,
+        "freshnessMinutes": null,
+        "completenessScore": 0,
+        "impliedConsistencyScore": 0,
+        "sourceReliabilityScore": 0,
+        "refreshedRecently": false,
+        "acceptableFreshnessMinutes": 30,
+        "coverageStatus": "missing"
+      },
+      "blockReasons": [
+        "missing-board",
+        "missing-bookmaker-depth",
+        "unusable-board",
+        "quota-degraded"
+      ],
+      "syncError": "Request failed with 401: {\"message\":\"Usage quota has been reached. See usage plans at https://the-odds-api.com\",\"error_code\":\"OUT_OF_USAGE_CREDITS\",\"details_url\":\"https://the-odds-api.com/liveapi/guides/v4/api-error-codes.html#out-of-usage-credits\"}\n",
+      "falseNegative": false
+    },
+    {
+      "match": {
+        "id": 7872,
+        "competitionCode": "EL",
+        "kickoffTime": "2026-03-19T17:45:00.000Z",
+        "status": "SCHEDULED",
+        "homeTeam": "SC Freiburg",
+        "awayTeam": "Dinamo Zagreb"
+      },
+      "market": {
+        "key": "btts",
+        "label": "BTTS"
+      },
+      "provider": "unknown",
+      "sourceTimestamps": [],
+      "boardRecordedAt": null,
+      "bookmakerTitles": [],
+      "boardQuality": {
+        "tier": "unusable",
+        "score": 0,
+        "bookmakerCount": 0,
+        "freshnessMinutes": null,
+        "completenessScore": 0,
+        "impliedConsistencyScore": 0,
+        "sourceReliabilityScore": 0,
+        "refreshedRecently": false,
+        "acceptableFreshnessMinutes": 30,
+        "coverageStatus": "missing"
+      },
+      "blockReasons": [
+        "missing-board",
+        "missing-bookmaker-depth",
+        "unusable-board",
+        "quota-degraded"
+      ],
+      "syncError": "Request failed with 401: {\"message\":\"Usage quota has been reached. See usage plans at https://the-odds-api.com\",\"error_code\":\"OUT_OF_USAGE_CREDITS\",\"details_url\":\"https://the-odds-api.com/liveapi/guides/v4/api-error-codes.html#out-of-usage-credits\"}\n",
+      "falseNegative": false
+    },
+    {
+      "match": {
+        "id": 7668,
+        "competitionCode": "EL",
+        "kickoffTime": "2026-03-19T20:00:00.000Z",
+        "status": "SCHEDULED",
+        "homeTeam": "AS Roma",
+        "awayTeam": "Bologna FC 1909"
+      },
+      "market": {
+        "key": "h2h",
+        "label": "1X2"
+      },
+      "provider": "unknown",
+      "sourceTimestamps": [
+        "2026-03-17T13:16:04Z",
+        "2026-03-17T13:16:03Z",
+        "2026-03-17T13:16:02Z",
+        "2026-03-17T13:16:02Z",
+        "2026-03-17T13:16:02Z",
+        "2026-03-17T13:16:02Z",
+        "2026-03-17T13:15:55Z",
+        "2026-03-17T13:15:53Z",
+        "2026-03-17T13:15:47Z",
+        "2026-03-17T13:15:46Z",
+        "2026-03-17T13:15:39Z",
+        "2026-03-17T13:15:39Z",
+        "2026-03-17T13:15:32Z",
+        "2026-03-17T13:15:31Z",
+        "2026-03-17T13:10:53Z",
+        "2026-03-17T13:10:21Z",
+        "2026-03-17T13:05:51Z"
+      ],
+      "boardRecordedAt": "2026-03-17T13:16:04Z",
+      "bookmakerTitles": [
+        "Betsson",
+        "Smarkets",
+        "BetOnline.ag",
+        "Betfair",
+        "Nordic Bet",
+        "Matchbook",
+        "Betfair",
+        "LeoVegas (SE)",
+        "Unibet (NL)",
+        "1xBet",
+        "Pinnacle",
+        "Unibet (SE)",
+        "Codere (IT)",
+        "William Hill",
+        "Coolbet",
+        "Casumo",
+        "Grosvenor"
+      ],
+      "boardQuality": {
+        "tier": "unusable",
+        "score": 0.4,
+        "bookmakerCount": 17,
+        "freshnessMinutes": 2747,
+        "completenessScore": 1,
+        "impliedConsistencyScore": 0.97,
+        "sourceReliabilityScore": 0,
+        "refreshedRecently": false,
+        "acceptableFreshnessMinutes": 30,
+        "coverageStatus": "complete"
+      },
+      "blockReasons": [
+        "stale-odds",
+        "unusable-board",
+        "quota-degraded"
+      ],
+      "syncError": "Request failed with 401: {\"message\":\"Usage quota has been reached. See usage plans at https://the-odds-api.com\",\"error_code\":\"OUT_OF_USAGE_CREDITS\",\"details_url\":\"https://the-odds-api.com/liveapi/guides/v4/api-error-codes.html#out-of-usage-credits\"}\n",
+      "falseNegative": false
+    },
+    {
+      "match": {
+        "id": 7668,
+        "competitionCode": "EL",
+        "kickoffTime": "2026-03-19T20:00:00.000Z",
+        "status": "SCHEDULED",
+        "homeTeam": "AS Roma",
+        "awayTeam": "Bologna FC 1909"
+      },
+      "market": {
+        "key": "totals_2_5",
+        "label": "Over / Under 2.5"
+      },
+      "provider": "unknown",
+      "sourceTimestamps": [
+        "2026-03-17T13:16:04Z",
+        "2026-03-17T13:16:02Z",
+        "2026-03-17T13:15:53Z",
+        "2026-03-17T13:15:47Z",
+        "2026-03-17T13:15:46Z",
+        "2026-03-17T13:15:39Z",
+        "2026-03-17T13:15:32Z",
+        "2026-03-17T13:15:31Z",
+        "2026-03-17T13:10:53Z",
+        "2026-03-17T13:10:21Z",
+        "2026-03-17T13:05:51Z"
+      ],
+      "boardRecordedAt": "2026-03-17T13:16:04Z",
+      "bookmakerTitles": [
+        "Betsson",
+        "Nordic Bet",
+        "LeoVegas (SE)",
+        "Unibet (NL)",
+        "1xBet",
+        "Unibet (SE)",
+        "Codere (IT)",
+        "William Hill",
+        "Coolbet",
+        "Casumo",
+        "Grosvenor"
+      ],
+      "boardQuality": {
+        "tier": "unusable",
+        "score": 0.39,
+        "bookmakerCount": 11,
+        "freshnessMinutes": 2747.7,
+        "completenessScore": 1,
+        "impliedConsistencyScore": 0.93,
+        "sourceReliabilityScore": 0,
+        "refreshedRecently": false,
+        "acceptableFreshnessMinutes": 30,
+        "coverageStatus": "complete"
+      },
+      "blockReasons": [
+        "stale-odds",
+        "unusable-board",
+        "quota-degraded"
+      ],
+      "syncError": "Request failed with 401: {\"message\":\"Usage quota has been reached. See usage plans at https://the-odds-api.com\",\"error_code\":\"OUT_OF_USAGE_CREDITS\",\"details_url\":\"https://the-odds-api.com/liveapi/guides/v4/api-error-codes.html#out-of-usage-credits\"}\n",
+      "falseNegative": false
+    },
+    {
+      "match": {
+        "id": 7668,
+        "competitionCode": "EL",
+        "kickoffTime": "2026-03-19T20:00:00.000Z",
+        "status": "SCHEDULED",
+        "homeTeam": "AS Roma",
+        "awayTeam": "Bologna FC 1909"
+      },
+      "market": {
+        "key": "btts",
+        "label": "BTTS"
+      },
+      "provider": "unknown",
+      "sourceTimestamps": [],
+      "boardRecordedAt": null,
+      "bookmakerTitles": [],
+      "boardQuality": {
+        "tier": "unusable",
+        "score": 0,
+        "bookmakerCount": 0,
+        "freshnessMinutes": null,
+        "completenessScore": 0,
+        "impliedConsistencyScore": 0,
+        "sourceReliabilityScore": 0,
+        "refreshedRecently": false,
+        "acceptableFreshnessMinutes": 30,
+        "coverageStatus": "missing"
+      },
+      "blockReasons": [
+        "missing-board",
+        "missing-bookmaker-depth",
+        "unusable-board",
+        "quota-degraded"
+      ],
+      "syncError": "Request failed with 401: {\"message\":\"Usage quota has been reached. See usage plans at https://the-odds-api.com\",\"error_code\":\"OUT_OF_USAGE_CREDITS\",\"details_url\":\"https://the-odds-api.com/liveapi/guides/v4/api-error-codes.html#out-of-usage-credits\"}\n",
+      "falseNegative": false
+    },
+    {
+      "match": {
+        "id": 7697,
+        "competitionCode": "EL",
+        "kickoffTime": "2026-03-19T20:00:00.000Z",
+        "status": "SCHEDULED",
+        "homeTeam": "Real Betis Balompié",
+        "awayTeam": "Panathinaikos"
+      },
+      "market": {
+        "key": "h2h",
+        "label": "1X2"
+      },
+      "provider": "unknown",
+      "sourceTimestamps": [
+        "2026-03-17T13:16:04Z",
+        "2026-03-17T13:16:03Z",
+        "2026-03-17T13:16:02Z",
+        "2026-03-17T13:16:02Z",
+        "2026-03-17T13:16:02Z",
+        "2026-03-17T13:16:02Z",
+        "2026-03-17T13:15:55Z",
+        "2026-03-17T13:15:53Z",
+        "2026-03-17T13:15:47Z",
+        "2026-03-17T13:15:46Z",
+        "2026-03-17T13:15:39Z",
+        "2026-03-17T13:15:39Z",
+        "2026-03-17T13:15:32Z",
+        "2026-03-17T13:15:31Z",
+        "2026-03-17T13:10:53Z",
+        "2026-03-17T13:10:21Z",
+        "2026-03-17T13:05:51Z",
+        "2026-03-13T14:54:33Z",
+        "2026-03-13T14:54:31Z",
+        "2026-03-13T14:54:29Z",
+        "2026-03-13T14:54:23Z",
+        "2026-03-13T14:54:23Z",
+        "2026-03-13T14:54:14Z",
+        "2026-03-13T14:54:07Z",
+        "2026-03-13T14:54:02Z",
+        "2026-03-13T14:54:00Z",
+        "2026-03-13T14:53:59Z",
+        "2026-03-13T14:53:48Z",
+        "2026-03-13T14:53:46Z",
+        "2026-03-13T14:53:45Z",
+        "2026-03-13T14:53:44Z",
+        "2026-03-13T14:53:37Z",
+        "2026-03-13T14:51:24Z",
+        "2026-03-13T14:51:15Z"
+      ],
+      "boardRecordedAt": "2026-03-17T13:16:04Z",
+      "bookmakerTitles": [
+        "Betsson",
+        "Smarkets",
+        "BetOnline.ag",
+        "Betfair",
+        "Nordic Bet",
+        "Matchbook",
+        "Betfair",
+        "LeoVegas (SE)",
+        "Unibet (NL)",
+        "1xBet",
+        "Pinnacle",
+        "Unibet (SE)",
+        "Codere (IT)",
+        "William Hill",
+        "Coolbet",
+        "Casumo",
+        "Grosvenor",
+        "Winamax (FR)",
+        "PMU (FR)",
+        "Sky Bet",
+        "Everygame",
+        "Marathon Bet",
+        "LiveScore Bet",
+        "Virgin Bet",
+        "Parions Sport (FR)",
+        "Bet Victor",
+        "888sport",
+        "Betway",
+        "BoyleSports",
+        "Paddy Power",
+        "Coral",
+        "Ladbrokes",
+        "Betclic (FR)",
+        "Suprabets"
+      ],
+      "boardQuality": {
+        "tier": "unusable",
+        "score": 0.39,
+        "bookmakerCount": 34,
+        "freshnessMinutes": 5577.4,
+        "completenessScore": 1,
+        "impliedConsistencyScore": 0.92,
+        "sourceReliabilityScore": 0,
+        "refreshedRecently": false,
+        "acceptableFreshnessMinutes": 30,
+        "coverageStatus": "complete"
+      },
+      "blockReasons": [
+        "stale-odds",
+        "unusable-board",
+        "quota-degraded"
+      ],
+      "syncError": "Request failed with 401: {\"message\":\"Usage quota has been reached. See usage plans at https://the-odds-api.com\",\"error_code\":\"OUT_OF_USAGE_CREDITS\",\"details_url\":\"https://the-odds-api.com/liveapi/guides/v4/api-error-codes.html#out-of-usage-credits\"}\n",
+      "falseNegative": false
+    },
+    {
+      "match": {
+        "id": 7697,
+        "competitionCode": "EL",
+        "kickoffTime": "2026-03-19T20:00:00.000Z",
+        "status": "SCHEDULED",
+        "homeTeam": "Real Betis Balompié",
+        "awayTeam": "Panathinaikos"
+      },
+      "market": {
+        "key": "totals_2_5",
+        "label": "Over / Under 2.5"
+      },
+      "provider": "unknown",
+      "sourceTimestamps": [
+        "2026-03-17T13:16:04Z",
+        "2026-03-17T13:16:02Z",
+        "2026-03-17T13:16:02Z",
+        "2026-03-17T13:15:53Z",
+        "2026-03-17T13:15:47Z",
+        "2026-03-17T13:15:46Z",
+        "2026-03-17T13:15:39Z",
+        "2026-03-17T13:15:39Z",
+        "2026-03-17T13:15:32Z",
+        "2026-03-17T13:15:31Z",
+        "2026-03-17T13:10:53Z",
+        "2026-03-17T13:10:21Z",
+        "2026-03-17T13:05:51Z"
+      ],
+      "boardRecordedAt": "2026-03-17T13:16:04Z",
+      "bookmakerTitles": [
+        "Betsson",
+        "BetOnline.ag",
+        "Nordic Bet",
+        "LeoVegas (SE)",
+        "Unibet (NL)",
+        "1xBet",
+        "Pinnacle",
+        "Unibet (SE)",
+        "Codere (IT)",
+        "William Hill",
+        "Coolbet",
+        "Casumo",
+        "Grosvenor"
+      ],
+      "boardQuality": {
+        "tier": "unusable",
+        "score": 0.38,
+        "bookmakerCount": 13,
+        "freshnessMinutes": 2747.4,
+        "completenessScore": 1,
+        "impliedConsistencyScore": 0.9,
+        "sourceReliabilityScore": 0,
+        "refreshedRecently": false,
+        "acceptableFreshnessMinutes": 30,
+        "coverageStatus": "complete"
+      },
+      "blockReasons": [
+        "stale-odds",
+        "unusable-board",
+        "quota-degraded"
+      ],
+      "syncError": "Request failed with 401: {\"message\":\"Usage quota has been reached. See usage plans at https://the-odds-api.com\",\"error_code\":\"OUT_OF_USAGE_CREDITS\",\"details_url\":\"https://the-odds-api.com/liveapi/guides/v4/api-error-codes.html#out-of-usage-credits\"}\n",
+      "falseNegative": false
+    },
+    {
+      "match": {
+        "id": 7697,
+        "competitionCode": "EL",
+        "kickoffTime": "2026-03-19T20:00:00.000Z",
+        "status": "SCHEDULED",
+        "homeTeam": "Real Betis Balompié",
+        "awayTeam": "Panathinaikos"
+      },
+      "market": {
+        "key": "btts",
+        "label": "BTTS"
+      },
+      "provider": "unknown",
+      "sourceTimestamps": [],
+      "boardRecordedAt": null,
+      "bookmakerTitles": [],
+      "boardQuality": {
+        "tier": "unusable",
+        "score": 0,
+        "bookmakerCount": 0,
+        "freshnessMinutes": null,
+        "completenessScore": 0,
+        "impliedConsistencyScore": 0,
+        "sourceReliabilityScore": 0,
+        "refreshedRecently": false,
+        "acceptableFreshnessMinutes": 30,
+        "coverageStatus": "missing"
+      },
+      "blockReasons": [
+        "missing-board",
+        "missing-bookmaker-depth",
+        "unusable-board",
+        "quota-degraded"
+      ],
+      "syncError": "Request failed with 401: {\"message\":\"Usage quota has been reached. See usage plans at https://the-odds-api.com\",\"error_code\":\"OUT_OF_USAGE_CREDITS\",\"details_url\":\"https://the-odds-api.com/liveapi/guides/v4/api-error-codes.html#out-of-usage-credits\"}\n",
+      "falseNegative": false
+    },
+    {
+      "match": {
+        "id": 7700,
+        "competitionCode": "EL",
+        "kickoffTime": "2026-03-19T20:00:00.000Z",
+        "status": "SCHEDULED",
+        "homeTeam": "Porto",
+        "awayTeam": "VfB Stuttgart"
+      },
+      "market": {
+        "key": "h2h",
+        "label": "1X2"
+      },
+      "provider": "unknown",
+      "sourceTimestamps": [
+        "2026-03-17T13:16:04Z",
+        "2026-03-17T13:16:03Z",
+        "2026-03-17T13:16:02Z",
+        "2026-03-17T13:16:02Z",
+        "2026-03-17T13:16:02Z",
+        "2026-03-17T13:16:02Z",
+        "2026-03-17T13:15:55Z",
+        "2026-03-17T13:15:53Z",
+        "2026-03-17T13:15:47Z",
+        "2026-03-17T13:15:46Z",
+        "2026-03-17T13:15:39Z",
+        "2026-03-17T13:15:39Z",
+        "2026-03-17T13:15:32Z",
+        "2026-03-17T13:15:31Z",
+        "2026-03-17T13:10:53Z",
+        "2026-03-17T13:10:21Z",
+        "2026-03-17T13:05:51Z",
+        "2026-03-13T14:54:33Z",
+        "2026-03-13T14:54:31Z",
+        "2026-03-13T14:54:29Z",
+        "2026-03-13T14:54:23Z",
+        "2026-03-13T14:54:23Z",
+        "2026-03-13T14:54:14Z",
+        "2026-03-13T14:54:07Z",
+        "2026-03-13T14:54:02Z",
+        "2026-03-13T14:54:00Z",
+        "2026-03-13T14:53:59Z",
+        "2026-03-13T14:53:48Z",
+        "2026-03-13T14:53:46Z",
+        "2026-03-13T14:53:45Z",
+        "2026-03-13T14:53:44Z",
+        "2026-03-13T14:53:37Z",
+        "2026-03-13T14:53:37Z",
+        "2026-03-13T14:51:24Z",
+        "2026-03-13T14:51:15Z"
+      ],
+      "boardRecordedAt": "2026-03-17T13:16:04Z",
+      "bookmakerTitles": [
+        "Betsson",
+        "Smarkets",
+        "BetOnline.ag",
+        "Betfair",
+        "Nordic Bet",
+        "Matchbook",
+        "Betfair",
+        "LeoVegas (SE)",
+        "Unibet (NL)",
+        "1xBet",
+        "Pinnacle",
+        "Unibet (SE)",
+        "Codere (IT)",
+        "William Hill",
+        "Coolbet",
+        "Casumo",
+        "Grosvenor",
+        "Winamax (FR)",
+        "PMU (FR)",
+        "Sky Bet",
+        "Everygame",
+        "Marathon Bet",
+        "LiveScore Bet",
+        "Virgin Bet",
+        "Parions Sport (FR)",
+        "Bet Victor",
+        "888sport",
+        "Betway",
+        "BoyleSports",
+        "Paddy Power",
+        "Coral",
+        "Winamax (DE)",
+        "Ladbrokes",
+        "Betclic (FR)",
+        "Suprabets"
+      ],
+      "boardQuality": {
+        "tier": "unusable",
+        "score": 0.38,
+        "bookmakerCount": 35,
+        "freshnessMinutes": 5658.3,
+        "completenessScore": 1,
+        "impliedConsistencyScore": 0.86,
+        "sourceReliabilityScore": 0,
+        "refreshedRecently": false,
+        "acceptableFreshnessMinutes": 30,
+        "coverageStatus": "complete"
+      },
+      "blockReasons": [
+        "stale-odds",
+        "unusable-board",
+        "quota-degraded"
+      ],
+      "syncError": "Request failed with 401: {\"message\":\"Usage quota has been reached. See usage plans at https://the-odds-api.com\",\"error_code\":\"OUT_OF_USAGE_CREDITS\",\"details_url\":\"https://the-odds-api.com/liveapi/guides/v4/api-error-codes.html#out-of-usage-credits\"}\n",
+      "falseNegative": false
+    },
+    {
+      "match": {
+        "id": 7700,
+        "competitionCode": "EL",
+        "kickoffTime": "2026-03-19T20:00:00.000Z",
+        "status": "SCHEDULED",
+        "homeTeam": "Porto",
+        "awayTeam": "VfB Stuttgart"
+      },
+      "market": {
+        "key": "totals_2_5",
+        "label": "Over / Under 2.5"
+      },
+      "provider": "unknown",
+      "sourceTimestamps": [
+        "2026-03-17T13:16:04Z",
+        "2026-03-17T13:16:02Z",
+        "2026-03-17T13:15:53Z",
+        "2026-03-17T13:15:47Z",
+        "2026-03-17T13:15:46Z",
+        "2026-03-17T13:15:39Z",
+        "2026-03-17T13:15:32Z",
+        "2026-03-17T13:15:31Z",
+        "2026-03-17T13:10:53Z",
+        "2026-03-17T13:10:21Z",
+        "2026-03-17T13:05:51Z"
+      ],
+      "boardRecordedAt": "2026-03-17T13:16:04Z",
+      "bookmakerTitles": [
+        "Betsson",
+        "Nordic Bet",
+        "LeoVegas (SE)",
+        "Unibet (NL)",
+        "1xBet",
+        "Unibet (SE)",
+        "Codere (IT)",
+        "William Hill",
+        "Coolbet",
+        "Casumo",
+        "Grosvenor"
+      ],
+      "boardQuality": {
+        "tier": "unusable",
+        "score": 0.39,
+        "bookmakerCount": 11,
+        "freshnessMinutes": 2747.7,
+        "completenessScore": 1,
+        "impliedConsistencyScore": 0.95,
+        "sourceReliabilityScore": 0,
+        "refreshedRecently": false,
+        "acceptableFreshnessMinutes": 30,
+        "coverageStatus": "complete"
+      },
+      "blockReasons": [
+        "stale-odds",
+        "unusable-board",
+        "quota-degraded"
+      ],
+      "syncError": "Request failed with 401: {\"message\":\"Usage quota has been reached. See usage plans at https://the-odds-api.com\",\"error_code\":\"OUT_OF_USAGE_CREDITS\",\"details_url\":\"https://the-odds-api.com/liveapi/guides/v4/api-error-codes.html#out-of-usage-credits\"}\n",
+      "falseNegative": false
+    },
+    {
+      "match": {
+        "id": 7700,
+        "competitionCode": "EL",
+        "kickoffTime": "2026-03-19T20:00:00.000Z",
+        "status": "SCHEDULED",
+        "homeTeam": "Porto",
+        "awayTeam": "VfB Stuttgart"
+      },
+      "market": {
+        "key": "btts",
+        "label": "BTTS"
+      },
+      "provider": "unknown",
+      "sourceTimestamps": [],
+      "boardRecordedAt": null,
+      "bookmakerTitles": [],
+      "boardQuality": {
+        "tier": "unusable",
+        "score": 0,
+        "bookmakerCount": 0,
+        "freshnessMinutes": null,
+        "completenessScore": 0,
+        "impliedConsistencyScore": 0,
+        "sourceReliabilityScore": 0,
+        "refreshedRecently": false,
+        "acceptableFreshnessMinutes": 30,
+        "coverageStatus": "missing"
+      },
+      "blockReasons": [
+        "missing-board",
+        "missing-bookmaker-depth",
+        "unusable-board",
+        "quota-degraded"
+      ],
+      "syncError": "Request failed with 401: {\"message\":\"Usage quota has been reached. See usage plans at https://the-odds-api.com\",\"error_code\":\"OUT_OF_USAGE_CREDITS\",\"details_url\":\"https://the-odds-api.com/liveapi/guides/v4/api-error-codes.html#out-of-usage-credits\"}\n",
+      "falseNegative": false
+    },
+    {
+      "match": {
+        "id": 7871,
+        "competitionCode": "EL",
+        "kickoffTime": "2026-03-19T20:00:00.000Z",
+        "status": "SCHEDULED",
+        "homeTeam": "Aston Villa FC",
+        "awayTeam": "LOSC Lille"
+      },
+      "market": {
+        "key": "h2h",
+        "label": "1X2"
+      },
+      "provider": "unknown",
+      "sourceTimestamps": [
+        "2026-03-17T13:16:04Z",
+        "2026-03-17T13:16:03Z",
+        "2026-03-17T13:16:02Z",
+        "2026-03-17T13:16:02Z",
+        "2026-03-17T13:16:02Z",
+        "2026-03-17T13:16:02Z",
+        "2026-03-17T13:15:55Z",
+        "2026-03-17T13:15:53Z",
+        "2026-03-17T13:15:47Z",
+        "2026-03-17T13:15:46Z",
+        "2026-03-17T13:15:39Z",
+        "2026-03-17T13:15:39Z",
+        "2026-03-17T13:15:32Z",
+        "2026-03-17T13:15:31Z",
+        "2026-03-17T13:10:53Z",
+        "2026-03-17T13:10:21Z",
+        "2026-03-17T13:05:51Z"
+      ],
+      "boardRecordedAt": "2026-03-17T13:16:04Z",
+      "bookmakerTitles": [
+        "Betsson",
+        "Smarkets",
+        "BetOnline.ag",
+        "Betfair",
+        "Nordic Bet",
+        "Matchbook",
+        "Betfair",
+        "LeoVegas (SE)",
+        "Unibet (NL)",
+        "1xBet",
+        "Pinnacle",
+        "Unibet (SE)",
+        "Codere (IT)",
+        "William Hill",
+        "Coolbet",
+        "Casumo",
+        "Grosvenor"
+      ],
+      "boardQuality": {
+        "tier": "unusable",
+        "score": 0.39,
+        "bookmakerCount": 17,
+        "freshnessMinutes": 2747,
+        "completenessScore": 1,
+        "impliedConsistencyScore": 0.95,
+        "sourceReliabilityScore": 0,
+        "refreshedRecently": false,
+        "acceptableFreshnessMinutes": 30,
+        "coverageStatus": "complete"
+      },
+      "blockReasons": [
+        "stale-odds",
+        "unusable-board",
+        "quota-degraded"
+      ],
+      "syncError": "Request failed with 401: {\"message\":\"Usage quota has been reached. See usage plans at https://the-odds-api.com\",\"error_code\":\"OUT_OF_USAGE_CREDITS\",\"details_url\":\"https://the-odds-api.com/liveapi/guides/v4/api-error-codes.html#out-of-usage-credits\"}\n",
+      "falseNegative": false
+    },
+    {
+      "match": {
+        "id": 7871,
+        "competitionCode": "EL",
+        "kickoffTime": "2026-03-19T20:00:00.000Z",
+        "status": "SCHEDULED",
+        "homeTeam": "Aston Villa FC",
+        "awayTeam": "LOSC Lille"
+      },
+      "market": {
+        "key": "totals_2_5",
+        "label": "Over / Under 2.5"
+      },
+      "provider": "unknown",
+      "sourceTimestamps": [
+        "2026-03-17T13:16:04Z",
+        "2026-03-17T13:16:02Z",
+        "2026-03-17T13:16:02Z",
+        "2026-03-17T13:16:02Z",
+        "2026-03-17T13:15:53Z",
+        "2026-03-17T13:15:47Z",
+        "2026-03-17T13:15:46Z",
+        "2026-03-17T13:15:39Z",
+        "2026-03-17T13:15:39Z",
+        "2026-03-17T13:15:32Z",
+        "2026-03-17T13:15:31Z",
+        "2026-03-17T13:10:53Z",
+        "2026-03-17T13:10:21Z",
+        "2026-03-17T13:05:51Z"
+      ],
+      "boardRecordedAt": "2026-03-17T13:16:04Z",
+      "bookmakerTitles": [
+        "Betsson",
+        "BetOnline.ag",
+        "Nordic Bet",
+        "Matchbook",
+        "LeoVegas (SE)",
+        "Unibet (NL)",
+        "1xBet",
+        "Pinnacle",
+        "Unibet (SE)",
+        "Codere (IT)",
+        "William Hill",
+        "Coolbet",
+        "Casumo",
+        "Grosvenor"
+      ],
+      "boardQuality": {
+        "tier": "unusable",
+        "score": 0.4,
+        "bookmakerCount": 14,
+        "freshnessMinutes": 2747.3,
+        "completenessScore": 1,
+        "impliedConsistencyScore": 0.97,
+        "sourceReliabilityScore": 0,
+        "refreshedRecently": false,
+        "acceptableFreshnessMinutes": 30,
+        "coverageStatus": "complete"
+      },
+      "blockReasons": [
+        "stale-odds",
+        "unusable-board",
+        "quota-degraded"
+      ],
+      "syncError": "Request failed with 401: {\"message\":\"Usage quota has been reached. See usage plans at https://the-odds-api.com\",\"error_code\":\"OUT_OF_USAGE_CREDITS\",\"details_url\":\"https://the-odds-api.com/liveapi/guides/v4/api-error-codes.html#out-of-usage-credits\"}\n",
+      "falseNegative": false
+    },
+    {
+      "match": {
+        "id": 7871,
+        "competitionCode": "EL",
+        "kickoffTime": "2026-03-19T20:00:00.000Z",
+        "status": "SCHEDULED",
+        "homeTeam": "Aston Villa FC",
+        "awayTeam": "LOSC Lille"
+      },
+      "market": {
+        "key": "btts",
+        "label": "BTTS"
+      },
+      "provider": "unknown",
+      "sourceTimestamps": [],
+      "boardRecordedAt": null,
+      "bookmakerTitles": [],
+      "boardQuality": {
+        "tier": "unusable",
+        "score": 0,
+        "bookmakerCount": 0,
+        "freshnessMinutes": null,
+        "completenessScore": 0,
+        "impliedConsistencyScore": 0,
+        "sourceReliabilityScore": 0,
+        "refreshedRecently": false,
+        "acceptableFreshnessMinutes": 30,
+        "coverageStatus": "missing"
+      },
+      "blockReasons": [
+        "missing-board",
+        "missing-bookmaker-depth",
+        "unusable-board",
+        "quota-degraded"
+      ],
+      "syncError": "Request failed with 401: {\"message\":\"Usage quota has been reached. See usage plans at https://the-odds-api.com\",\"error_code\":\"OUT_OF_USAGE_CREDITS\",\"details_url\":\"https://the-odds-api.com/liveapi/guides/v4/api-error-codes.html#out-of-usage-credits\"}\n",
+      "falseNegative": false
+    },
+    {
+      "match": {
+        "id": 2237,
+        "competitionCode": "SA",
+        "kickoffTime": "2026-03-20T17:30:00Z",
+        "status": "TIMED",
+        "homeTeam": "Cagliari Calcio",
+        "awayTeam": "SSC Napoli"
+      },
+      "market": {
+        "key": "h2h",
+        "label": "1X2"
+      },
+      "provider": "unknown",
+      "sourceTimestamps": [],
+      "boardRecordedAt": null,
+      "bookmakerTitles": [],
+      "boardQuality": {
+        "tier": "unusable",
+        "score": 0,
+        "bookmakerCount": 0,
+        "freshnessMinutes": null,
+        "completenessScore": 0,
+        "impliedConsistencyScore": 0,
+        "sourceReliabilityScore": 0,
+        "refreshedRecently": false,
+        "acceptableFreshnessMinutes": 180,
+        "coverageStatus": "missing"
+      },
+      "blockReasons": [
+        "missing-board",
+        "missing-bookmaker-depth",
+        "unusable-board"
+      ],
+      "syncError": null,
+      "falseNegative": false
+    },
+    {
+      "match": {
+        "id": 2237,
+        "competitionCode": "SA",
+        "kickoffTime": "2026-03-20T17:30:00Z",
+        "status": "TIMED",
+        "homeTeam": "Cagliari Calcio",
+        "awayTeam": "SSC Napoli"
+      },
+      "market": {
+        "key": "totals_2_5",
+        "label": "Over / Under 2.5"
+      },
+      "provider": "unknown",
+      "sourceTimestamps": [],
+      "boardRecordedAt": null,
+      "bookmakerTitles": [],
+      "boardQuality": {
+        "tier": "unusable",
+        "score": 0,
+        "bookmakerCount": 0,
+        "freshnessMinutes": null,
+        "completenessScore": 0,
+        "impliedConsistencyScore": 0,
+        "sourceReliabilityScore": 0,
+        "refreshedRecently": false,
+        "acceptableFreshnessMinutes": 180,
+        "coverageStatus": "missing"
+      },
+      "blockReasons": [
+        "missing-board",
+        "missing-bookmaker-depth",
+        "unusable-board"
+      ],
+      "syncError": null,
+      "falseNegative": false
+    },
+    {
+      "match": {
+        "id": 2237,
+        "competitionCode": "SA",
+        "kickoffTime": "2026-03-20T17:30:00Z",
+        "status": "TIMED",
+        "homeTeam": "Cagliari Calcio",
+        "awayTeam": "SSC Napoli"
+      },
+      "market": {
+        "key": "btts",
+        "label": "BTTS"
+      },
+      "provider": "unknown",
+      "sourceTimestamps": [],
+      "boardRecordedAt": null,
+      "bookmakerTitles": [],
+      "boardQuality": {
+        "tier": "unusable",
+        "score": 0,
+        "bookmakerCount": 0,
+        "freshnessMinutes": null,
+        "completenessScore": 0,
+        "impliedConsistencyScore": 0,
+        "sourceReliabilityScore": 0,
+        "refreshedRecently": false,
+        "acceptableFreshnessMinutes": 180,
+        "coverageStatus": "missing"
+      },
+      "blockReasons": [
+        "missing-board",
+        "missing-bookmaker-depth",
+        "unusable-board"
+      ],
+      "syncError": null,
+      "falseNegative": false
+    },
+    {
+      "match": {
+        "id": 1875,
+        "competitionCode": "BL1",
+        "kickoffTime": "2026-03-20T19:30:00Z",
+        "status": "TIMED",
+        "homeTeam": "RB Leipzig",
+        "awayTeam": "TSG 1899 Hoffenheim"
+      },
+      "market": {
+        "key": "h2h",
+        "label": "1X2"
+      },
+      "provider": "unknown",
+      "sourceTimestamps": [],
+      "boardRecordedAt": null,
+      "bookmakerTitles": [],
+      "boardQuality": {
+        "tier": "unusable",
+        "score": 0,
+        "bookmakerCount": 0,
+        "freshnessMinutes": null,
+        "completenessScore": 0,
+        "impliedConsistencyScore": 0,
+        "sourceReliabilityScore": 0,
+        "refreshedRecently": false,
+        "acceptableFreshnessMinutes": 180,
+        "coverageStatus": "missing"
+      },
+      "blockReasons": [
+        "missing-board",
+        "missing-bookmaker-depth",
+        "unusable-board"
+      ],
+      "syncError": null,
+      "falseNegative": false
+    },
+    {
+      "match": {
+        "id": 1875,
+        "competitionCode": "BL1",
+        "kickoffTime": "2026-03-20T19:30:00Z",
+        "status": "TIMED",
+        "homeTeam": "RB Leipzig",
+        "awayTeam": "TSG 1899 Hoffenheim"
+      },
+      "market": {
+        "key": "totals_2_5",
+        "label": "Over / Under 2.5"
+      },
+      "provider": "unknown",
+      "sourceTimestamps": [],
+      "boardRecordedAt": null,
+      "bookmakerTitles": [],
+      "boardQuality": {
+        "tier": "unusable",
+        "score": 0,
+        "bookmakerCount": 0,
+        "freshnessMinutes": null,
+        "completenessScore": 0,
+        "impliedConsistencyScore": 0,
+        "sourceReliabilityScore": 0,
+        "refreshedRecently": false,
+        "acceptableFreshnessMinutes": 180,
+        "coverageStatus": "missing"
+      },
+      "blockReasons": [
+        "missing-board",
+        "missing-bookmaker-depth",
+        "unusable-board"
+      ],
+      "syncError": null,
+      "falseNegative": false
+    },
+    {
+      "match": {
+        "id": 1875,
+        "competitionCode": "BL1",
+        "kickoffTime": "2026-03-20T19:30:00Z",
+        "status": "TIMED",
+        "homeTeam": "RB Leipzig",
+        "awayTeam": "TSG 1899 Hoffenheim"
+      },
+      "market": {
+        "key": "btts",
+        "label": "BTTS"
+      },
+      "provider": "unknown",
+      "sourceTimestamps": [],
+      "boardRecordedAt": null,
+      "bookmakerTitles": [],
+      "boardQuality": {
+        "tier": "unusable",
+        "score": 0,
+        "bookmakerCount": 0,
+        "freshnessMinutes": null,
+        "completenessScore": 0,
+        "impliedConsistencyScore": 0,
+        "sourceReliabilityScore": 0,
+        "refreshedRecently": false,
+        "acceptableFreshnessMinutes": 180,
+        "coverageStatus": "missing"
+      },
+      "blockReasons": [
+        "missing-board",
+        "missing-bookmaker-depth",
+        "unusable-board"
+      ],
+      "syncError": null,
+      "falseNegative": false
+    },
+    {
+      "match": {
+        "id": 2238,
+        "competitionCode": "SA",
+        "kickoffTime": "2026-03-20T19:45:00Z",
+        "status": "TIMED",
+        "homeTeam": "Genoa CFC",
+        "awayTeam": "Udinese Calcio"
+      },
+      "market": {
+        "key": "h2h",
+        "label": "1X2"
+      },
+      "provider": "unknown",
+      "sourceTimestamps": [],
+      "boardRecordedAt": null,
+      "bookmakerTitles": [],
+      "boardQuality": {
+        "tier": "unusable",
+        "score": 0,
+        "bookmakerCount": 0,
+        "freshnessMinutes": null,
+        "completenessScore": 0,
+        "impliedConsistencyScore": 0,
+        "sourceReliabilityScore": 0,
+        "refreshedRecently": false,
+        "acceptableFreshnessMinutes": 180,
+        "coverageStatus": "missing"
+      },
+      "blockReasons": [
+        "missing-board",
+        "missing-bookmaker-depth",
+        "unusable-board"
+      ],
+      "syncError": null,
+      "falseNegative": false
+    },
+    {
+      "match": {
+        "id": 2238,
+        "competitionCode": "SA",
+        "kickoffTime": "2026-03-20T19:45:00Z",
+        "status": "TIMED",
+        "homeTeam": "Genoa CFC",
+        "awayTeam": "Udinese Calcio"
+      },
+      "market": {
+        "key": "totals_2_5",
+        "label": "Over / Under 2.5"
+      },
+      "provider": "unknown",
+      "sourceTimestamps": [],
+      "boardRecordedAt": null,
+      "bookmakerTitles": [],
+      "boardQuality": {
+        "tier": "unusable",
+        "score": 0,
+        "bookmakerCount": 0,
+        "freshnessMinutes": null,
+        "completenessScore": 0,
+        "impliedConsistencyScore": 0,
+        "sourceReliabilityScore": 0,
+        "refreshedRecently": false,
+        "acceptableFreshnessMinutes": 180,
+        "coverageStatus": "missing"
+      },
+      "blockReasons": [
+        "missing-board",
+        "missing-bookmaker-depth",
+        "unusable-board"
+      ],
+      "syncError": null,
+      "falseNegative": false
+    },
+    {
+      "match": {
+        "id": 2238,
+        "competitionCode": "SA",
+        "kickoffTime": "2026-03-20T19:45:00Z",
+        "status": "TIMED",
+        "homeTeam": "Genoa CFC",
+        "awayTeam": "Udinese Calcio"
+      },
+      "market": {
+        "key": "btts",
+        "label": "BTTS"
+      },
+      "provider": "unknown",
+      "sourceTimestamps": [],
+      "boardRecordedAt": null,
+      "bookmakerTitles": [],
+      "boardQuality": {
+        "tier": "unusable",
+        "score": 0,
+        "bookmakerCount": 0,
+        "freshnessMinutes": null,
+        "completenessScore": 0,
+        "impliedConsistencyScore": 0,
+        "sourceReliabilityScore": 0,
+        "refreshedRecently": false,
+        "acceptableFreshnessMinutes": 180,
+        "coverageStatus": "missing"
+      },
+      "blockReasons": [
+        "missing-board",
+        "missing-bookmaker-depth",
+        "unusable-board"
+      ],
+      "syncError": null,
+      "falseNegative": false
+    },
+    {
+      "match": {
+        "id": 7251,
+        "competitionCode": "FL1",
+        "kickoffTime": "2026-03-20T19:45:00Z",
+        "status": "TIMED",
+        "homeTeam": "Racing Club de Lens",
+        "awayTeam": "Angers SCO"
+      },
+      "market": {
+        "key": "h2h",
+        "label": "1X2"
+      },
+      "provider": "unknown",
+      "sourceTimestamps": [],
+      "boardRecordedAt": null,
+      "bookmakerTitles": [],
+      "boardQuality": {
+        "tier": "unusable",
+        "score": 0,
+        "bookmakerCount": 0,
+        "freshnessMinutes": null,
+        "completenessScore": 0,
+        "impliedConsistencyScore": 0,
+        "sourceReliabilityScore": 0,
+        "refreshedRecently": false,
+        "acceptableFreshnessMinutes": 180,
+        "coverageStatus": "missing"
+      },
+      "blockReasons": [
+        "missing-board",
+        "missing-bookmaker-depth",
+        "unusable-board"
+      ],
+      "syncError": null,
+      "falseNegative": false
+    },
+    {
+      "match": {
+        "id": 7251,
+        "competitionCode": "FL1",
+        "kickoffTime": "2026-03-20T19:45:00Z",
+        "status": "TIMED",
+        "homeTeam": "Racing Club de Lens",
+        "awayTeam": "Angers SCO"
+      },
+      "market": {
+        "key": "totals_2_5",
+        "label": "Over / Under 2.5"
+      },
+      "provider": "unknown",
+      "sourceTimestamps": [],
+      "boardRecordedAt": null,
+      "bookmakerTitles": [],
+      "boardQuality": {
+        "tier": "unusable",
+        "score": 0,
+        "bookmakerCount": 0,
+        "freshnessMinutes": null,
+        "completenessScore": 0,
+        "impliedConsistencyScore": 0,
+        "sourceReliabilityScore": 0,
+        "refreshedRecently": false,
+        "acceptableFreshnessMinutes": 180,
+        "coverageStatus": "missing"
+      },
+      "blockReasons": [
+        "missing-board",
+        "missing-bookmaker-depth",
+        "unusable-board"
+      ],
+      "syncError": null,
+      "falseNegative": false
+    },
+    {
+      "match": {
+        "id": 7251,
+        "competitionCode": "FL1",
+        "kickoffTime": "2026-03-20T19:45:00Z",
+        "status": "TIMED",
+        "homeTeam": "Racing Club de Lens",
+        "awayTeam": "Angers SCO"
+      },
+      "market": {
+        "key": "btts",
+        "label": "BTTS"
+      },
+      "provider": "unknown",
+      "sourceTimestamps": [],
+      "boardRecordedAt": null,
+      "bookmakerTitles": [],
+      "boardQuality": {
+        "tier": "unusable",
+        "score": 0,
+        "bookmakerCount": 0,
+        "freshnessMinutes": null,
+        "completenessScore": 0,
+        "impliedConsistencyScore": 0,
+        "sourceReliabilityScore": 0,
+        "refreshedRecently": false,
+        "acceptableFreshnessMinutes": 180,
+        "coverageStatus": "missing"
+      },
+      "blockReasons": [
+        "missing-board",
+        "missing-bookmaker-depth",
+        "unusable-board"
+      ],
+      "syncError": null,
+      "falseNegative": false
+    },
+    {
+      "match": {
+        "id": 1182,
+        "competitionCode": "PL",
+        "kickoffTime": "2026-03-20T20:00:00Z",
+        "status": "TIMED",
+        "homeTeam": "AFC Bournemouth",
+        "awayTeam": "Manchester United FC"
+      },
+      "market": {
+        "key": "h2h",
+        "label": "1X2"
+      },
+      "provider": "unknown",
+      "sourceTimestamps": [],
+      "boardRecordedAt": null,
+      "bookmakerTitles": [],
+      "boardQuality": {
+        "tier": "unusable",
+        "score": 0,
+        "bookmakerCount": 0,
+        "freshnessMinutes": null,
+        "completenessScore": 0,
+        "impliedConsistencyScore": 0,
+        "sourceReliabilityScore": 0,
+        "refreshedRecently": false,
+        "acceptableFreshnessMinutes": 180,
+        "coverageStatus": "missing"
+      },
+      "blockReasons": [
+        "missing-board",
+        "missing-bookmaker-depth",
+        "unusable-board"
+      ],
+      "syncError": null,
+      "falseNegative": false
+    },
+    {
+      "match": {
+        "id": 1182,
+        "competitionCode": "PL",
+        "kickoffTime": "2026-03-20T20:00:00Z",
+        "status": "TIMED",
+        "homeTeam": "AFC Bournemouth",
+        "awayTeam": "Manchester United FC"
+      },
+      "market": {
+        "key": "totals_2_5",
+        "label": "Over / Under 2.5"
+      },
+      "provider": "unknown",
+      "sourceTimestamps": [],
+      "boardRecordedAt": null,
+      "bookmakerTitles": [],
+      "boardQuality": {
+        "tier": "unusable",
+        "score": 0,
+        "bookmakerCount": 0,
+        "freshnessMinutes": null,
+        "completenessScore": 0,
+        "impliedConsistencyScore": 0,
+        "sourceReliabilityScore": 0,
+        "refreshedRecently": false,
+        "acceptableFreshnessMinutes": 180,
+        "coverageStatus": "missing"
+      },
+      "blockReasons": [
+        "missing-board",
+        "missing-bookmaker-depth",
+        "unusable-board"
+      ],
+      "syncError": null,
+      "falseNegative": false
+    },
+    {
+      "match": {
+        "id": 1182,
+        "competitionCode": "PL",
+        "kickoffTime": "2026-03-20T20:00:00Z",
+        "status": "TIMED",
+        "homeTeam": "AFC Bournemouth",
+        "awayTeam": "Manchester United FC"
+      },
+      "market": {
+        "key": "btts",
+        "label": "BTTS"
+      },
+      "provider": "unknown",
+      "sourceTimestamps": [],
+      "boardRecordedAt": null,
+      "bookmakerTitles": [],
+      "boardQuality": {
+        "tier": "unusable",
+        "score": 0,
+        "bookmakerCount": 0,
+        "freshnessMinutes": null,
+        "completenessScore": 0,
+        "impliedConsistencyScore": 0,
+        "sourceReliabilityScore": 0,
+        "refreshedRecently": false,
+        "acceptableFreshnessMinutes": 180,
+        "coverageStatus": "missing"
+      },
+      "blockReasons": [
+        "missing-board",
+        "missing-bookmaker-depth",
+        "unusable-board"
+      ],
+      "syncError": null,
+      "falseNegative": false
+    },
+    {
+      "match": {
+        "id": 1541,
+        "competitionCode": "PD",
+        "kickoffTime": "2026-03-20T20:00:00Z",
+        "status": "TIMED",
+        "homeTeam": "Villarreal CF",
+        "awayTeam": "Real Sociedad de Fútbol"
+      },
+      "market": {
+        "key": "h2h",
+        "label": "1X2"
+      },
+      "provider": "unknown",
+      "sourceTimestamps": [],
+      "boardRecordedAt": null,
+      "bookmakerTitles": [],
+      "boardQuality": {
+        "tier": "unusable",
+        "score": 0,
+        "bookmakerCount": 0,
+        "freshnessMinutes": null,
+        "completenessScore": 0,
+        "impliedConsistencyScore": 0,
+        "sourceReliabilityScore": 0,
+        "refreshedRecently": false,
+        "acceptableFreshnessMinutes": 180,
+        "coverageStatus": "missing"
+      },
+      "blockReasons": [
+        "missing-board",
+        "missing-bookmaker-depth",
+        "unusable-board"
+      ],
+      "syncError": null,
+      "falseNegative": false
+    },
+    {
+      "match": {
+        "id": 1541,
+        "competitionCode": "PD",
+        "kickoffTime": "2026-03-20T20:00:00Z",
+        "status": "TIMED",
+        "homeTeam": "Villarreal CF",
+        "awayTeam": "Real Sociedad de Fútbol"
+      },
+      "market": {
+        "key": "totals_2_5",
+        "label": "Over / Under 2.5"
+      },
+      "provider": "unknown",
+      "sourceTimestamps": [],
+      "boardRecordedAt": null,
+      "bookmakerTitles": [],
+      "boardQuality": {
+        "tier": "unusable",
+        "score": 0,
+        "bookmakerCount": 0,
+        "freshnessMinutes": null,
+        "completenessScore": 0,
+        "impliedConsistencyScore": 0,
+        "sourceReliabilityScore": 0,
+        "refreshedRecently": false,
+        "acceptableFreshnessMinutes": 180,
+        "coverageStatus": "missing"
+      },
+      "blockReasons": [
+        "missing-board",
+        "missing-bookmaker-depth",
+        "unusable-board"
+      ],
+      "syncError": null,
+      "falseNegative": false
+    },
+    {
+      "match": {
+        "id": 1541,
+        "competitionCode": "PD",
+        "kickoffTime": "2026-03-20T20:00:00Z",
+        "status": "TIMED",
+        "homeTeam": "Villarreal CF",
+        "awayTeam": "Real Sociedad de Fútbol"
+      },
+      "market": {
+        "key": "btts",
+        "label": "BTTS"
+      },
+      "provider": "unknown",
+      "sourceTimestamps": [],
+      "boardRecordedAt": null,
+      "bookmakerTitles": [],
+      "boardQuality": {
+        "tier": "unusable",
+        "score": 0,
+        "bookmakerCount": 0,
+        "freshnessMinutes": null,
+        "completenessScore": 0,
+        "impliedConsistencyScore": 0,
+        "sourceReliabilityScore": 0,
+        "refreshedRecently": false,
+        "acceptableFreshnessMinutes": 180,
+        "coverageStatus": "missing"
+      },
+      "blockReasons": [
+        "missing-board",
+        "missing-bookmaker-depth",
+        "unusable-board"
+      ],
+      "syncError": null,
+      "falseNegative": false
+    },
+    {
+      "match": {
+        "id": 1183,
+        "competitionCode": "PL",
+        "kickoffTime": "2026-03-21T00:00:00Z",
+        "status": "POSTPONED",
+        "homeTeam": "Manchester City FC",
+        "awayTeam": "Crystal Palace FC"
+      },
+      "market": {
+        "key": "h2h",
+        "label": "1X2"
+      },
+      "provider": "unknown",
+      "sourceTimestamps": [],
+      "boardRecordedAt": null,
+      "bookmakerTitles": [],
+      "boardQuality": {
+        "tier": "unusable",
+        "score": 0,
+        "bookmakerCount": 0,
+        "freshnessMinutes": null,
+        "completenessScore": 0,
+        "impliedConsistencyScore": 0,
+        "sourceReliabilityScore": 0,
+        "refreshedRecently": false,
+        "acceptableFreshnessMinutes": 180,
+        "coverageStatus": "missing"
+      },
+      "blockReasons": [
+        "missing-board",
+        "missing-bookmaker-depth",
+        "unusable-board"
+      ],
+      "syncError": null,
+      "falseNegative": false
+    },
+    {
+      "match": {
+        "id": 1183,
+        "competitionCode": "PL",
+        "kickoffTime": "2026-03-21T00:00:00Z",
+        "status": "POSTPONED",
+        "homeTeam": "Manchester City FC",
+        "awayTeam": "Crystal Palace FC"
+      },
+      "market": {
+        "key": "totals_2_5",
+        "label": "Over / Under 2.5"
+      },
+      "provider": "unknown",
+      "sourceTimestamps": [],
+      "boardRecordedAt": null,
+      "bookmakerTitles": [],
+      "boardQuality": {
+        "tier": "unusable",
+        "score": 0,
+        "bookmakerCount": 0,
+        "freshnessMinutes": null,
+        "completenessScore": 0,
+        "impliedConsistencyScore": 0,
+        "sourceReliabilityScore": 0,
+        "refreshedRecently": false,
+        "acceptableFreshnessMinutes": 180,
+        "coverageStatus": "missing"
+      },
+      "blockReasons": [
+        "missing-board",
+        "missing-bookmaker-depth",
+        "unusable-board"
+      ],
+      "syncError": null,
+      "falseNegative": false
+    },
+    {
+      "match": {
+        "id": 1183,
+        "competitionCode": "PL",
+        "kickoffTime": "2026-03-21T00:00:00Z",
+        "status": "POSTPONED",
+        "homeTeam": "Manchester City FC",
+        "awayTeam": "Crystal Palace FC"
+      },
+      "market": {
+        "key": "btts",
+        "label": "BTTS"
+      },
+      "provider": "unknown",
+      "sourceTimestamps": [],
+      "boardRecordedAt": null,
+      "bookmakerTitles": [],
+      "boardQuality": {
+        "tier": "unusable",
+        "score": 0,
+        "bookmakerCount": 0,
+        "freshnessMinutes": null,
+        "completenessScore": 0,
+        "impliedConsistencyScore": 0,
+        "sourceReliabilityScore": 0,
+        "refreshedRecently": false,
+        "acceptableFreshnessMinutes": 180,
+        "coverageStatus": "missing"
+      },
+      "blockReasons": [
+        "missing-board",
+        "missing-bookmaker-depth",
+        "unusable-board"
+      ],
+      "syncError": null,
+      "falseNegative": false
+    }
+  ],
+  "falseNegativeExamples": []
+}
