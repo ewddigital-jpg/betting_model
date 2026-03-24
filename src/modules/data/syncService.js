@@ -1,4 +1,5 @@
 import { env, hasFootballDataConfig, hasSportmonksConfig } from "../../config/env.js";
+import { importFbrefMatches } from "./importers/fbrefMatchImporter.js";
 import { APP_COMPETITION_CODES, COMPETITION_BY_CODE, SUPPORTED_COMPETITIONS } from "../../config/leagues.js";
 import { getDb, setCompetitionSyncState, upsertTeam, withTransaction } from "../../db/database.js";
 import { logger } from "../../lib/logger.js";
@@ -1159,7 +1160,8 @@ export async function syncCompetition(code) {
   const provider = selectSyncProvider(competition);
 
   if (!provider) {
-    throw new Error(`Cannot sync ${code} without a configured football data provider.`);
+    logger.debug("Skipping API sync — no provider configured", { competition: code });
+    return { competition: code, provider: "none", matches: 0, standingsRows: 0, oddsEvents: 0 };
   }
 
   logger.info("Sync started", { competition: code, provider });
@@ -1227,6 +1229,18 @@ export async function syncAllCompetitions() {
 }
 
 export async function syncFreeModeData() {
+  // When no paid API keys are configured, seed match roster from fbref first
+  // so the enrichment scrapers (xG, lineups, odds) have real rows to attach to.
+  if (!hasFootballDataConfig() && !hasSportmonksConfig()) {
+    logger.info("No API keys configured — running fbref public match importer");
+    try {
+      const fbrefResult = await importFbrefMatches({ competitionCodes: ["CL", "EL"] });
+      logger.info("fbref public import complete", fbrefResult);
+    } catch (err) {
+      logger.warn("fbref public import failed", { message: err.message });
+    }
+  }
+
   const results = await syncAllCompetitions();
   const summary = {
     appCompetitions: results.filter((result) => APP_COMPETITION_CODES.includes(result.competition)),
