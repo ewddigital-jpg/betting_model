@@ -1,7 +1,7 @@
 import { APP_COMPETITION_CODES } from "../../config/leagues.js";
 import { getDb } from "../../db/database.js";
 import { average, round } from "../../lib/math.js";
-import { buildRatingsUntil } from "./eloEngine.js";
+import { buildRatingsUntil, getActiveHomeAdvantage } from "./eloEngine.js";
 import { buildMatchFeatures } from "./featureBuilder.js";
 import { buildBettingAssessment } from "./bettingEngine.js";
 import { actualOutcomeLabelForMarket } from "./marketOutcomeUtils.js";
@@ -145,7 +145,7 @@ function simulateHistoricalRows(competitionCode = null, limit = 100) {
   const results = [];
 
   for (const match of testRows) {
-    const ratings = buildRatingsUntil(historyRows, match.utc_date);
+    const ratings = buildRatingsUntil(historyRows, match.utc_date, getActiveHomeAdvantage());
     const features = buildMatchFeatures(match.id, ratings, { asOfTime: match.utc_date });
     const model = calculateProbabilities(features);
     const betting = buildBettingAssessment(match.id, model, {

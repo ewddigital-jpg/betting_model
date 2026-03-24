@@ -226,7 +226,7 @@ function buildPriceQualityPackage(marketKey, bestOption, rows, selectedBookmaker
     blockReasons.push("missing-implied-probability");
   }
 
-  if (staleOdds && (hoursToKickoff ?? 999) <= 24) {
+  if (staleOdds && (hoursToKickoff ?? 0) <= 24) {
     blockReasons.push("stale-odds");
   }
 
@@ -265,7 +265,7 @@ function buildPriceQualityPackage(marketKey, bestOption, rows, selectedBookmaker
     downgradeReason = !hasMarketProbability
       ? "Implied market probability is missing from the price board."
       : "Bookmaker data is missing or incomplete.";
-  } else if (staleOdds && (hoursToKickoff ?? 999) <= 24) {
+  } else if (staleOdds && (hoursToKickoff ?? 0) <= 24) {
     status = "unusable";
     forceNoBet = true;
     downgradeReason = "Stored odds are too old for the current kickoff window.";

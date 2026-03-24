@@ -309,7 +309,7 @@ export function scoreOddsBoard(rows, market, options = {}) {
   const consistencyScore = impliedConsistencyScore(rows, market);
   const coverageScore = bookmakerDepthScore(bookmakerCount);
   const reliabilityScore = rowSourceReliability(rows, sourceProvider, sourceMode);
-  const coverageStatus = bookmakerCount >= 3 ? "complete" : bookmakerCount >= 1 ? "partial" : "missing";
+  const coverageStatus = bookmakerCount >= 3 ? "complete" : bookmakerCount >= 2 ? "thin" : bookmakerCount >= 1 ? "partial" : "missing";
   const quotaPenalty = quotaDegraded ? 0.2 : 0;
   const score = Math.max(
     0,

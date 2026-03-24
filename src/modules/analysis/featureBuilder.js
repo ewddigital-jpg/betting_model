@@ -104,8 +104,31 @@ function getCompetitionMatchesBefore(matchId, beforeDate, teamId, competitionCod
   );
 }
 
-function getCompetitionAverages(beforeDate) {
+function getCompetitionAverages(beforeDate, competitionCode = null) {
   const db = getDb();
+
+  if (competitionCode) {
+    const specificRow = db.prepare(`
+      SELECT
+        AVG(home_score) AS avg_home_goals,
+        AVG(away_score) AS avg_away_goals,
+        COUNT(*) AS match_count
+      FROM matches
+      WHERE status = 'FINISHED'
+        AND home_score IS NOT NULL
+        AND away_score IS NOT NULL
+        AND competition_code = ?
+        AND datetime(utc_date) < datetime(?)
+    `).get(competitionCode, beforeDate);
+
+    if ((specificRow?.match_count ?? 0) >= 10) {
+      return {
+        avgHomeGoals: clamp(specificRow.avg_home_goals ?? 1.45, 0.8, 2.4),
+        avgAwayGoals: clamp(specificRow.avg_away_goals ?? 1.18, 0.6, 2.1)
+      };
+    }
+  }
+
   const row = db.prepare(`
     SELECT
       AVG(home_score) AS avg_home_goals,
@@ -615,7 +638,7 @@ export function buildMatchFeatures(matchId, ratings, options = {}) {
     throw new Error(`Match ${matchId} was not found.`);
   }
 
-  const competitionAverages = getCompetitionAverages(match.utc_date);
+  const competitionAverages = getCompetitionAverages(match.utc_date, match.competition_code);
   const homeHistory = getFinishedMatchesBefore(match.id, match.utc_date, match.home_team_id);
   const awayHistory = getFinishedMatchesBefore(match.id, match.utc_date, match.away_team_id);
   const homeCompetitionSideHistory = getCompetitionMatchesBefore(

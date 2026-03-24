@@ -4,6 +4,17 @@ import { isoNow } from "../../lib/time.js";
 
 const BASE_RATING = 1500;
 const HOME_ADVANTAGE = 55;
+const HOME_ADVANTAGE_CANDIDATES = [10, 20, 30, 40, 50, 60, 70, 80];
+const HOME_ADVANTAGE_FIT_MIN_MATCHES = 30;
+
+// Updated by refreshTeamRatings() each time ratings are rebuilt.
+// probabilityModel.js reads this so the Poisson lambdas stay consistent
+// with the Elo fitting that produced the stored ratings.
+let activeHomeAdvantage = HOME_ADVANTAGE;
+
+export function getActiveHomeAdvantage() {
+  return activeHomeAdvantage;
+}
 
 function expectedScore(homeRating, awayRating) {
   return 1 / (1 + 10 ** ((awayRating - homeRating) / 400));
@@ -38,7 +49,49 @@ function goalDifferenceMultiplier(homeGoals, awayGoals) {
   return 1 + (Math.min(goalDifference, 4) * 0.08);
 }
 
-export function buildRatingsUntil(matches, cutoffDate = null) {
+function logLossForHomeAdvantage(matches, candidateAdvantage) {
+  const ratings = new Map();
+  let totalLoss = 0;
+  let count = 0;
+
+  for (const match of matches) {
+    const homeEntry = ratings.get(match.home_team_id) ?? { elo: BASE_RATING };
+    const awayEntry = ratings.get(match.away_team_id) ?? { elo: BASE_RATING };
+    const predicted = expectedScore(homeEntry.elo + candidateAdvantage, awayEntry.elo);
+    const actual = actualResult(match);
+    const p = clamp(predicted, 1e-7, 1 - 1e-7);
+    totalLoss += -(actual * Math.log(p) + (1 - actual) * Math.log(1 - p));
+    count += 1;
+    const kFactor = 24 * stageWeight(match.stage) * goalDifferenceMultiplier(match.home_score, match.away_score);
+    const delta = kFactor * (actual - predicted);
+    ratings.set(match.home_team_id, { elo: clamp(homeEntry.elo + delta, 1200, 1900) });
+    ratings.set(match.away_team_id, { elo: clamp(awayEntry.elo - delta, 1200, 1900) });
+  }
+
+  return count > 0 ? totalLoss / count : Infinity;
+}
+
+function fitHomeAdvantage(matches) {
+  const finished = matches.filter((m) => m.home_score !== null && m.away_score !== null);
+  if (finished.length < HOME_ADVANTAGE_FIT_MIN_MATCHES) {
+    return HOME_ADVANTAGE;
+  }
+
+  let bestAdvantage = HOME_ADVANTAGE;
+  let bestLoss = Infinity;
+
+  for (const candidate of HOME_ADVANTAGE_CANDIDATES) {
+    const loss = logLossForHomeAdvantage(finished, candidate);
+    if (loss < bestLoss) {
+      bestLoss = loss;
+      bestAdvantage = candidate;
+    }
+  }
+
+  return bestAdvantage;
+}
+
+export function buildRatingsUntil(matches, cutoffDate = null, homeAdvantage = HOME_ADVANTAGE) {
   const ratings = new Map();
 
   for (const match of matches) {
@@ -52,7 +105,7 @@ export function buildRatingsUntil(matches, cutoffDate = null) {
 
     const homeEntry = ratings.get(match.home_team_id) ?? { elo: BASE_RATING, matchesPlayed: 0 };
     const awayEntry = ratings.get(match.away_team_id) ?? { elo: BASE_RATING, matchesPlayed: 0 };
-    const expectedHome = expectedScore(homeEntry.elo + HOME_ADVANTAGE, awayEntry.elo);
+    const expectedHome = expectedScore(homeEntry.elo + homeAdvantage, awayEntry.elo);
     const actualHome = actualResult(match);
     const kFactor = 24 * stageWeight(match.stage) * goalDifferenceMultiplier(match.home_score, match.away_score);
     const delta = kFactor * (actualHome - expectedHome);
@@ -81,7 +134,9 @@ export function refreshTeamRatings() {
     ORDER BY datetime(utc_date) ASC
   `).all();
 
-  const ratings = buildRatingsUntil(matches);
+  const fittedHomeAdvantage = fitHomeAdvantage(matches);
+  activeHomeAdvantage = fittedHomeAdvantage;
+  const ratings = buildRatingsUntil(matches, null, fittedHomeAdvantage);
   const replaceStatement = db.prepare(`
     INSERT INTO team_ratings (team_id, elo, matches_played, updated_at)
     VALUES (?, ?, ?, ?)

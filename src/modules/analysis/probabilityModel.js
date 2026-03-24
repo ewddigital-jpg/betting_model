@@ -1,6 +1,6 @@
 import { clamp, round } from "../../lib/math.js";
 import { getActiveModelParameters, normalizeModelParameters } from "./modelParameters.js";
-import { HOME_ADVANTAGE } from "./eloEngine.js";
+import { getActiveHomeAdvantage } from "./eloEngine.js";
 
 function factorial(value) {
   if (value <= 1) {
@@ -179,108 +179,17 @@ function rebalanceThreeWayTop(probabilities, topKey, targetTopProbability) {
   });
 }
 
-function applyFavoriteConsensusLift(probabilities, features, marketAnchor) {
-  if (!marketAnchor) {
-    return {
-      probabilities,
-      diagnostics: {
-        favoriteConsensusLift: 0,
-        favoriteConsensusKey: null
-      }
-    };
-  }
-
-  const modelTopKey = topThreeWayKey(probabilities);
-  const marketTopKey = topThreeWayKey({
-    homeWin: marketAnchor.home,
-    draw: marketAnchor.draw,
-    awayWin: marketAnchor.away
-  });
-
-  if (modelTopKey !== marketTopKey || modelTopKey === "draw") {
-    return {
-      probabilities,
-      diagnostics: {
-        favoriteConsensusLift: 0,
-        favoriteConsensusKey: null
-      }
-    };
-  }
-
-  const marketTopProbability = modelTopKey === "homeWin"
-    ? marketAnchor.home
-    : marketAnchor.away;
-  const modelTopProbability = probabilities[modelTopKey] ?? 0;
-
-  if (modelTopProbability < 0.5 || marketTopProbability < 0.57) {
-    return {
-      probabilities,
-      diagnostics: {
-        favoriteConsensusLift: 0,
-        favoriteConsensusKey: null
-      }
-    };
-  }
-
-  const favoriteSignal = modelTopKey === "homeWin"
-    ? ((featureValue(features.home, "elo", 1500) + HOME_ADVANTAGE) - featureValue(features.away, "elo", 1500))
-    : ((featureValue(features.away, "elo", 1500)) - (featureValue(features.home, "elo", 1500) + HOME_ADVANTAGE));
-  const formSignal = modelTopKey === "homeWin"
-    ? (featureValue(features.home, "recentFormPpg", 1.35) - featureValue(features.away, "recentFormPpg", 1.35))
-    : (featureValue(features.away, "recentFormPpg", 1.35) - featureValue(features.home, "recentFormPpg", 1.35));
-  const xgSignal = modelTopKey === "homeWin"
-    ? (featureValue(features.home, "xgDifferenceLast5", 0) - featureValue(features.away, "xgDifferenceLast5", 0))
-    : (featureValue(features.away, "xgDifferenceLast5", 0) - featureValue(features.home, "xgDifferenceLast5", 0));
-  const venueSignal = modelTopKey === "homeWin"
-    ? featureValue(features.context, "homeAwayStrengthDelta", 0)
-    : -featureValue(features.context, "homeAwayStrengthDelta", 0);
-  const lineupPenalty = clamp(
-    (
-      featureValue(features.home, "lineupUncertainty", 0.5) +
-      featureValue(features.away, "lineupUncertainty", 0.5) - 0.9
-    ) * 0.04,
-    0,
-    0.05
-  );
-  const coveragePenalty = clamp(
-    (0.72 - featureValue(features.context, "dataCoverageScore", 0.35)) * 0.05,
-    0,
-    0.04
-  );
-  const supportScore =
-    (clamp(favoriteSignal / 180, 0, 1.1) * 0.45) +
-    (clamp(formSignal / 0.75, 0, 1) * 0.2) +
-    (clamp(xgSignal / 0.45, 0, 1) * 0.2) +
-    (clamp(venueSignal / 0.28, 0, 1) * 0.15);
-  const marketGap = Math.max(0, marketTopProbability - modelTopProbability);
-  const lift = clamp(
-    (marketGap * 0.85) + (supportScore * 0.035) - lineupPenalty - coveragePenalty,
-    0,
-    0.12
-  );
-
-  if (lift <= 0.01) {
-    return {
-      probabilities,
-      diagnostics: {
-        favoriteConsensusLift: 0,
-        favoriteConsensusKey: null
-      }
-    };
-  }
-
-  const targetTopProbability = Math.min(
-    marketTopProbability,
-    modelTopProbability + lift
-  );
-  const rebalanced = rebalanceThreeWayTop(probabilities, modelTopKey, targetTopProbability);
-
+// Disabled: pulling model probabilities toward market consensus when they agree is circular
+// reasoning. It erodes the very edge we are trying to identify, since the model already
+// agrees with the market direction. Keeping the function signature intact for logging
+// compatibility — diagnostics will always show 0 lift.
+function applyFavoriteConsensusLift(probabilities, _features, _marketAnchor) {
   return {
-    probabilities: rebalanced,
+    probabilities,
     diagnostics: {
-      favoriteConsensusLift: round(targetTopProbability - modelTopProbability, 4),
-      favoriteConsensusKey: modelTopKey,
-      favoriteConsensusSupport: round(supportScore, 3)
+      favoriteConsensusLift: 0,
+      favoriteConsensusKey: null,
+      favoriteConsensusSupport: null
     }
   };
 }
@@ -656,7 +565,7 @@ export function buildModelSignals(features, parameterOverrides = null) {
     : getActiveModelParameters().parameters;
   const avgHomeGoals = featureValue(features.competitionAverages, "avgHomeGoals", 1.45);
   const avgAwayGoals = featureValue(features.competitionAverages, "avgAwayGoals", 1.18);
-  const eloDelta = (featureValue(features.home, "elo", 1500) + HOME_ADVANTAGE) - featureValue(features.away, "elo", 1500);
+  const eloDelta = (featureValue(features.home, "elo", 1500) + getActiveHomeAdvantage()) - featureValue(features.away, "elo", 1500);
   const coverageScore = featureValue(features.context, "dataCoverageScore", 0.35);
   const coverageBlend = clamp(0.2 + (coverageScore * 0.75), 0.25, 0.95);
   const baseline = buildEloBaseline(avgHomeGoals, avgAwayGoals, eloDelta, parameters);
