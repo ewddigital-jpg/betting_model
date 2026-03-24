@@ -2,7 +2,7 @@ const state = {
   competition: "CL",
   selectedMatchId: window.__APP_CONTEXT__?.initialMatchId ?? null,
   analysisMode: "simple",
-  detailSection: "overview",
+  detailSection: "summary",
   cardDensity: window.localStorage?.getItem("matchCardDensity") ?? "comfortable",
   scanFilter: window.localStorage?.getItem("matchScanFilter") ?? "all",
   pinnedMatchIds: (() => {
@@ -94,6 +94,19 @@ function coverageLabel(value) {
 
 function coveragePercent(value) {
   return `${Math.round((value ?? 0) * 100)}%`;
+}
+
+function shortKickoff(value) {
+  if (!value) {
+    return "n/a";
+  }
+
+  return new Date(value).toLocaleString([], {
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit"
+  });
 }
 
 function pillTone(value, kind = "default") {
@@ -1148,56 +1161,30 @@ function renderMatches(matches) {
           ${isPinnedMatch(match.id) ? `<span class="match-card-pin-label">Pinned</span>` : ""}
         </div>
         <div class="match-card-top-right">
-          <span class="kickoff">${escapeHtml(match.kickoffLabel)}</span>
-          <button class="match-pin-button ${isPinnedMatch(match.id) ? "is-pinned" : ""}" type="button" data-pin-match-id="${match.id}" aria-label="${isPinnedMatch(match.id) ? "Unpin match" : "Pin match"}">${isPinnedMatch(match.id) ? "Pinned" : "Pin"}</button>
+          <span class="match-status-dot match-status-dot--${sidebarDecisionState(match).tone}"></span>
+          <span class="kickoff match-card-kickoff">${escapeHtml(shortKickoff(match.kickoffTime))}</span>
         </div>
       </div>
       <h3>${escapeHtml(match.homeTeam)} <span>vs</span> ${escapeHtml(match.awayTeam)}</h3>
-      <p class="match-subline">${escapeHtml(match.stage || "League stage")} | Matchday ${escapeHtml(match.matchday ?? "-")}</p>
-      <div class="match-tags">
-        ${renderPill(`${coverageLabel(match.dataCoverageScore)} data`, "coverage")}
-        ${renderPill(match.hasOdds ? "Odds stored" : "Odds pending", match.hasOdds ? "support" : "attention")}
-        ${renderPill(match.lineupStatus || "No lineup read", "lineup")}
-        ${renderPill(match.combo?.label || match.attention?.label || "Watch", match.combo?.label ? "combo" : "attention")}
-      </div>
       ${
         match.probabilities
           ? `
-            <section class="match-card-callout">
-              <div class="match-card-call-main">
-                <span class="eyebrow">Best current angle</span>
-                <strong>${escapeHtml(match.combo?.marketName || "1X2")}: ${escapeHtml(match.combo?.selectionLabel || "No Bet")}</strong>
-                <span class="match-card-price-line">Now ${formatOdds(match.combo?.currentOdds)} | Fair ${formatOdds(match.combo?.fairOdds)} | Target ${formatOdds(match.combo?.targetOdds)}</span>
-              </div>
-              <div class="match-card-call-side">
-                ${renderPill(match.combo?.label || "Avoid", "combo")}
-                ${renderPill(`${match.recommendation.confidence} confidence`, "trust")}
-              </div>
+            <section class="match-card-decision">
+              <strong>${escapeHtml(match.recommendation?.assessment && match.recommendation.assessment !== "No Bet"
+                ? decisionLabelForSelection(
+                    match,
+                    String(match.recommendation.assessment).split(":")[0]?.trim() || "1X2",
+                    String(match.recommendation.assessment).split(":").slice(1).join(":").trim()
+                  )
+                : "NO BET")}</strong>
+              <span>${escapeHtml(sidebarDecisionState(match).label)}</span>
             </section>
-            <div class="match-card-strip match-card-strip-compact">
-              <div class="mini-metric">
-                <span>Credibility</span>
-                <strong>${match.credibility?.score ?? 0}/100</strong>
-                <small>${escapeHtml(match.credibility?.label || "Fragile")}</small>
-              </div>
-              <div class="mini-metric">
-                <span>Trust</span>
-                <strong>${match.trust?.score ?? 0}/100</strong>
-                <small>${escapeHtml(match.trust?.label || "Fragile")}</small>
-              </div>
-              <div class="mini-metric">
-                <span>Price edge</span>
-                <strong>${formatEdge(match.combo?.edge)}</strong>
-                <small>${escapeHtml(match.sourceQuality || "Soft")} sources</small>
-              </div>
+            <p class="match-card-reason">${escapeHtml(humanizeUiCopy(match.attention?.note || match.recommendation?.assessment || "No clear call yet."))}</p>
+            <div class="match-card-meta-row">
+              <span>Model: ${escapeHtml(topResult(match.probabilities, match).label)} ${percent(topResult(match.probabilities, match).probability)}</span>
+              <span>Odds: ${formatOdds(match.combo?.currentOdds)}</span>
+              <span>${escapeHtml(match.hasOdds ? "Price on board" : "Price pending")}</span>
             </div>
-            <div class="mini-probs mini-probs-card">
-              <div class="mini-prob-item"><strong>${escapeHtml(match.homeTeam)}</strong><span>${percent(match.probabilities.homeWin)}</span></div>
-              <div class="mini-prob-item"><strong>Draw</strong><span>${percent(match.probabilities.draw)}</span></div>
-              <div class="mini-prob-item"><strong>${escapeHtml(match.awayTeam)}</strong><span>${percent(match.probabilities.awayWin)}</span></div>
-            </div>
-            <p class="bet-opinion"><strong>${escapeHtml(match.attention?.label || "Watch")}:</strong> ${escapeHtml(match.attention?.note || match.recommendation.assessment)}</p>
-            <p class="bet-opinion muted">${renderPill(`${match.sourceQuality || "Soft"} sources`, "source")} ${renderPill(`${match.credibility?.label || match.trust?.label || "Fragile"} credibility`, "credibility")}</p>
           `
           : `<p class="bet-opinion muted">${escapeHtml(match.warning || "Analysis not available yet.")}</p>`
       }
@@ -1216,16 +1203,6 @@ function renderMatches(matches) {
 
   document.querySelectorAll("[data-match-id]").forEach((element) => {
     element.addEventListener("click", () => openMatch(Number(element.dataset.matchId)));
-  });
-  document.querySelectorAll("[data-pin-match-id]").forEach((element) => {
-    element.addEventListener("click", (event) => {
-      event.stopPropagation();
-      togglePinnedMatch(Number(element.dataset.pinMatchId));
-      renderMatches(state.matches);
-      if (state.currentDetail) {
-        renderDetail(state.currentDetail);
-      }
-    });
   });
 }
 
@@ -1319,29 +1296,177 @@ function bestCurrentAngle(markets) {
   return candidates[0] ?? null;
 }
 
-function renderDecisionBanner(detail) {
-  const fallback = bestCurrentAngle(detail.markets);
+function humanizeUiCopy(text) {
+  return String(text ?? "")
+    .replaceAll("No usable odds stored yet.", "No reliable price available yet.")
+    .replaceAll("No usable bookmaker price is stored yet.", "No reliable price available yet.")
+    .replaceAll("The setup is still too fragile.", "Data quality is too weak for a bet.")
+    .replaceAll("There is a lean here, but not a clean bet yet.", "There is a lean here, but not a bet yet.")
+    .replaceAll("No lineup read", "Lineups not clear yet")
+    .trim();
+}
+
+function sidebarDecisionState(match) {
+  if (!match?.probabilities) {
+    return { label: "Pending", tone: "pending" };
+  }
+
+  if (match.recommendation?.assessment && match.recommendation.assessment !== "No Bet") {
+    return { label: "Bet", tone: "bet" };
+  }
+
+  if (match.hasOdds) {
+    return { label: "No bet", tone: "no-bet" };
+  }
+
+  return { label: "Pending", tone: "pending" };
+}
+
+function marketKeyFromName(marketName) {
+  if (marketName === "Over / Under 2.5") {
+    return "totals25";
+  }
+
+  if (marketName === "BTTS") {
+    return "btts";
+  }
+
+  return "oneXTwo";
+}
+
+function decisionLabelForSelection(match, marketName, selectionLabel) {
+  if (!selectionLabel) {
+    return "BET";
+  }
+
+  if (marketName === "1X2") {
+    if (selectionLabel === "Draw") {
+      return "BET: DRAW";
+    }
+
+    if (selectionLabel === match.homeTeam) {
+      return "BET: HOME WIN";
+    }
+
+    if (selectionLabel === match.awayTeam) {
+      return "BET: AWAY WIN";
+    }
+  }
+
+  return `BET: ${selectionLabel.toUpperCase()}`;
+}
+
+function plainDataQualityLabel(detail, focusMarket) {
+  const hasAnyOdds = Object.values(detail.markets ?? {}).some((market) => market.hasOdds);
+  const focusHasOdds = Boolean(focusMarket?.hasOdds && focusMarket?.bestOption?.bookmakerOdds);
+
+  if (!hasAnyOdds || !focusHasOdds) {
+    return "No reliable price available yet";
+  }
 
   if (detail.bestBet?.hasBet) {
-    return renderBestBet(detail.bestBet);
+    return "Price looks usable";
   }
 
-  if (!fallback) {
-    return renderBestBet(detail.bestBet);
+  return "Price quality is too weak";
+}
+
+function buildDecisionReason(detail, focusMarket) {
+  if (detail.bestBet?.hasBet) {
+    return humanizeUiCopy(detail.bestBet.reason || detail.analysis.verdict);
   }
+
+  if (!Object.values(detail.markets ?? {}).some((market) => market.hasOdds)) {
+    return "No reliable price available yet. The model may have a lean, but there is nothing trustworthy enough to bet.";
+  }
+
+  return humanizeUiCopy(
+    detail.context.attention?.note ||
+    focusMarket?.recommendation?.shortReason ||
+    detail.analysis.verdict
+  );
+}
+
+function buildModelMarketSummary(detail, focusMarket) {
+  const option = focusMarket?.bestOption;
+  const lean = topResult(detail.overview.probabilities, detail.match);
+
+  if (!option?.bookmakerOdds) {
+    return `${escapeHtml(lean.label)} is the top model lean at ${percent(lean.probability)}, but there is no reliable price to compare yet.`;
+  }
+
+  const marketProbability = option.impliedProbability ? percent(option.impliedProbability) : "n/a";
+  return `${escapeHtml(focusMarket.name)} leans ${escapeHtml(option.shortLabel)} at ${percent(option.modelProbability)} on the model versus ${marketProbability} on the market. Book ${formatOdds(option.bookmakerOdds)} versus fair ${formatOdds(option.fairOdds)}.`;
+}
+
+function renderDecisionBanner(detail) {
+  const focusMarket = detail.bestBet?.hasBet
+    ? detail.markets[marketKeyFromName(detail.bestBet.marketName)]
+    : bestCurrentAngle(detail.markets);
+  const option = focusMarket?.bestOption ?? null;
+  const decisionLabel = detail.bestBet?.hasBet
+    ? decisionLabelForSelection(detail.match, detail.bestBet.marketName, detail.bestBet.selectionLabel)
+    : "NO BET";
+  const decisionTone = detail.bestBet?.hasBet ? "bet" : "no-bet";
+  const statusLine = [
+    detail.bestBet?.hasBet ? `${detail.bestBet.marketName}` : "Discipline first",
+    detail.analysis?.confidence?.level ?? "Low",
+    plainDataQualityLabel(detail, focusMarket)
+  ].filter(Boolean).join(" · ");
+  const reason = buildDecisionReason(detail, focusMarket);
+  const modelMarketSummary = buildModelMarketSummary(detail, focusMarket);
 
   return `
-    <section class="best-bet-banner muted-banner">
-      <span class="eyebrow">Best Current Angle</span>
-      <strong>${escapeHtml(fallback.name)}: ${escapeHtml(fallback.bestOption.shortLabel)}</strong>
-      <div class="best-bet-meta">
-        <span>Action: No Bet</span>
-        <span>Fair: ${formatOdds(fallback.bestOption.fairOdds)}</span>
-        <span>Now: ${formatOdds(fallback.bestOption.bookmakerOdds)}</span>
-        <span>Watch above: ${formatOdds(fallback.bestOption.targetOdds)}</span>
+    <section class="decision-banner decision-banner--${decisionTone}">
+      <div class="decision-banner-main">
+        <span class="eyebrow">Current decision</span>
+        <strong class="decision-title">${escapeHtml(decisionLabel)}</strong>
+        <p class="decision-status-line">${escapeHtml(statusLine)}</p>
+        <p class="decision-reason">${escapeHtml(reason)}</p>
       </div>
-      <p>${escapeHtml(fallback.recommendation.shortReason)}</p>
+      <div class="decision-banner-side">
+        <article class="decision-mini">
+          <span>Reason</span>
+          <strong>${escapeHtml(detail.bestBet?.hasBet ? "Model and price line up" : "No clean bet setup")}</strong>
+        </article>
+        <article class="decision-mini">
+          <span>Model vs market</span>
+          <strong>${option?.bookmakerOdds ? `${percent(option.modelProbability)} / ${option.impliedProbability ? percent(option.impliedProbability) : "n/a"}` : `${percent(topResult(detail.overview.probabilities, detail.match).probability)} model lean`}</strong>
+        </article>
+        <article class="decision-mini">
+          <span>Book vs fair</span>
+          <strong>${option?.bookmakerOdds ? `${formatOdds(option.bookmakerOdds)} / ${formatOdds(option.fairOdds)}` : "n/a"}</strong>
+        </article>
+        <article class="decision-mini">
+          <span>Data quality</span>
+          <strong>${escapeHtml(plainDataQualityLabel(detail, focusMarket))}</strong>
+        </article>
+      </div>
+      <p class="decision-banner-summary">${modelMarketSummary}</p>
     </section>
+  `;
+}
+
+function renderDecisionCard(detail) {
+  return renderDecisionBanner(detail);
+}
+
+function renderMatchHeader(detail, lineupMeta, pinned) {
+  return `
+    <div class="detail-hero">
+      <div class="detail-header detail-header-simple">
+        <div class="detail-hero-copy">
+          <p class="eyebrow">${escapeHtml(detail.match.competitionName)}</p>
+          <h2>${escapeHtml(detail.match.name)}</h2>
+          <p class="meta">${escapeHtml(detail.match.kickoffLabel)} | ${escapeHtml(detail.match.stage || "Stage n/a")} | ${escapeHtml(detail.match.status)}</p>
+          <div class="detail-hero-tags">
+            ${renderPill(lineupMeta.value, "lineup")}
+            ${renderPill(detail.bestBet?.hasBet ? "Bet live" : "No bet", detail.bestBet?.hasBet ? "attention" : "coverage")}
+          </div>
+        </div>
+        <button class="match-pin-button match-pin-button-detail ${pinned ? "is-pinned" : ""}" type="button" data-pin-current-match="${detail.match?.id ?? state.selectedMatchId}" aria-label="${pinned ? "Unpin match" : "Pin match"}">${pinned ? "Pinned match" : "Pin match"}</button>
+      </div>
+    </div>
   `;
 }
 
@@ -1398,11 +1523,9 @@ function renderMarketPanel(panel) {
 
 function renderDetailTabs() {
   const tabs = [
-    { key: "overview", label: "Overview" },
-    { key: "teamnews", label: "Team News" },
-    { key: "prices", label: "Markets" },
-    { key: "history", label: "History" },
-    { key: "technical", label: "Technical" }
+    { key: "summary", label: "Summary" },
+    { key: "market", label: "Market vs Model" },
+    { key: "quality", label: "Data Quality" }
   ];
 
   return `
@@ -1756,17 +1879,65 @@ function bindDetailTabs() {
   });
 }
 
-function renderOverviewSection(detail) {
+function renderSummarySection(detail) {
   const lineupMeta = lineupStatusMeta(detail);
-  const comboTone = pillTone(detail.combo.label, "combo");
-  const credibilityTone = pillTone(detail.overview.credibilityLabel, "credibility");
-  const trustTone = pillTone(detail.overview.trustLabel, "trust");
-  const lineupTone = pillTone(lineupMeta.value, "lineup");
+  const focusMarket = detail.bestBet?.hasBet
+    ? detail.markets[marketKeyFromName(detail.bestBet.marketName)]
+    : bestCurrentAngle(detail.markets);
 
   return `
-    ${renderDecisionBanner(detail)}
+    ${renderDecisionCard(detail)}
 
-    ${renderModelLean(detail)}
+    <section class="grid grid-two">
+      ${renderTextPanel("Why this call", humanizeUiCopy(detail.analysis.verdict))}
+      ${renderTextPanel("Model vs market", buildModelMarketSummary(detail, focusMarket))}
+    </section>
+
+    <section class="grid grid-two">
+      ${renderTextPanel("Most likely result", humanizeUiCopy(detail.analysis.modelLean))}
+      ${renderTextPanel("What could change it", humanizeUiCopy(detail.analysis.watchTriggers?.[0] || detail.analysis.whyNot))}
+    </section>
+
+    <details class="panel secondary-details" open>
+      <summary>Open decision details</summary>
+      <div class="decision-mini-grid">
+        <article class="decision-mini">
+          <span>Lineups</span>
+          <strong>${escapeHtml(lineupMeta.value)}</strong>
+          <small>${escapeHtml(lineupMeta.note)}</small>
+        </article>
+        <article class="decision-mini">
+          <span>Confidence</span>
+          <strong>${escapeHtml(detail.analysis.confidence.level)}</strong>
+          <small>${escapeHtml((detail.analysis.confidence.reasons ?? [])[0] || "No extra confidence note stored.")}</small>
+        </article>
+        <article class="decision-mini">
+          <span>Data depth</span>
+          <strong>${coveragePercent(detail.overview.dataCoverageScore)}</strong>
+          <small>${escapeHtml(coverageLabel(detail.overview.dataCoverageScore))} match context</small>
+        </article>
+        <article class="decision-mini">
+          <span>Current focus</span>
+          <strong>${escapeHtml(focusMarket?.name ?? "No market")}</strong>
+          <small>${escapeHtml(focusMarket?.bestOption?.shortLabel || "No reliable price available yet.")}</small>
+        </article>
+      </div>
+    </details>
+  `;
+}
+
+function renderMarketVsModelSection(detail) {
+  return `
+    <section class="grid grid-two">
+      <article class="panel">
+        <h3>Model lean</h3>
+        ${renderProbabilityBars(detail.overview.probabilities, detail.match)}
+      </article>
+      <article class="panel">
+        <h3>Most likely scorelines</h3>
+        ${renderScorelines(detail.analysis.scorelines)}
+      </article>
+    </section>
 
     <section class="market-grid">
       ${renderMarketPanel(detail.markets.oneXTwo)}
@@ -1774,59 +1945,75 @@ function renderOverviewSection(detail) {
       ${renderMarketPanel(detail.markets.btts)}
     </section>
 
-    <section class="panel summary-panel">
-      <h3>Verdict</h3>
-      <p class="analysis-copy">${escapeHtml(detail.analysis.verdict)}</p>
-    </section>
-
     <section class="grid grid-two">
-      ${renderTextPanel("Most Likely Result", detail.analysis.modelLean)}
-      ${renderTextPanel("Price View", detail.analysis.priceView)}
-    </section>
-
-    <section class="grid grid-four compact-insights">
-      <article class="insight-card insight-card-tone-${pillTone(coverageLabel(detail.overview.dataCoverageScore), "coverage")}">
-        <span>Sample</span>
-        <strong>${coveragePercent(detail.overview.dataCoverageScore)}</strong>
-        <small>${escapeHtml(coverageLabel(detail.overview.dataCoverageScore))} data depth</small>
-      </article>
-      <article class="insight-card insight-card-tone-${credibilityTone}">
-        <span>Credibility</span>
-        <strong>${escapeHtml(detail.overview.credibilityLabel)}</strong>
-        <small>${detail.overview.credibilityScore}/100 current match credibility</small>
-      </article>
-      <article class="insight-card insight-card-tone-${trustTone}">
-        <span>Trust</span>
-        <strong>${escapeHtml(detail.overview.trustLabel)}</strong>
-        <small>${detail.overview.trustScore}/100 market trust</small>
-      </article>
-      <article class="insight-card insight-card-tone-${lineupTone}">
-        <span>${escapeHtml(lineupMeta.label)}</span>
-        <strong>${escapeHtml(lineupMeta.value)}</strong>
-        <small>${escapeHtml(lineupMeta.note)}</small>
-      </article>
-      <article class="insight-card insight-card-tone-${comboTone}">
-        <span>Combo Fit</span>
-        <strong>${escapeHtml(detail.combo.label)}</strong>
-        <small>${escapeHtml(detail.combo.note)}</small>
-      </article>
-    </section>
-
-    <section class="grid grid-three">
-      ${renderInsightList("Why The Model Leans This Way", detail.analysis.keyReasons, "No strong positive drivers highlighted.")}
-      ${renderTextPanel("Why It Can Miss", detail.analysis.whyNot)}
       <article class="panel">
-        <h3>Confidence</h3>
-        <p class="confidence-level">${escapeHtml(detail.analysis.confidence.level)}</p>
+        <h3>Recommendation history</h3>
+        ${renderRecommendationHistory(detail.recommendationHistory)}
+      </article>
+      <article class="panel">
+        <h3>Analyst summary</h3>
+        <p class="analysis-copy">${escapeHtml(humanizeUiCopy(detail.analysis.summary))}</p>
+      </article>
+    </section>
+  `;
+}
+
+function renderDataQualitySection(detail) {
+  return `
+    <section class="grid grid-two">
+      <article class="panel">
+        <h3>Price quality</h3>
+        <div class="decision-mini-grid">
+          <article class="decision-mini">
+            <span>Primary bookmaker</span>
+            <strong>${escapeHtml(detail.market.selectedBookmaker?.bookmakerTitle || "Not available")}</strong>
+            <small>Current comparison source</small>
+          </article>
+          <article class="decision-mini">
+            <span>Last snapshot</span>
+            <strong>${escapeHtml(formatTimestamp(detail.market.selectedBookmaker?.retrievedAt))}</strong>
+            <small>Latest stored price time</small>
+          </article>
+          <article class="decision-mini">
+            <span>Data depth</span>
+            <strong>${coveragePercent(detail.overview.dataCoverageScore)}</strong>
+            <small>${escapeHtml(coverageLabel(detail.overview.dataCoverageScore))} match context</small>
+          </article>
+          <article class="decision-mini">
+            <span>Lineups</span>
+            <strong>${escapeHtml(lineupStatusMeta(detail).value)}</strong>
+            <small>${escapeHtml(lineupStatusMeta(detail).note)}</small>
+          </article>
+        </div>
+      </article>
+      <article class="panel">
+        <h3>Price notes</h3>
         <ul class="analysis-list">
-          ${detail.analysis.confidence.reasons.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}
+          <li>${escapeHtml(humanizeUiCopy(detail.markets.oneXTwo.recommendation.triggerNote))}</li>
+          <li>${escapeHtml(humanizeUiCopy(detail.markets.totals25.recommendation.triggerNote))}</li>
+          <li>${escapeHtml(humanizeUiCopy(detail.markets.btts.recommendation.triggerNote))}</li>
         </ul>
       </article>
     </section>
 
+    ${renderAvailabilityPanel(detail)}
+    ${renderNewsPanel(detail)}
+
     <section class="grid grid-two">
-      ${renderInsightList("What Would Upgrade This", detail.analysis.watchTriggers, "Nothing immediate changes the call beyond normal late team-news and price checks.")}
-      ${renderInsightList("Risk Factors", detail.analysis.riskFactors, "No extra risk flags beyond the main note.")}
+      <article class="panel">
+        <h3>Context</h3>
+        <div class="stat-pair"><span>Venue</span><strong>${escapeHtml(detail.context.venueName || "n/a")}</strong></div>
+        <div class="stat-pair"><span>Weather</span><strong>${escapeHtml(detail.context.weatherSummary || "n/a")}</strong></div>
+        <div class="stat-pair"><span>${escapeHtml(detail.match.homeTeam)}</span><strong>${detail.standings.home?.position ? `Pos ${detail.standings.home.position}` : "n/a"}</strong></div>
+        <div class="stat-pair"><span>${escapeHtml(detail.match.awayTeam)}</span><strong>${detail.standings.away?.position ? `Pos ${detail.standings.away.position}` : "n/a"}</strong></div>
+      </article>
+      ${renderTechnicalPanel(detail)}
+    </section>
+
+    <section class="panel">
+      <h3>1X2 odds table</h3>
+      <p class="muted">Primary bookmaker: ${escapeHtml(detail.market.selectedBookmaker?.bookmakerTitle || "n/a")} | Last snapshot: ${escapeHtml(formatTimestamp(detail.market.selectedBookmaker?.retrievedAt))}</p>
+      ${renderOddsTable(detail)}
     </section>
   `;
 }
@@ -1900,98 +2087,24 @@ function renderHistorySection(detail) {
 function renderDetail(detail) {
   const safeDetail = normalizeDetail(detail);
   state.currentDetail = safeDetail;
-  const headlineConfidence = safeDetail.bestBet?.hasBet
-    ? (safeDetail.bestBet.confidence ?? safeDetail.analysis?.confidence?.level ?? "Medium")
-    : (safeDetail.analysis?.confidence?.level ?? "Medium");
-  const topCallLabel = safeDetail.bestBet?.hasBet
-    ? `${safeDetail.bestBet.marketName}: ${safeDetail.bestBet.selectionLabel}`
-    : "No Bet";
-  const topCallNote = safeDetail.bestBet?.hasBet
-    ? "Top call across 1X2, Over/Under 2.5, and BTTS"
-    : "No market cleared the threshold";
   const lineupMeta = lineupStatusMeta(safeDetail);
-  const attention = safeDetail.context.attention ?? { label: "Watch", note: "This match still needs a closer look." };
-  const shortlist = safeDetail.context.shortlist ?? { label: "Check Again", note: "Still needs another late look." };
-  const combo = safeDetail.combo ?? { label: "Avoid", note: "No combo fit yet." };
   const pinned = isPinnedMatch(safeDetail.match?.id ?? state.selectedMatchId);
 
   detailViewEl.innerHTML = `
-    <div class="detail-hero">
-      <div class="detail-header">
-        <div class="detail-hero-copy">
-          <p class="eyebrow">${escapeHtml(safeDetail.match.competitionName)}</p>
-          <h2>${escapeHtml(safeDetail.match.name)}</h2>
-          <p class="meta">${escapeHtml(safeDetail.match.kickoffLabel)} | ${escapeHtml(safeDetail.match.stage || "Stage n/a")} | ${escapeHtml(safeDetail.match.status)}</p>
-          <div class="detail-hero-tags">
-            ${renderPill(combo.label, "combo")}
-            ${renderPill(attention.label, "attention")}
-            ${renderPill(shortlist.label, "attention")}
-            ${renderPill(lineupMeta.value, "lineup")}
-          </div>
-          <div class="detail-hero-strip">
-            <article class="mini-metric">
-              <span>Top call</span>
-              <strong>${escapeHtml(topCallLabel)}</strong>
-              <small>${escapeHtml(topCallNote)}</small>
-            </article>
-            <article class="mini-metric">
-              <span>Credibility</span>
-              <strong>${safeDetail.overview.credibilityScore}/100</strong>
-              <small>${escapeHtml(safeDetail.overview.credibilityLabel)}</small>
-            </article>
-            <article class="mini-metric">
-              <span>Trust</span>
-              <strong>${safeDetail.overview.trustScore}/100</strong>
-              <small>${escapeHtml(safeDetail.overview.trustLabel)}</small>
-            </article>
-            <article class="mini-metric">
-              <span>Confidence</span>
-              <strong>${escapeHtml(headlineConfidence)}</strong>
-              <small>${escapeHtml(combo.note)}</small>
-            </article>
-          </div>
-        </div>
-        <div class="detail-actions">
-          <div class="detail-top-actions">
-            <button class="match-pin-button match-pin-button-detail ${pinned ? "is-pinned" : ""}" type="button" data-pin-current-match="${safeDetail.match?.id ?? state.selectedMatchId}" aria-label="${pinned ? "Unpin match" : "Pin match"}">${pinned ? "Pinned match" : "Pin match"}</button>
-            <div class="toggle-group">
-              <button class="toggle-button ${state.analysisMode === "simple" ? "is-active" : ""}" data-mode="simple" type="button">Simple</button>
-              <button class="toggle-button ${state.analysisMode === "technical" ? "is-active" : ""}" data-mode="technical" type="button">Technical</button>
-            </div>
-          </div>
-          <div class="recommendation-card">
-            <span class="recommendation-label">Why this is on the board</span>
-            <strong>${escapeHtml(topCallLabel)}</strong>
-            <span>${escapeHtml(attention.note)}</span>
-            <div class="recommendation-tags">
-              ${renderPill(`${headlineConfidence} confidence`, "trust")}
-              ${renderPill(`${safeDetail.overview.credibilityLabel} credibility`, "credibility")}
-              ${renderPill(`${safeDetail.overview.trustLabel} trust`, "trust")}
-            </div>
-            <span>${escapeHtml(combo.note)}</span>
-            <span>${escapeHtml(lineupMeta.note)}</span>
-          </div>
-        </div>
-      </div>
-    </div>
+    ${renderMatchHeader(safeDetail, lineupMeta, pinned)}
     ${renderDetailTabs()}
 
     <section class="detail-section">
       ${
-        state.detailSection === "overview"
-          ? renderOverviewSection(safeDetail)
-          : state.detailSection === "teamnews"
-            ? renderTeamNewsSection(safeDetail)
-            : state.detailSection === "prices"
-              ? renderPricesSection(safeDetail)
-              : state.detailSection === "history"
-                ? renderHistorySection(safeDetail)
-                : renderTechnicalPanel(safeDetail)
+        state.detailSection === "summary"
+          ? renderSummarySection(safeDetail)
+          : state.detailSection === "market"
+            ? renderMarketVsModelSection(safeDetail)
+            : renderDataQualitySection(safeDetail)
       }
     </section>
   `;
 
-  bindModeToggle();
   bindDetailTabs();
   detailViewEl.querySelector("[data-pin-current-match]")?.addEventListener("click", () => {
     togglePinnedMatch(Number(safeDetail.match?.id ?? state.selectedMatchId));
@@ -2357,18 +2470,23 @@ async function loadCollectorStatus() {
     const latest = payload.latestRun;
 
     if (!latest) {
-      setCollectorStatus("Collector has not run yet. Use Sync Data to seed the archive.");
+      setCollectorStatus("Collector not run yet.");
       return;
     }
 
     const summary = latest.summary?.analysis;
+    const statusLabel = latest.status === "success"
+      ? "Collector OK"
+      : latest.status === "partial"
+        ? "Collector partial"
+        : latest.status === "failed"
+          ? "Collector failed"
+          : "Collector running";
     const message = [
-      `Collector ${latest.status}`,
-      latest.finishedAt ? `finished ${new Date(latest.finishedAt).toLocaleString()}` : "still running",
-      summary ? `${summary.analyzedMatches} matches analyzed` : null,
-      summary ? `${summary.withOdds} with odds` : null,
-      summary && summary.lowCoverage ? `${summary.lowCoverage} low-coverage` : null
-    ].filter(Boolean).join(" | ");
+      statusLabel,
+      summary ? `${summary.analyzedMatches} analyzed` : null,
+      summary ? `${summary.withOdds} with prices` : null
+    ].filter(Boolean).join(" · ");
 
     setCollectorStatus(message, latest.status === "failed" ? "error" : latest.status === "partial" ? "warning" : "success");
   } catch (error) {

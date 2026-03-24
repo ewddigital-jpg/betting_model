@@ -9,6 +9,10 @@ import { SCHEMA_SQL } from "./schema.js";
 
 let database;
 
+function shouldSkipDbMaintenance(rawValue = process.env.DB_SKIP_MAINTENANCE) {
+  return String(rawValue ?? "").toLowerCase() === "true";
+}
+
 function ensureColumn(db, tableName, columnName, definition) {
   const columns = db.prepare(`PRAGMA table_info(${tableName})`).all();
   const exists = columns.some((column) => column.name === columnName);
@@ -311,28 +315,39 @@ export function getDb() {
 
   ensureDirectory(env.dbPath);
   database = new DatabaseSync(env.dbPath);
-  database.exec("PRAGMA journal_mode = WAL;");
   database.exec("PRAGMA busy_timeout = 5000;");
-  database.exec(SCHEMA_SQL);
-  runMigrations(database);
-  backfillOddsQuoteHistory(database);
+  const skipMaintenance = shouldSkipDbMaintenance();
 
-  const competitionCount = database.prepare("SELECT COUNT(*) AS count FROM competitions").get().count;
+  if (!skipMaintenance) {
+    database.exec("PRAGMA journal_mode = WAL;");
+    database.exec(SCHEMA_SQL);
+    runMigrations(database);
+    backfillOddsQuoteHistory(database);
 
-  if (competitionCount === 0) {
-    const insertCompetition = database.prepare(`
-      INSERT OR IGNORE INTO competitions (code, name, sport_key, last_synced_at)
-      VALUES (?, ?, ?, NULL)
-    `);
+    const competitionCount = database.prepare("SELECT COUNT(*) AS count FROM competitions").get().count;
 
-    for (const competition of SUPPORTED_COMPETITIONS) {
-      insertCompetition.run(competition.code, competition.name, competition.sportKey);
+    if (competitionCount === 0) {
+      const insertCompetition = database.prepare(`
+        INSERT OR IGNORE INTO competitions (code, name, sport_key, last_synced_at)
+        VALUES (?, ?, ?, NULL)
+      `);
+
+      for (const competition of SUPPORTED_COMPETITIONS) {
+        insertCompetition.run(competition.code, competition.name, competition.sportKey);
+      }
     }
   }
 
-  logger.info("Database initialized", { dbPath: env.dbPath });
+  logger.info("Database initialized", {
+    dbPath: env.dbPath,
+    skipMaintenance
+  });
   return database;
 }
+
+export const __databaseTestables = {
+  shouldSkipDbMaintenance
+};
 
 export function withTransaction(callback) {
   const db = getDb();

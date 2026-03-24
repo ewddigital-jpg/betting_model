@@ -23,6 +23,7 @@
     "odds:coverage": "node scripts/odds-coverage.js",
     "quant-review": "node scripts/quant-review.js",
     "forward-validation": "node scripts/forward-validation.js",
+    "ops:daily": "node scripts/forward-validation.js 300",
     "debug:suspicious-picks": "node scripts/debug-suspicious-picks.js",
     "forensic:unrealistic": "node scripts/forensic-unrealistic-recommendations.js",
     "audit:team-identity": "node scripts/team-identity-audit.js",

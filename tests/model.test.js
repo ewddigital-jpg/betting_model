@@ -1,17 +1,277 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { getDb } from "../src/db/database.js";
+import { __databaseTestables } from "../src/db/database.js";
 import { buildRatingsUntil } from "../src/modules/analysis/eloEngine.js";
 import { calculateProbabilities } from "../src/modules/analysis/probabilityModel.js";
 import { impliedProbability } from "../src/lib/math.js";
 import { __bettingEngineTestables } from "../src/modules/analysis/bettingEngine.js";
-import { __collectorTestables } from "../src/modules/data/collectorService.js";
+import { __collectorTestables, getForwardValidationReport } from "../src/modules/data/collectorService.js";
 import { __compliantOddsTestables } from "../src/modules/data/compliantOddsSourceService.js";
+import { hasCompetitionLiveOddsPath } from "../src/config/leagues.js";
 import { __featureBuilderTestables } from "../src/modules/analysis/featureBuilder.js";
 import { __historicalOddsImporterTestables } from "../src/modules/data/importers/historicalOddsImporter.js";
 import { __oddsMatchingTestables } from "../src/modules/data/syncService.js";
 import { scoreOddsBoard, summarizeOddsBoardRows } from "../src/modules/data/oddsBoardService.js";
+import { buildForwardValidationLogEntry } from "../src/modules/runtime/operationsLogService.js";
 import { __teamIdentityTestables } from "../src/modules/data/teamIdentity.js";
+
+function clearBoardSelectionFixtures(matchId) {
+  const db = getDb();
+  db.prepare("DELETE FROM analysis_reports WHERE match_id = ?").run(matchId);
+  db.prepare("DELETE FROM recommendation_snapshots WHERE match_id = ?").run(matchId);
+  db.prepare("DELETE FROM match_context WHERE match_id = ?").run(matchId);
+  db.prepare("DELETE FROM team_match_advanced_stats WHERE match_id = ?").run(matchId);
+  db.prepare("DELETE FROM odds_quote_history WHERE match_id = ?").run(matchId);
+  db.prepare("DELETE FROM odds_snapshots WHERE match_id = ?").run(matchId);
+  db.prepare("DELETE FROM odds_market_boards WHERE match_id = ?").run(matchId);
+  db.prepare("DELETE FROM matches WHERE id = ?").run(matchId);
+  db.prepare("DELETE FROM teams WHERE id IN (?, ?)").run(matchId * 10 + 1, matchId * 10 + 2);
+}
+
+function ensureBoardSelectionFixtureMatch(matchId, kickoffTime, competitionCode = "EL") {
+  const db = getDb();
+  const homeTeamId = matchId * 10 + 1;
+  const awayTeamId = matchId * 10 + 2;
+  const now = "2026-03-23T12:00:00Z";
+
+  ensureCompetition(competitionCode);
+
+  db.prepare(`
+    INSERT INTO teams (id, source_team_id, name, short_name, tla, crest, created_at, updated_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+  `).run(homeTeamId, homeTeamId, `Test Home ${matchId}`, `Home ${matchId}`, `H${matchId}`.slice(0, 3), null, now, now);
+  db.prepare(`
+    INSERT INTO teams (id, source_team_id, name, short_name, tla, crest, created_at, updated_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+  `).run(awayTeamId, awayTeamId, `Test Away ${matchId}`, `Away ${matchId}`, `A${matchId}`.slice(0, 3), null, now, now);
+  db.prepare(`
+    INSERT INTO matches (
+      id, source_match_id, competition_code, season, utc_date, status, matchday, stage, group_name,
+      home_team_id, away_team_id, home_score, away_score, winner, odds_event_id, last_synced_at
+    )
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `).run(matchId, matchId, competitionCode, 2026, kickoffTime, "SCHEDULED", null, null, null, homeTeamId, awayTeamId, null, null, null, null, now);
+}
+
+function insertLiveSnapshotRows(matchId, market, rows) {
+  const db = getDb();
+  const statement = db.prepare(`
+    INSERT INTO odds_snapshots (
+      match_id, bookmaker_key, bookmaker_title, source_provider, source_label, market,
+      home_price, draw_price, away_price, is_live, retrieved_at
+    )
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `);
+
+  for (const row of rows) {
+    statement.run(
+      matchId,
+      row.bookmaker_key,
+      row.bookmaker_title ?? row.bookmaker_key,
+      row.source_provider ?? "odds-api",
+      row.source_label ?? null,
+      market,
+      row.home_price ?? null,
+      row.draw_price ?? null,
+      row.away_price ?? null,
+      0,
+      row.retrieved_at ?? null
+    );
+  }
+}
+
+function insertTrustedCacheBoard(matchId, market, rows, options = {}) {
+  const db = getDb();
+  const quality = scoreOddsBoard(rows, market, {
+    kickoffTime: options.kickoffTime,
+    now: options.now,
+    quotaDegraded: false,
+    sourceProvider: options.sourceProvider ?? "trusted-cache",
+    sourceMode: "trusted_cache"
+  });
+
+  db.prepare(`
+    INSERT INTO odds_market_boards (
+      match_id, market, source_provider, source_mode, board_quality_tier, board_quality_score,
+      bookmaker_count, freshness_minutes, completeness_score, implied_consistency_score,
+      quota_degraded_flag, board_recorded_at, board_json, updated_at, source_reliability_score, source_label
+    )
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ON CONFLICT(match_id, market, source_mode) DO UPDATE SET
+      source_provider = excluded.source_provider,
+      board_quality_tier = excluded.board_quality_tier,
+      board_quality_score = excluded.board_quality_score,
+      bookmaker_count = excluded.bookmaker_count,
+      freshness_minutes = excluded.freshness_minutes,
+      completeness_score = excluded.completeness_score,
+      implied_consistency_score = excluded.implied_consistency_score,
+      quota_degraded_flag = excluded.quota_degraded_flag,
+      board_recorded_at = excluded.board_recorded_at,
+      board_json = excluded.board_json,
+      updated_at = excluded.updated_at,
+      source_reliability_score = excluded.source_reliability_score,
+      source_label = excluded.source_label
+  `).run(
+    matchId,
+    market,
+    options.sourceProvider ?? "trusted-cache",
+    "trusted_cache",
+    quality.tier,
+    quality.score,
+    quality.bookmakerCount,
+    quality.freshnessMinutes,
+    quality.completenessScore,
+    quality.impliedConsistencyScore,
+    0,
+    rows.map((row) => row.retrieved_at).filter(Boolean).sort().at(-1) ?? null,
+    JSON.stringify(rows),
+    options.now,
+    quality.sourceReliabilityScore,
+    options.sourceLabel ?? null
+  );
+
+  return quality;
+}
+
+function clearRecommendationFixtures(matchId) {
+  const db = getDb();
+  db.prepare("DELETE FROM recommendation_snapshots WHERE match_id = ?").run(matchId);
+  db.prepare("DELETE FROM odds_snapshots WHERE match_id = ?").run(matchId);
+  db.prepare("DELETE FROM odds_market_boards WHERE match_id = ?").run(matchId);
+  db.prepare("DELETE FROM matches WHERE id = ?").run(matchId);
+  db.prepare("DELETE FROM teams WHERE id IN (?, ?)").run(matchId * 10 + 1, matchId * 10 + 2);
+}
+
+function ensureCompetition(code) {
+  const db = getDb();
+  db.prepare(`
+    INSERT INTO competitions (code, name, sport_key, last_synced_at)
+    VALUES (?, ?, ?, ?)
+    ON CONFLICT(code) DO NOTHING
+  `).run(code, `Test Competition ${code}`, `soccer_${code.toLowerCase()}`, "2026-03-23T12:00:00Z");
+}
+
+function ensureFinishedRecommendationFixture(matchId, kickoffTime, homeScore = 2, awayScore = 1, competitionCode = "CL") {
+  const db = getDb();
+  const homeTeamId = matchId * 10 + 1;
+  const awayTeamId = matchId * 10 + 2;
+  const now = "2026-03-23T12:00:00Z";
+
+  ensureCompetition(competitionCode);
+
+  db.prepare(`
+    INSERT INTO teams (id, source_team_id, name, short_name, tla, crest, created_at, updated_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+  `).run(homeTeamId, homeTeamId, `Finished Home ${matchId}`, `FHome ${matchId}`, `FH${matchId}`.slice(0, 3), null, now, now);
+  db.prepare(`
+    INSERT INTO teams (id, source_team_id, name, short_name, tla, crest, created_at, updated_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+  `).run(awayTeamId, awayTeamId, `Finished Away ${matchId}`, `FAway ${matchId}`, `FA${matchId}`.slice(0, 3), null, now, now);
+  db.prepare(`
+    INSERT INTO matches (
+      id, source_match_id, competition_code, season, utc_date, status, matchday, stage, group_name,
+      home_team_id, away_team_id, home_score, away_score, winner, odds_event_id, last_synced_at
+    )
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `).run(
+    matchId,
+    matchId,
+    competitionCode,
+    2026,
+    kickoffTime,
+    "FINISHED",
+    null,
+    null,
+    null,
+    homeTeamId,
+    awayTeamId,
+    homeScore,
+    awayScore,
+    homeScore > awayScore ? "HOME_TEAM" : awayScore > homeScore ? "AWAY_TEAM" : "DRAW",
+    null,
+    now
+  );
+}
+
+function insertRecommendationSnapshot(matchId, values = {}) {
+  const db = getDb();
+  const defaults = {
+    collector_run_id: null,
+    generated_at: "2026-03-23T10:00:00Z",
+    competition_code: "CL",
+    best_market: "Over / Under 2.5",
+    selection_label: "Over 2.5",
+    action: "Playable Edge",
+    confidence: "Medium",
+    trust_label: "Fair",
+    trust_score: 68,
+    edge: 4.2,
+    bookmaker_title: "Book A",
+    bookmaker_odds: 2.05,
+    odds_at_prediction: 2.05,
+    odds_snapshot_at: "2026-03-23T09:58:00Z",
+    odds_freshness_minutes: 2,
+    odds_freshness_score: 90,
+    odds_refreshed_recently: 1,
+    odds_coverage_status: "complete",
+    bookmaker_count: 3,
+    stale_odds_flag: 0,
+    quota_degraded_flag: 0,
+    data_completeness_score: 1,
+    price_quality_status: "strong",
+    price_trustworthy_flag: 1,
+    price_block_reasons_json: "[]",
+    recommendation_downgrade_reason: null,
+    board_provider: "odds-api",
+    board_source_label: "live-board",
+    board_source_mode: "live",
+    source_reliability_score: 1,
+    board_quality_tier: "strong",
+    board_quality_score: 0.92,
+    fallback_used_flag: 0,
+    market_probability: 0.49,
+    opening_odds: 2.1,
+    closing_odds: 1.98,
+    closing_line_value: -0.07,
+    fair_odds: 1.98,
+    model_probability: 0.505,
+    has_odds: 1,
+    summary: "Test snapshot",
+    probabilities_json: "{}",
+    markets_json: "{}",
+    settled_at: "2026-03-23T21:30:00Z",
+    outcome_label: "Over 2.5",
+    bet_result: "won",
+    is_correct: 1,
+    roi: 1.05,
+    grade_note: "Won on Over 2.5."
+  };
+  const row = { ...defaults, ...values };
+  const columns = [
+    "collector_run_id", "match_id", "generated_at", "competition_code", "best_market", "selection_label",
+    "action", "confidence", "trust_label", "trust_score", "edge", "bookmaker_title", "bookmaker_odds", "odds_at_prediction", "odds_snapshot_at",
+    "odds_freshness_minutes", "odds_freshness_score", "odds_refreshed_recently", "odds_coverage_status", "bookmaker_count", "stale_odds_flag", "quota_degraded_flag", "data_completeness_score", "price_quality_status", "price_trustworthy_flag", "price_block_reasons_json", "recommendation_downgrade_reason",
+    "board_provider", "board_source_label", "board_source_mode", "source_reliability_score", "board_quality_tier", "board_quality_score", "fallback_used_flag",
+    "market_probability", "opening_odds", "closing_odds", "closing_line_value",
+    "fair_odds", "model_probability", "has_odds", "summary", "probabilities_json", "markets_json",
+    "settled_at", "outcome_label", "bet_result", "is_correct", "roi", "grade_note"
+  ];
+  const valuesList = [
+    row.collector_run_id, matchId, row.generated_at, row.competition_code, row.best_market, row.selection_label,
+    row.action, row.confidence, row.trust_label, row.trust_score, row.edge, row.bookmaker_title, row.bookmaker_odds, row.odds_at_prediction, row.odds_snapshot_at,
+    row.odds_freshness_minutes, row.odds_freshness_score, row.odds_refreshed_recently, row.odds_coverage_status, row.bookmaker_count, row.stale_odds_flag, row.quota_degraded_flag, row.data_completeness_score, row.price_quality_status, row.price_trustworthy_flag, row.price_block_reasons_json, row.recommendation_downgrade_reason,
+    row.board_provider, row.board_source_label, row.board_source_mode, row.source_reliability_score, row.board_quality_tier, row.board_quality_score, row.fallback_used_flag,
+    row.market_probability, row.opening_odds, row.closing_odds, row.closing_line_value,
+    row.fair_odds, row.model_probability, row.has_odds, row.summary, row.probabilities_json, row.markets_json,
+    row.settled_at, row.outcome_label, row.bet_result, row.is_correct, row.roi, row.grade_note
+  ];
+
+  db.prepare(`
+    INSERT INTO recommendation_snapshots (${columns.join(", ")})
+    VALUES (${columns.map(() => "?").join(", ")})
+  `).run(...valuesList);
+}
 
 test("probabilities add up to roughly one", () => {
   const result = calculateProbabilities({
@@ -337,6 +597,117 @@ test("licensed totals feed normalizes over and under labels consistently", () =>
   assert.equal(normalizeCsvSelection("Under 2,5", "totals_2_5"), "Under");
 });
 
+test("fresh cache helper rejects empty or failed cache entries", () => {
+  const { isUsableFreshCache } = __compliantOddsTestables;
+
+  assert.equal(isUsableFreshCache({
+    isFresh: true,
+    request_status: "success",
+    payload: []
+  }), false);
+  assert.equal(isUsableFreshCache({
+    isFresh: true,
+    request_status: "failed",
+    payload: [{ id: "event-1" }]
+  }), false);
+  assert.equal(isUsableFreshCache({
+    isFresh: false,
+    request_status: "success",
+    payload: [{ id: "event-1" }]
+  }), false);
+  assert.equal(isUsableFreshCache({
+    isFresh: true,
+    request_status: "success",
+    payload: [{ id: "event-1" }]
+  }), true);
+});
+
+test("only competitions with a real sport key count as live-odds capable", () => {
+  assert.equal(hasCompetitionLiveOddsPath("CL"), true);
+  assert.equal(hasCompetitionLiveOddsPath("EL"), true);
+  assert.equal(hasCompetitionLiveOddsPath("PL"), false);
+  assert.equal(hasCompetitionLiveOddsPath("PD"), false);
+});
+
+test("competitions without live odds path do not generate urgent odds demand context", () => {
+  const { buildLiveOddsDemandContext } = __compliantOddsTestables;
+
+  const noLivePath = buildLiveOddsDemandContext({
+    code: "PL",
+    sportKey: "",
+    hasLiveOddsPath: false
+  });
+  const livePath = buildLiveOddsDemandContext({
+    code: "CL",
+    sportKey: "soccer_uefa_champs_league",
+    hasLiveOddsPath: true
+  });
+
+  assert.equal(noLivePath.liveOddsEnabled, false);
+  assert.deepEqual(noLivePath.demand, {
+    within6Hours: 0,
+    within24Hours: 0,
+    within48Hours: 0
+  });
+  assert.deepEqual(noLivePath.trackedMatches, []);
+  assert.equal(livePath.liveOddsEnabled, true);
+});
+
+test("forward-validation operations log entry keeps only the key operational fields", () => {
+  const entry = buildForwardValidationLogEntry({
+    generatedAt: "2026-03-23T07:00:00.000Z",
+    summary: {
+      trackedMatches: 16,
+      bets: 4,
+      settledBets: 2,
+      staleOddsMatches: 9,
+      weakBoardMatches: 8,
+      unusableBoardMatches: 4
+    },
+    validationSplits: {
+      usableOrBetterOnly: { trackedMatches: 1 },
+      strongPriceOnly: { trackedMatches: 0 }
+    },
+    operationalDiagnostics: {
+      freshnessDistribution: {
+        median: 4071.24,
+        p75: 5541.31,
+        p90: 5622.18
+      },
+      trustworthySampleSize: {
+        settledPriceTrustworthyBets: 0,
+        settledUsableOrBetterBets: 0,
+        settledStrongPriceBets: 0
+      }
+    }
+  });
+
+  assert.deepEqual(entry, {
+    generatedAt: "2026-03-23T07:00:00.000Z",
+    trackedMatches: 16,
+    bets: 4,
+    settledBets: 2,
+    staleBoards: 9,
+    weakBoards: 8,
+    unusableBoards: 4,
+    usableOrBetterMatches: 1,
+    strongPriceMatches: 0,
+    settledPriceTrustworthyBets: 0,
+    settledUsableOrBetterBets: 0,
+    settledStrongPriceBets: 0,
+    freshnessMedianMinutes: 4071.2,
+    freshnessP75Minutes: 5541.3,
+    freshnessP90Minutes: 5622.2
+  });
+});
+
+test("database maintenance skip flag is only enabled for explicit report-mode runs", () => {
+  assert.equal(__databaseTestables.shouldSkipDbMaintenance("true"), true);
+  assert.equal(__databaseTestables.shouldSkipDbMaintenance("TRUE"), true);
+  assert.equal(__databaseTestables.shouldSkipDbMaintenance("false"), false);
+  assert.equal(__databaseTestables.shouldSkipDbMaintenance(undefined), false);
+});
+
 test("implied probability conversion stays aligned with decimal odds", () => {
   assert.equal(impliedProbability(2), 0.5);
   assert.equal(impliedProbability(4), 0.25);
@@ -584,6 +955,323 @@ test("single-book or missing-price boards stay weak or unusable", () => {
   assert.ok(["weak", "unusable"].includes(singleBook.tier));
   assert.equal(missingSide.tier, "unusable");
   assert.ok(missingSide.completenessScore < 1);
+});
+
+test("board scoring should not let one stale bookmaker row hide behind fresh averages", () => {
+  const board = scoreOddsBoard([
+    { bookmaker_key: "a", home_price: 1.91, away_price: 1.93, retrieved_at: "2026-03-23T11:59:00Z", source_provider: "odds-api", source_mode: "live" },
+    { bookmaker_key: "b", home_price: 1.92, away_price: 1.92, retrieved_at: "2026-03-23T11:58:30Z", source_provider: "odds-api", source_mode: "live" },
+    { bookmaker_key: "c", home_price: 1.9, away_price: 1.94, retrieved_at: "2026-03-23T11:59:15Z", source_provider: "odds-api", source_mode: "live" },
+    { bookmaker_key: "d", home_price: 1.89, away_price: 1.95, retrieved_at: "2026-03-23T11:50:00Z", source_provider: "odds-api", source_mode: "live" }
+  ], "totals_2_5", {
+    kickoffTime: "2026-03-23T13:00:00Z",
+    now: "2026-03-23T12:00:00Z"
+  });
+
+  assert.equal(board.freshnessMinutes, 10);
+  assert.equal(board.refreshedRecently, false);
+  assert.notEqual(board.tier, "strong");
+});
+
+test("board scoring should not classify unknown-age boards as usable", () => {
+  const board = scoreOddsBoard([
+    { bookmaker_key: "a", home_price: 1.9, away_price: 1.95, retrieved_at: null, source_provider: "odds-api", source_mode: "live" },
+    { bookmaker_key: "b", home_price: 1.91, away_price: 1.94, retrieved_at: null, source_provider: "odds-api", source_mode: "live" },
+    { bookmaker_key: "c", home_price: 1.92, away_price: 1.93, retrieved_at: null, source_provider: "odds-api", source_mode: "live" },
+    { bookmaker_key: "d", home_price: 1.89, away_price: 1.96, retrieved_at: null, source_provider: "odds-api", source_mode: "live" }
+  ], "totals_2_5", {
+    kickoffTime: "2026-03-23T16:00:00Z",
+    now: "2026-03-23T12:00:00Z"
+  });
+
+  assert.equal(board.refreshedRecently, false);
+  assert.equal(board.tier, "unusable");
+});
+
+test("two-bookmaker boards should not be classified as strong", () => {
+  const board = scoreOddsBoard([
+    { bookmaker_key: "a", home_price: 1.83, away_price: 2.04, retrieved_at: "2026-03-23T11:59:00Z", source_provider: "odds-api", source_mode: "live" },
+    { bookmaker_key: "b", home_price: 1.84, away_price: 2.03, retrieved_at: "2026-03-23T11:58:40Z", source_provider: "odds-api", source_mode: "live" }
+  ], "totals_2_5", {
+    kickoffTime: "2026-03-23T15:00:00Z",
+    now: "2026-03-23T12:00:00Z"
+  });
+
+  assert.notEqual(board.tier, "strong");
+});
+
+test("trusted-cache boards should not score as strong as equivalent live boards", () => {
+  const liveBoard = scoreOddsBoard([
+    { bookmaker_key: "a", home_price: 1.88, away_price: 1.98, retrieved_at: "2026-03-23T11:59:00Z", source_provider: "odds-api", source_mode: "live" },
+    { bookmaker_key: "b", home_price: 1.89, away_price: 1.97, retrieved_at: "2026-03-23T11:58:30Z", source_provider: "odds-api", source_mode: "live" },
+    { bookmaker_key: "c", home_price: 1.9, away_price: 1.96, retrieved_at: "2026-03-23T11:59:10Z", source_provider: "odds-api", source_mode: "live" },
+    { bookmaker_key: "d", home_price: 1.87, away_price: 1.99, retrieved_at: "2026-03-23T11:58:50Z", source_provider: "odds-api", source_mode: "live" }
+  ], "totals_2_5", {
+    kickoffTime: "2026-03-23T15:00:00Z",
+    now: "2026-03-23T12:00:00Z"
+  });
+  const cachedBoard = scoreOddsBoard([
+    { bookmaker_key: "a", home_price: 1.88, away_price: 1.98, retrieved_at: "2026-03-23T11:59:00Z", source_provider: "trusted-cache", source_mode: "trusted_cache" },
+    { bookmaker_key: "b", home_price: 1.89, away_price: 1.97, retrieved_at: "2026-03-23T11:58:30Z", source_provider: "trusted-cache", source_mode: "trusted_cache" },
+    { bookmaker_key: "c", home_price: 1.9, away_price: 1.96, retrieved_at: "2026-03-23T11:59:10Z", source_provider: "trusted-cache", source_mode: "trusted_cache" },
+    { bookmaker_key: "d", home_price: 1.87, away_price: 1.99, retrieved_at: "2026-03-23T11:58:50Z", source_provider: "trusted-cache", source_mode: "trusted_cache" }
+  ], "totals_2_5", {
+    kickoffTime: "2026-03-23T15:00:00Z",
+    now: "2026-03-23T12:00:00Z"
+  });
+
+  assert.equal(liveBoard.tier, "strong");
+  assert.notEqual(cachedBoard.tier, "strong");
+});
+
+test("downstream price-quality logic does not call sufficient 2-book depth missing", () => {
+  const { buildPriceQualityPackage } = __bettingEngineTestables;
+  const rows = [
+    {
+      bookmakerKey: "a",
+      bookmakerTitle: "Book A",
+      homeOdds: 1.83,
+      drawOdds: null,
+      awayOdds: 2.04,
+      retrievedAt: "2026-03-23T11:59:00Z",
+      isLive: false
+    },
+    {
+      bookmakerKey: "b",
+      bookmakerTitle: "Book B",
+      homeOdds: 1.84,
+      drawOdds: null,
+      awayOdds: 2.03,
+      retrievedAt: "2026-03-23T11:58:40Z",
+      isLive: false
+    }
+  ];
+  const board = {
+    provider: "odds-api",
+    sourceMode: "live",
+    fallbackUsed: false,
+    quality: scoreOddsBoard([
+      { bookmaker_key: "a", home_price: 1.83, away_price: 2.04, retrieved_at: "2026-03-23T11:59:00Z", source_provider: "odds-api", source_mode: "live" },
+      { bookmaker_key: "b", home_price: 1.84, away_price: 2.03, retrieved_at: "2026-03-23T11:58:40Z", source_provider: "odds-api", source_mode: "live" }
+    ], "totals_2_5", {
+      kickoffTime: "2026-03-23T15:00:00Z",
+      now: "2026-03-23T12:00:00Z"
+    })
+  };
+  const priceQuality = buildPriceQualityPackage(
+    "totals25",
+    { bookmakerOdds: 2.04, bookmakerMarginAdjustedProbability: 0.47 },
+    rows,
+    rows[0],
+    { syncDiagnostics: [] },
+    {
+      match: { competition_code: "EL", utc_date: "2026-03-23T15:00:00Z" },
+      context: { hoursToKickoff: 3 }
+    },
+    board
+  );
+
+  assert.notEqual(board.quality.tier, "strong");
+  assert.equal(priceQuality.bookmakerDepthMissing, false);
+  assert.ok(!priceQuality.blockReasons.includes("missing-bookmaker-depth"));
+});
+
+test("quota-degraded live boards are not marked price-trustworthy", () => {
+  const { buildPriceQualityPackage } = __bettingEngineTestables;
+
+  const priceQuality = buildPriceQualityPackage(
+    "totals25",
+    {
+      bookmakerOdds: 1.95,
+      bookmakerMarginAdjustedProbability: 0.52
+    },
+    [
+      { bookmakerKey: "a" },
+      { bookmakerKey: "b" },
+      { bookmakerKey: "c" }
+    ],
+    null,
+    {
+      syncDiagnostics: [
+        {
+          competition: "CL",
+          error: "OUT_OF_USAGE_CREDITS"
+        }
+      ]
+    },
+    {
+      match: {
+        utc_date: "2026-03-24T20:00:00Z",
+        competition_code: "CL"
+      },
+      context: {
+        hoursToKickoff: 4
+      }
+    },
+    {
+      provider: "odds-api",
+      sourceMode: "live",
+      fallbackUsed: false,
+      quality: {
+        freshnessMinutes: 2,
+        acceptableFreshnessMinutes: 12,
+        refreshedRecently: true,
+        coverageStatus: "complete",
+        completenessScore: 1,
+        tier: "strong",
+        score: 0.9,
+        sourceReliabilityScore: 1,
+        impliedConsistencyScore: 1
+      }
+    }
+  );
+
+  assert.ok(priceQuality.blockReasons.includes("quota-degraded"));
+  assert.equal(priceQuality.priceTrustworthy, false);
+});
+
+test("cached fallback boards are not marked price-trustworthy", () => {
+  const { buildPriceQualityPackage } = __bettingEngineTestables;
+
+  const priceQuality = buildPriceQualityPackage(
+    "totals25",
+    {
+      bookmakerOdds: 1.95,
+      bookmakerMarginAdjustedProbability: 0.52
+    },
+    [
+      { bookmakerKey: "a" },
+      { bookmakerKey: "b" },
+      { bookmakerKey: "c" }
+    ],
+    null,
+    {
+      syncDiagnostics: null
+    },
+    {
+      match: {
+        utc_date: "2026-03-24T20:00:00Z",
+        competition_code: "CL"
+      },
+      context: {
+        hoursToKickoff: 4
+      }
+    },
+    {
+      provider: "trusted-cache",
+      sourceMode: "trusted_cache",
+      fallbackUsed: true,
+      quality: {
+        freshnessMinutes: 2,
+        acceptableFreshnessMinutes: 12,
+        refreshedRecently: true,
+        coverageStatus: "complete",
+        completenessScore: 1,
+        tier: "usable",
+        score: 0.82,
+        sourceReliabilityScore: 0.45,
+        impliedConsistencyScore: 1
+      }
+    }
+  );
+
+  assert.equal(priceQuality.fallbackUsed, true);
+  assert.equal(priceQuality.priceTrustworthy, false);
+});
+
+test("resolveBoardSelection should keep a fresh usable live board over a merely higher-scoring trusted cache", () => {
+  const { resolveBoardSelection } = __bettingEngineTestables;
+  const matchId = 990001;
+  const market = "totals_2_5";
+  const kickoffTime = "2026-03-23T15:00:00Z";
+  const now = "2026-03-23T12:00:00Z";
+
+  clearBoardSelectionFixtures(matchId);
+  ensureBoardSelectionFixtureMatch(matchId, kickoffTime);
+  insertLiveSnapshotRows(matchId, market, [
+    { bookmaker_key: "live-a", home_price: 1.83, away_price: 2.04, retrieved_at: "2026-03-23T11:59:00Z", source_provider: "odds-api" },
+    { bookmaker_key: "live-b", home_price: 1.84, away_price: 2.03, retrieved_at: "2026-03-23T11:58:40Z", source_provider: "odds-api" }
+  ]);
+  insertTrustedCacheBoard(matchId, market, [
+    { bookmaker_key: "cache-a", home_price: 1.85, away_price: 2.01, retrieved_at: "2026-03-23T11:54:00Z", source_provider: "trusted-cache", source_mode: "trusted_cache" },
+    { bookmaker_key: "cache-b", home_price: 1.86, away_price: 2.0, retrieved_at: "2026-03-23T11:53:40Z", source_provider: "trusted-cache", source_mode: "trusted_cache" },
+    { bookmaker_key: "cache-c", home_price: 1.84, away_price: 2.02, retrieved_at: "2026-03-23T11:54:20Z", source_provider: "trusted-cache", source_mode: "trusted_cache" },
+    { bookmaker_key: "cache-d", home_price: 1.87, away_price: 1.99, retrieved_at: "2026-03-23T11:53:50Z", source_provider: "trusted-cache", source_mode: "trusted_cache" }
+  ], { kickoffTime, now });
+
+  const selection = resolveBoardSelection(
+    matchId,
+    { snapshotMarket: market },
+    { syncDiagnostics: [] },
+    { match: { competition_code: "EL", utc_date: kickoffTime } }
+  );
+
+  assert.equal(selection.sourceMode, "live");
+  assert.equal(selection.fallbackUsed, false);
+});
+
+test("resolveBoardSelection should not let quota degradation alone force cache over a fresh live board", () => {
+  const { resolveBoardSelection } = __bettingEngineTestables;
+  const matchId = 990002;
+  const market = "totals_2_5";
+  const kickoffTime = "2026-03-23T15:00:00Z";
+  const now = "2026-03-23T12:00:00Z";
+
+  clearBoardSelectionFixtures(matchId);
+  ensureBoardSelectionFixtureMatch(matchId, kickoffTime);
+  insertLiveSnapshotRows(matchId, market, [
+    { bookmaker_key: "live-a", home_price: 1.88, away_price: 1.98, retrieved_at: "2026-03-23T11:59:00Z", source_provider: "odds-api" },
+    { bookmaker_key: "live-b", home_price: 1.89, away_price: 1.97, retrieved_at: "2026-03-23T11:58:30Z", source_provider: "odds-api" },
+    { bookmaker_key: "live-c", home_price: 1.9, away_price: 1.96, retrieved_at: "2026-03-23T11:59:10Z", source_provider: "odds-api" },
+    { bookmaker_key: "live-d", home_price: 1.87, away_price: 1.99, retrieved_at: "2026-03-23T11:58:50Z", source_provider: "odds-api" }
+  ]);
+  insertTrustedCacheBoard(matchId, market, [
+    { bookmaker_key: "cache-a", home_price: 1.88, away_price: 1.98, retrieved_at: "2026-03-23T11:58:00Z", source_provider: "trusted-cache", source_mode: "trusted_cache" },
+    { bookmaker_key: "cache-b", home_price: 1.89, away_price: 1.97, retrieved_at: "2026-03-23T11:57:30Z", source_provider: "trusted-cache", source_mode: "trusted_cache" },
+    { bookmaker_key: "cache-c", home_price: 1.9, away_price: 1.96, retrieved_at: "2026-03-23T11:58:10Z", source_provider: "trusted-cache", source_mode: "trusted_cache" },
+    { bookmaker_key: "cache-d", home_price: 1.87, away_price: 1.99, retrieved_at: "2026-03-23T11:57:50Z", source_provider: "trusted-cache", source_mode: "trusted_cache" }
+  ], { kickoffTime, now });
+
+  const selection = resolveBoardSelection(
+    matchId,
+    { snapshotMarket: market },
+    { syncDiagnostics: [{ competition: "EL", error: "OUT_OF_USAGE_CREDITS" }] },
+    { match: { competition_code: "EL", utc_date: kickoffTime } }
+  );
+
+  assert.equal(selection.sourceMode, "live");
+  assert.equal(selection.fallbackUsed, false);
+});
+
+test("resolveBoardSelection should not pick a stale trusted cache just because it still scores usable", () => {
+  const { resolveBoardSelection } = __bettingEngineTestables;
+  const matchId = 990003;
+  const market = "totals_2_5";
+  const kickoffTime = "2026-03-23T15:00:00Z";
+  const now = "2026-03-23T12:00:00Z";
+
+  clearBoardSelectionFixtures(matchId);
+  ensureBoardSelectionFixtureMatch(matchId, kickoffTime);
+  insertLiveSnapshotRows(matchId, market, [
+    { bookmaker_key: "live-a", home_price: 1.83, away_price: 2.02, retrieved_at: "2026-03-23T10:20:00Z", source_provider: "odds-api" },
+    { bookmaker_key: "live-b", home_price: null, away_price: 2.01, retrieved_at: "2026-03-23T10:19:30Z", source_provider: "odds-api" }
+  ]);
+  insertTrustedCacheBoard(matchId, market, [
+    { bookmaker_key: "cache-a", home_price: 1.86, away_price: 1.98, retrieved_at: "2026-03-23T10:49:00Z", source_provider: "trusted-cache", source_mode: "trusted_cache" },
+    { bookmaker_key: "cache-b", home_price: 1.87, away_price: 1.97, retrieved_at: "2026-03-23T10:48:30Z", source_provider: "trusted-cache", source_mode: "trusted_cache" },
+    { bookmaker_key: "cache-c", home_price: 1.85, away_price: 1.99, retrieved_at: "2026-03-23T10:49:10Z", source_provider: "trusted-cache", source_mode: "trusted_cache" },
+    { bookmaker_key: "cache-d", home_price: 1.88, away_price: 1.96, retrieved_at: "2026-03-23T10:48:50Z", source_provider: "trusted-cache", source_mode: "trusted_cache" }
+  ], { kickoffTime, now });
+
+  const selection = resolveBoardSelection(
+    matchId,
+    { snapshotMarket: market },
+    { syncDiagnostics: [] },
+    { match: { competition_code: "EL", utc_date: kickoffTime } }
+  );
+
+  assert.equal(selection.sourceMode, "live");
+  assert.equal(selection.fallbackUsed, false);
 });
 
 test("settlement logic maps market outcomes deterministically", () => {
@@ -1004,6 +1692,631 @@ test("historical board selection ignores trusted-cache rows newer than beforeDat
     db.prepare("DELETE FROM teams WHERE id = ?").run(homeTeamId);
     db.prepare("DELETE FROM teams WHERE id = ?").run(awayTeamId);
   }
+});
+
+test("usable-or-better validation split should not include quota-degraded bets that are not price-trustworthy", () => {
+  const matchId = 990101;
+  const competitionCode = "ZZU";
+  const kickoffTime = "2026-03-23T20:00:00Z";
+  const generatedAt = "2026-03-23T10:00:00Z";
+
+  clearRecommendationFixtures(matchId);
+  ensureFinishedRecommendationFixture(matchId, kickoffTime, 2, 1, competitionCode);
+  insertRecommendationSnapshot(matchId, {
+    generated_at: generatedAt,
+    competition_code: competitionCode,
+    action: "Playable Edge",
+    board_quality_tier: "usable",
+    price_trustworthy_flag: 0,
+    quota_degraded_flag: 1,
+    price_block_reasons_json: JSON.stringify(["quota-degraded"]),
+    best_market: "Over / Under 2.5",
+    bet_result: "won",
+    roi: 1.05
+  });
+
+  try {
+    const report = getForwardValidationReport(1000, competitionCode);
+    assert.equal(report.summary.bets >= 1, true);
+    assert.equal(report.validationSplits.usableOrBetterOnly.bets, 0);
+  } finally {
+    clearRecommendationFixtures(matchId);
+  }
+});
+
+test("all-tracked CLV should not include no-bet rows", () => {
+  const matchId = 990102;
+  const competitionCode = "ZZN";
+  const kickoffTime = "2026-03-24T20:00:00Z";
+  const generatedAt = "2026-03-24T10:00:00Z";
+
+  clearRecommendationFixtures(matchId);
+  ensureFinishedRecommendationFixture(matchId, kickoffTime, 1, 1, competitionCode);
+  insertRecommendationSnapshot(matchId, {
+    generated_at: generatedAt,
+    competition_code: competitionCode,
+    action: "No Bet",
+    selection_label: "Under 2.5",
+    best_market: "Over / Under 2.5",
+    bet_result: "pass",
+    roi: null,
+    closing_line_value: -0.3,
+    price_trustworthy_flag: 1,
+    board_quality_tier: "strong"
+  });
+
+  try {
+    const report = getForwardValidationReport(1000, competitionCode);
+    assert.equal(report.summary.bets, 0);
+    assert.equal(report.summary.averageClv, null);
+    assert.equal(report.summary.beatClosingLineRate, null);
+  } finally {
+    clearRecommendationFixtures(matchId);
+  }
+});
+
+test("usable-or-better validation split should not include fallback bets that are not price-trustworthy", () => {
+  const matchId = 990103;
+  const competitionCode = "ZZF";
+
+  clearRecommendationFixtures(matchId);
+  ensureFinishedRecommendationFixture(matchId, "2026-03-25T20:00:00Z", 3, 1, competitionCode);
+  insertRecommendationSnapshot(matchId, {
+    competition_code: competitionCode,
+    generated_at: "2026-03-25T10:00:00Z",
+    action: "Playable Edge",
+    board_quality_tier: "usable",
+    price_trustworthy_flag: 0,
+    fallback_used_flag: 1,
+    board_source_mode: "trusted_cache",
+    price_block_reasons_json: JSON.stringify([]),
+    best_market: "Over / Under 2.5",
+    bet_result: "won",
+    roi: 1.05
+  });
+
+  try {
+    const report = getForwardValidationReport(1000, competitionCode);
+    assert.equal(report.summary.bets >= 1, true);
+    assert.equal(report.validationSplits.usableOrBetterOnly.bets, 0);
+  } finally {
+    clearRecommendationFixtures(matchId);
+  }
+});
+
+test("forward validation selects the latest pre-kickoff snapshot and excludes post-kickoff rows", () => {
+  const matchId = 990104;
+  const competitionCode = "ZZP";
+
+  clearRecommendationFixtures(matchId);
+  ensureFinishedRecommendationFixture(matchId, "2026-03-26T20:00:00Z", 2, 1, competitionCode);
+  insertRecommendationSnapshot(matchId, {
+    competition_code: competitionCode,
+    generated_at: "2026-03-26T18:00:00Z",
+    action: "Playable Edge",
+    selection_label: "Over 2.5",
+    best_market: "Over / Under 2.5"
+  });
+  insertRecommendationSnapshot(matchId, {
+    competition_code: competitionCode,
+    generated_at: "2026-03-26T19:30:00Z",
+    action: "No Bet",
+    selection_label: "Under 2.5",
+    best_market: "Over / Under 2.5"
+  });
+  insertRecommendationSnapshot(matchId, {
+    competition_code: competitionCode,
+    generated_at: "2026-03-26T20:15:00Z",
+    action: "Strong Value",
+    selection_label: "Under 2.5",
+    best_market: "Over / Under 2.5"
+  });
+
+  try {
+    const report = getForwardValidationReport(1000, competitionCode);
+    assert.equal(report.sampleSize, 1);
+    assert.equal(report.recent[0].recommendationTier, "No Bet");
+    assert.equal(report.recent[0].selectionLabel, "Under 2.5");
+  } finally {
+    clearRecommendationFixtures(matchId);
+  }
+});
+
+test("forward validation should prefer the latest semantically complete pre-kickoff snapshot over a later null-context row", () => {
+  const matchId = 990108;
+  const competitionCode = "ZZL";
+
+  clearRecommendationFixtures(matchId);
+  ensureFinishedRecommendationFixture(matchId, "2026-03-26T20:00:00Z", 1, 0, competitionCode);
+  insertRecommendationSnapshot(matchId, {
+    competition_code: competitionCode,
+    generated_at: "2026-03-26T18:00:00Z",
+    action: "No Bet",
+    best_market: "Over / Under 2.5",
+    selection_label: "Under 2.5",
+    board_quality_tier: "weak",
+    bookmaker_count: 13,
+    market_probability: 0.46,
+    board_provider: "odds-api",
+    odds_coverage_status: "complete",
+    price_trustworthy_flag: 0
+  });
+  insertRecommendationSnapshot(matchId, {
+    competition_code: competitionCode,
+    generated_at: "2026-03-26T19:00:00Z",
+    action: "No Bet",
+    best_market: "Over / Under 2.5",
+    selection_label: "Under 2.5",
+    board_quality_tier: null,
+    bookmaker_count: null,
+    market_probability: null,
+    board_provider: null,
+    odds_coverage_status: null,
+    price_trustworthy_flag: 0
+  });
+
+  try {
+    const report = getForwardValidationReport(1000, competitionCode);
+    assert.equal(report.sampleSize, 1);
+    assert.equal(report.recent[0].boardQualityTier, "weak");
+    assert.equal(report.recent[0].bookmakerCount, 13);
+    assert.equal(report.recent[0].impliedMarketProbability ?? report.recent[0].marketProbability, 0.46);
+    assert.equal(report.recent[0].action ?? report.recent[0].recommendationTier, "No Bet");
+  } finally {
+    clearRecommendationFixtures(matchId);
+  }
+});
+
+test("later actionable pre-kickoff snapshot with null board context should not displace an earlier complete row", () => {
+  const matchId = 990109;
+  const competitionCode = "ZZM";
+
+  clearRecommendationFixtures(matchId);
+  ensureFinishedRecommendationFixture(matchId, "2026-03-27T20:00:00Z", 2, 1, competitionCode);
+  insertRecommendationSnapshot(matchId, {
+    competition_code: competitionCode,
+    generated_at: "2026-03-27T18:00:00Z",
+    action: "No Bet",
+    best_market: "1X2",
+    selection_label: `Finished Home ${matchId}`,
+    board_quality_tier: "weak",
+    bookmaker_count: 17,
+    market_probability: 0.62,
+    board_provider: "unknown",
+    odds_coverage_status: "complete",
+    price_trustworthy_flag: 0,
+    price_block_reasons_json: JSON.stringify(["weak-board"])
+  });
+  insertRecommendationSnapshot(matchId, {
+    competition_code: competitionCode,
+    generated_at: "2026-03-27T19:00:00Z",
+    action: "Playable Edge",
+    best_market: "Over / Under 2.5",
+    selection_label: "Over 2.5",
+    board_quality_tier: null,
+    bookmaker_count: null,
+    market_probability: null,
+    board_provider: null,
+    odds_coverage_status: null,
+    price_trustworthy_flag: 0,
+    price_block_reasons_json: "[]"
+  });
+
+  try {
+    const report = getForwardValidationReport(1000, competitionCode);
+    assert.equal(report.sampleSize, 1);
+    assert.equal(report.recent[0].action ?? report.recent[0].recommendationTier, "No Bet");
+    assert.equal(report.recent[0].boardQualityTier, "weak");
+    assert.equal(report.recent[0].impliedMarketProbability ?? report.recent[0].marketProbability, 0.62);
+    assert.equal(report.summary.bets, 0);
+  } finally {
+    clearRecommendationFixtures(matchId);
+  }
+});
+
+test("forward validation CLV metrics should not use unsettled bets with provisional closing values", () => {
+  const matchId = 990105;
+  const competitionCode = "ZZC";
+  const kickoffTime = "2098-03-27T20:00:00Z";
+
+  clearRecommendationFixtures(matchId);
+  ensureCompetition(competitionCode);
+  ensureBoardSelectionFixtureMatch(matchId, kickoffTime, competitionCode);
+  insertRecommendationSnapshot(matchId, {
+    competition_code: competitionCode,
+    generated_at: "2098-03-27T18:00:00Z",
+    action: "Playable Edge",
+    bet_result: null,
+    settled_at: null,
+    is_correct: null,
+    roi: null,
+    closing_odds: 1.95,
+    closing_line_value: -0.18
+  });
+
+  try {
+    const report = getForwardValidationReport(1000, competitionCode);
+    assert.equal(report.summary.bets, 1);
+    assert.equal(report.summary.settledBets, 0);
+    assert.equal(report.summary.averageClv, null);
+    assert.equal(report.summary.beatClosingLineRate, null);
+  } finally {
+    clearRecommendationFixtures(matchId);
+  }
+});
+
+test("calibration audit uses settled bet rows only and keeps markets separated", () => {
+  const matchIdA = 990106;
+  const matchIdB = 990107;
+  const matchIdC = 990108;
+  const competitionCode = "ZZK";
+
+  clearRecommendationFixtures(matchIdA);
+  clearRecommendationFixtures(matchIdB);
+  clearRecommendationFixtures(matchIdC);
+  ensureFinishedRecommendationFixture(matchIdA, "2026-03-28T20:00:00Z", 2, 1, competitionCode);
+  ensureFinishedRecommendationFixture(matchIdB, "2026-03-29T20:00:00Z", 1, 0, competitionCode);
+  ensureFinishedRecommendationFixture(matchIdC, "2026-03-30T20:00:00Z", 0, 0, competitionCode);
+
+  insertRecommendationSnapshot(matchIdA, {
+    competition_code: competitionCode,
+    generated_at: "2026-03-28T18:00:00Z",
+    best_market: "Over / Under 2.5",
+    selection_label: "Over 2.5",
+    action: "Playable Edge",
+    model_probability: 0.64,
+    market_probability: 0.55,
+    bet_result: "won",
+    is_correct: 1
+  });
+  insertRecommendationSnapshot(matchIdB, {
+    competition_code: competitionCode,
+    generated_at: "2026-03-29T18:00:00Z",
+    best_market: "1X2",
+    selection_label: `Finished Home ${matchIdB}`,
+    action: "Playable Edge",
+    model_probability: 0.57,
+    market_probability: 0.49,
+    bet_result: "won",
+    is_correct: 1
+  });
+  insertRecommendationSnapshot(matchIdC, {
+    competition_code: competitionCode,
+    generated_at: "2026-03-30T18:00:00Z",
+    best_market: "BTTS",
+    selection_label: "BTTS Yes",
+    action: "No Bet",
+    model_probability: 0.93,
+    market_probability: 0.51,
+    bet_result: "pass",
+    is_correct: null,
+    roi: null
+  });
+
+  try {
+    const report = getForwardValidationReport(1000, competitionCode);
+    assert.equal(report.calibrationAudit.samples.trackedRows, 3);
+    assert.equal(report.calibrationAudit.samples.betRows, 2);
+    assert.equal(report.calibrationAudit.samples.settledBetRows, 2);
+    assert.equal(report.calibrationAudit.settledBetProbabilityBuckets.reduce((sum, row) => sum + row.settledBets, 0), 2);
+
+    const totalsMarket = report.calibrationAudit.byMarket.find((entry) => entry.market === "Over / Under 2.5");
+    const oneXTwoMarket = report.calibrationAudit.byMarket.find((entry) => entry.market === "1X2");
+    const bttsMarket = report.calibrationAudit.byMarket.find((entry) => entry.market === "BTTS");
+
+    assert.equal(totalsMarket.settledBets, 1);
+    assert.equal(oneXTwoMarket.settledBets, 1);
+    assert.equal(bttsMarket.settledBets, 0);
+  } finally {
+    clearRecommendationFixtures(matchIdA);
+    clearRecommendationFixtures(matchIdB);
+    clearRecommendationFixtures(matchIdC);
+  }
+});
+
+test("edge quality audit uses settled bets only and excludes open bets from edge and CLV buckets", () => {
+  const matchIdA = 990109;
+  const matchIdB = 990110;
+  const matchIdC = 990111;
+  const competitionCode = "ZZE";
+
+  clearRecommendationFixtures(matchIdA);
+  clearRecommendationFixtures(matchIdB);
+  clearRecommendationFixtures(matchIdC);
+  ensureFinishedRecommendationFixture(matchIdA, "2026-03-31T20:00:00Z", 2, 1, competitionCode);
+  ensureFinishedRecommendationFixture(matchIdB, "2026-04-01T20:00:00Z", 1, 3, competitionCode);
+  ensureBoardSelectionFixtureMatch(matchIdC, "2098-04-02T20:00:00Z", competitionCode);
+
+  insertRecommendationSnapshot(matchIdA, {
+    competition_code: competitionCode,
+    generated_at: "2026-03-31T18:00:00Z",
+    action: "Playable Edge",
+    edge: 3.4,
+    closing_line_value: -0.11,
+    bet_result: "won",
+    roi: 1.02
+  });
+  insertRecommendationSnapshot(matchIdB, {
+    competition_code: competitionCode,
+    generated_at: "2026-04-01T18:00:00Z",
+    action: "Strong Value",
+    edge: 11.6,
+    closing_line_value: 0.18,
+    bet_result: "lost",
+    roi: -1
+  });
+  insertRecommendationSnapshot(matchIdC, {
+    competition_code: competitionCode,
+    generated_at: "2098-04-02T18:00:00Z",
+    action: "Strong Value",
+    edge: 12.4,
+    closing_line_value: -0.5,
+    bet_result: null,
+    settled_at: null,
+    is_correct: null,
+    roi: null
+  });
+
+  try {
+    const report = getForwardValidationReport(1000, competitionCode);
+    assert.equal(report.edgeQualityAudit.samples.trackedRows, 3);
+    assert.equal(report.edgeQualityAudit.samples.betRows, 3);
+    assert.equal(report.edgeQualityAudit.samples.settledBetRows, 2);
+    assert.equal(report.edgeQualityAudit.settledBetEdgeBuckets.reduce((sum, row) => sum + row.settledBets, 0), 2);
+
+    const highEdgeBucket = report.edgeQualityAudit.settledBetEdgeBuckets.find((entry) => entry.bucket === "10%+");
+    assert.equal(highEdgeBucket.settledBets, 1);
+    assert.equal(highEdgeBucket.averageClv, 0.18);
+  } finally {
+    clearRecommendationFixtures(matchIdA);
+    clearRecommendationFixtures(matchIdB);
+    clearRecommendationFixtures(matchIdC);
+  }
+});
+
+test("operational diagnostics compute freshness and depth distributions deterministically", () => {
+  const { buildOperationalDiagnostics } = __collectorTestables;
+  const rows = [
+      {
+        competition_code: "EL",
+        generated_at: "2026-03-23T18:30:00Z",
+        utc_date: "2026-03-23T19:00:00Z",
+        action: "No Bet",
+      board_quality_tier: "weak",
+      odds_freshness_minutes: 10,
+      bookmaker_count: 2,
+      stale_odds_flag: 1,
+      quota_degraded_flag: 0,
+      fallback_used_flag: 0,
+      market_probability: 0.41,
+      price_trustworthy_flag: 0,
+      bet_result: "pass",
+      board_provider: "odds-api",
+      board_source_mode: "live"
+    },
+    {
+      generated_at: "2026-03-23T16:00:00Z",
+      utc_date: "2026-03-23T20:00:00Z",
+      action: "Playable Edge",
+      board_quality_tier: "usable",
+      odds_freshness_minutes: 20,
+      bookmaker_count: 3,
+      stale_odds_flag: 0,
+      quota_degraded_flag: 0,
+      fallback_used_flag: 0,
+      market_probability: 0.48,
+      price_trustworthy_flag: 1,
+      bet_result: "won",
+      board_provider: "odds-api",
+      board_source_mode: "live"
+    },
+    {
+      generated_at: "2026-03-23T10:00:00Z",
+      utc_date: "2026-03-24T12:00:00Z",
+      action: "Playable Edge",
+      board_quality_tier: "strong",
+      odds_freshness_minutes: 40,
+      bookmaker_count: 4,
+      stale_odds_flag: 0,
+      quota_degraded_flag: 0,
+      fallback_used_flag: 0,
+      market_probability: 0.53,
+      price_trustworthy_flag: 1,
+      bet_result: "lost",
+      board_provider: "licensed-feed",
+      board_source_mode: "licensed-import"
+    },
+    {
+      generated_at: "2026-03-23T12:00:00Z",
+      utc_date: "2026-03-23T14:00:00Z",
+      action: "No Bet",
+      board_quality_tier: null,
+      odds_freshness_minutes: 80,
+      bookmaker_count: null,
+      stale_odds_flag: 0,
+      quota_degraded_flag: 1,
+      fallback_used_flag: 1,
+      market_probability: null,
+      price_trustworthy_flag: 0,
+      bet_result: "pass",
+      board_provider: null,
+      board_source_mode: null
+    }
+  ];
+
+  const diagnostics = buildOperationalDiagnostics(rows);
+
+  assert.equal(diagnostics.aggregate.trackedMatches, 4);
+  assert.equal(diagnostics.aggregate.staleBoards, 1);
+  assert.equal(diagnostics.aggregate.weakBoards, 1);
+  assert.equal(diagnostics.aggregate.usableOrBetterBoards, 2);
+  assert.equal(diagnostics.aggregate.strongBoards, 1);
+  assert.equal(diagnostics.aggregate.quotaDegradedBoards, 1);
+  assert.equal(diagnostics.aggregate.fallbackUsedBoards, 1);
+  assert.equal(diagnostics.missingFieldCounts.missingBoardQualityTier, 1);
+  assert.equal(diagnostics.missingFieldCounts.missingMarketProbability, 1);
+  assert.equal(diagnostics.missingFieldCounts.missingBookmakerCount, 1);
+  assert.equal(diagnostics.freshnessDistribution.median, 30);
+  assert.equal(diagnostics.freshnessDistribution.p75, 50);
+  assert.equal(diagnostics.freshnessDistribution.p90, 68);
+  assert.equal(diagnostics.bookmakerDepthDistribution.median, 3);
+  assert.equal(diagnostics.trustworthySampleSize.settledBets, 2);
+  assert.equal(diagnostics.trustworthySampleSize.settledPriceTrustworthyBets, 2);
+  assert.equal(diagnostics.trustworthySampleSize.settledUsableOrBetterBets, 2);
+  assert.equal(diagnostics.trustworthySampleSize.settledStrongPriceBets, 1);
+});
+
+test("operational diagnostics group rows by provider-source and kickoff window", () => {
+  const { buildOperationalDiagnostics } = __collectorTestables;
+  const rows = [
+    {
+      competition_code: "EL",
+      generated_at: "2026-03-23T18:30:00Z",
+      utc_date: "2026-03-23T19:00:00Z",
+      action: "No Bet",
+      board_quality_tier: "weak",
+      odds_freshness_minutes: 12,
+      bookmaker_count: 2,
+      stale_odds_flag: 1,
+      quota_degraded_flag: 0,
+      fallback_used_flag: 0,
+      market_probability: 0.41,
+      price_trustworthy_flag: 0,
+      bet_result: "pass",
+      board_provider: "odds-api",
+      board_source_mode: "live",
+      best_market: "Over / Under 2.5"
+    },
+      {
+        competition_code: "CL",
+        generated_at: "2026-03-23T16:30:00Z",
+        utc_date: "2026-03-23T20:00:00Z",
+        action: "No Bet",
+      board_quality_tier: "unusable",
+      odds_freshness_minutes: null,
+      bookmaker_count: 0,
+      stale_odds_flag: 0,
+      quota_degraded_flag: 1,
+      fallback_used_flag: 0,
+      market_probability: null,
+      price_trustworthy_flag: 0,
+      bet_result: "pass",
+      board_provider: "odds-api",
+      board_source_mode: "live",
+      best_market: "1X2"
+    },
+      {
+        competition_code: "EL",
+        generated_at: "2026-03-23T10:00:00Z",
+        utc_date: "2026-03-24T12:00:00Z",
+        action: "Playable Edge",
+      board_quality_tier: "strong",
+      odds_freshness_minutes: 35,
+      bookmaker_count: 4,
+      stale_odds_flag: 0,
+      quota_degraded_flag: 0,
+      fallback_used_flag: 0,
+      market_probability: 0.55,
+      price_trustworthy_flag: 1,
+      bet_result: "won",
+      board_provider: "licensed-feed",
+      board_source_mode: "licensed-import",
+      best_market: "Over / Under 2.5"
+    }
+  ];
+
+  const diagnostics = buildOperationalDiagnostics(rows);
+  const liveProvider = diagnostics.byProviderSource.find((entry) => entry.providerSource === "odds-api / live");
+  const licensedProvider = diagnostics.byProviderSource.find((entry) => entry.providerSource === "licensed-feed / licensed-import");
+  const finalHour = diagnostics.byKickoffWindow.find((entry) => entry.kickoffWindow === "<=1h");
+  const threeToSix = diagnostics.byKickoffWindow.find((entry) => entry.kickoffWindow === "3-6h");
+  const overDay = diagnostics.byKickoffWindow.find((entry) => entry.kickoffWindow === ">24h");
+
+  assert.equal(liveProvider.trackedMatches, 2);
+  assert.equal(liveProvider.staleBoards, 1);
+  assert.equal(liveProvider.unusableBoards, 1);
+  assert.equal(licensedProvider.strongBoards, 1);
+  assert.equal(finalHour.trackedMatches, 1);
+  assert.equal(threeToSix.trackedMatches, 1);
+  assert.equal(overDay.trackedMatches, 1);
+  assert.equal(diagnostics.byProvider.find((entry) => entry.provider === "odds-api").freshnessDistribution.median, 12);
+  assert.equal(diagnostics.byCompetition.find((entry) => entry.competitionCode === "EL").trackedMatches, 2);
+});
+
+test("run source diagnostics count cache-hit and zero-event failures deterministically", () => {
+  const { summarizeRunSourceEntries } = __collectorTestables;
+  const entries = [
+    {
+      runId: 149,
+      competitionCode: "EL",
+      requestStrategy: "cache-hit",
+      sourceMode: "cache",
+      trackedMatchCount: 7,
+      oddsEvents: 0,
+      quotaDegraded: false,
+      fallbackUsed: false,
+      stale_odds_flag: 0,
+      quota_degraded_flag: 0,
+      fallback_used_flag: 0,
+      board_quality_tier: null,
+      market_probability: null,
+      bookmaker_count: null,
+      price_trustworthy_flag: 0,
+      action: "No Bet",
+      bet_result: "pass"
+    },
+    {
+      runId: 150,
+      competitionCode: "CL",
+      requestStrategy: "targeted-events",
+      sourceMode: "live",
+      trackedMatchCount: 3,
+      oddsEvents: 0,
+      quotaDegraded: true,
+      fallbackUsed: false,
+      stale_odds_flag: 0,
+      quota_degraded_flag: 1,
+      fallback_used_flag: 0,
+      board_quality_tier: "unusable",
+      market_probability: null,
+      bookmaker_count: 0,
+      price_trustworthy_flag: 0,
+      action: "No Bet",
+      bet_result: "pass"
+    },
+    {
+      runId: 151,
+      competitionCode: "EL",
+      requestStrategy: "competition-poll",
+      sourceMode: "live",
+      trackedMatchCount: 5,
+      oddsEvents: 4,
+      quotaDegraded: false,
+      fallbackUsed: false,
+      stale_odds_flag: 1,
+      quota_degraded_flag: 0,
+      fallback_used_flag: 0,
+      board_quality_tier: "weak",
+      market_probability: 0.45,
+      bookmaker_count: 2,
+      price_trustworthy_flag: 0,
+      action: "No Bet",
+      bet_result: "pass"
+    }
+  ];
+
+  const diagnostics = summarizeRunSourceEntries(entries);
+
+  assert.equal(diagnostics.cacheHitZeroEventsEntries, 1);
+  assert.equal(diagnostics.cacheHitZeroEventsRuns, 1);
+  assert.equal(diagnostics.liveFetchZeroEventsEntries, 1);
+  assert.equal(diagnostics.liveFetchZeroEventsRuns, 1);
+  assert.equal(diagnostics.quotaDegradedEntries, 1);
+  assert.equal(diagnostics.quotaDegradedRuns, 1);
+  assert.equal(diagnostics.noFreshOddsForTrackedEntries, 2);
+  assert.equal(diagnostics.noFreshOddsForTrackedRuns, 2);
+  assert.equal(diagnostics.byRequestStrategy.find((entry) => entry.requestStrategy === "cache-hit").trackedMatchCount, 7);
+  assert.equal(diagnostics.byCompetition.find((entry) => entry.competitionCode === "EL").trackedMatchCount, 12);
 });
 
 test("team identity resolver handles tricky aliases and rejects unsafe collisions", () => {

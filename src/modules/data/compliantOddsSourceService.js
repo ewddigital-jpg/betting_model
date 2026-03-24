@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { env, hasOddsConfig } from "../../config/env.js";
+import { hasCompetitionLiveOddsPath } from "../../config/leagues.js";
 import { getDb } from "../../db/database.js";
 import { logger } from "../../lib/logger.js";
 import { isoNow } from "../../lib/time.js";
@@ -223,6 +224,14 @@ function readProviderCache(provider, competitionCode, now = isoNow()) {
   };
 }
 
+function isUsableFreshCache(entry) {
+  return Boolean(entry) &&
+    entry.isFresh &&
+    entry.request_status === "success" &&
+    Array.isArray(entry.payload) &&
+    entry.payload.length > 0;
+}
+
 function readAnyFreshCache(competitionCode, now = isoNow()) {
   const candidates = [
     readProviderCache("odds-api", competitionCode, now),
@@ -231,7 +240,7 @@ function readAnyFreshCache(competitionCode, now = isoNow()) {
   ].filter(Boolean);
 
   const fresh = candidates
-    .filter((entry) => entry.isFresh)
+    .filter((entry) => isUsableFreshCache(entry))
     .sort((left, right) => new Date(right.fetched_at).getTime() - new Date(left.fetched_at).getTime());
 
   return fresh[0] ?? null;
@@ -406,8 +415,30 @@ function normalizeCsvSelection(selection, market, homeTeam, awayTeam) {
 
 export const __compliantOddsTestables = {
   normalizeCsvMarket,
-  normalizeCsvSelection
+  normalizeCsvSelection,
+  isUsableFreshCache,
+  buildLiveOddsDemandContext
 };
+
+function buildLiveOddsDemandContext(competition) {
+  if (!hasCompetitionLiveOddsPath(competition)) {
+    return {
+      liveOddsEnabled: false,
+      demand: {
+        within6Hours: 0,
+        within24Hours: 0,
+        within48Hours: 0
+      },
+      trackedMatches: []
+    };
+  }
+
+  return {
+    liveOddsEnabled: true,
+    demand: readRelevantMatchDemand(competition.code),
+    trackedMatches: readTrackedMatches(competition.code)
+  };
+}
 
 function toOddsApiEventsFromRows(rows, sourceLabel, defaultSportKey = "") {
   const groupedEvents = new Map();
@@ -602,12 +633,13 @@ function isQuotaError(error) {
 
 export async function fetchCompliantOddsBundle(competition) {
   const now = isoNow();
-  const demand = readRelevantMatchDemand(competition.code);
-  const trackedMatches = readTrackedMatches(competition.code);
+  const demandContext = buildLiveOddsDemandContext(competition);
+  const demand = demandContext.demand;
+  const trackedMatches = demandContext.trackedMatches;
   const nextKickoffHours = readNextKickoffHours(competition.code);
   const requestIntervalMinutes = refreshWindowMinutes(nextKickoffHours);
   const providerChain = [
-    { provider: "odds-api", mode: "live", ready: hasOddsConfig() && Boolean(competition.sportKey) },
+    { provider: "odds-api", mode: "live", ready: demandContext.liveOddsEnabled && hasOddsConfig() && Boolean(competition.sportKey) },
     { provider: "sportmonks-odds", mode: "integration-ready", ready: false },
     { provider: "local-export", mode: "licensed-import", ready: true },
     { provider: "trusted-cache", mode: "trusted-cache", ready: true }
@@ -636,6 +668,24 @@ export async function fetchCompliantOddsBundle(competition) {
         requestStrategy: "cache-hit",
         providerChain,
         payload: freshCache.payload
+      })
+    };
+  }
+
+  if (!demandContext.liveOddsEnabled) {
+    return {
+      oddsPayload: [],
+      oddsDiagnostics: buildDiagnostics({
+        provider: "none",
+        sourceLabel: null,
+        sourceMode: "skipped",
+        requestIntervalMinutes,
+        demand,
+        trackedMatchCount: 0,
+        requestStrategy: "skipped-no-live-odds-path",
+        providerChain,
+        payload: [],
+        error: null
       })
     };
   }

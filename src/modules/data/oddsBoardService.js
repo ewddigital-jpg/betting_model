@@ -176,6 +176,22 @@ function selectionDefinitions(market) {
   ];
 }
 
+function rowsUseCachedSource(rows, sourceMode, sourceProvider) {
+  if (["trusted_cache", "cache"].includes(sourceMode)) {
+    return true;
+  }
+
+  if (sourceProvider === "trusted-cache") {
+    return true;
+  }
+
+  return rows.some((row) => {
+    const rowMode = row.source_mode ?? row.sourceMode ?? null;
+    const rowProvider = row.source_provider ?? row.sourceProvider ?? null;
+    return ["trusted_cache", "cache"].includes(rowMode) || rowProvider === "trusted-cache";
+  });
+}
+
 export function summarizeOddsBoardRows(rows, market) {
   const selections = selectionDefinitions(market).map((selection) => {
     const prices = rows
@@ -273,18 +289,20 @@ export function scoreOddsBoard(rows, market, options = {}) {
   }
 
   const freshnessTarget = acceptableFreshnessMinutes(kickoffTime, now);
-  const ages = rows
-    .map((row) => row.retrieved_at ?? row.retrievedAt ?? null)
+  const timestamps = rows.map((row) => row.retrieved_at ?? row.retrievedAt ?? null);
+  const ages = timestamps
     .filter(Boolean)
     .map((value) => Math.max(0, (new Date(now).getTime() - new Date(value).getTime()) / 60000));
-  const freshnessMinutes = ages.length ? round(average(ages, 0), 1) : null;
-  const freshnessScore = freshnessMinutes === null
+  const timestampCoverage = rows.length ? ages.length / rows.length : 0;
+  const worstAgeMinutes = ages.length ? round(Math.max(...ages), 1) : null;
+  const freshnessMinutes = worstAgeMinutes;
+  const freshnessScore = worstAgeMinutes === null
     ? 0
-    : freshnessMinutes <= freshnessTarget
+    : worstAgeMinutes <= freshnessTarget
       ? 1
-      : freshnessMinutes <= freshnessTarget * 2
+      : worstAgeMinutes <= freshnessTarget * 2
         ? 0.55
-        : freshnessMinutes <= freshnessTarget * 4
+        : worstAgeMinutes <= freshnessTarget * 4
           ? 0.25
           : 0;
   const completenessScore = round(average(rows.map((row) => completenessForRow(row, market)), 0), 2);
@@ -305,12 +323,19 @@ export function scoreOddsBoard(rows, market, options = {}) {
       2
     )
   );
-  const refreshedRecently = freshnessMinutes !== null && freshnessMinutes <= freshnessTarget;
+  const refreshedRecently = worstAgeMinutes !== null && worstAgeMinutes <= freshnessTarget && timestampCoverage === 1;
   const completenessCap = completenessScore < 0.75
     ? "unusable"
     : completenessScore < 0.95
       ? "weak"
       : null;
+  const timestampCap = timestampCoverage === 0
+    ? "unusable"
+    : timestampCoverage < 1
+      ? "weak"
+      : null;
+  const depthCap = bookmakerCount === 2 ? "usable" : null;
+  const sourceModeCap = rowsUseCachedSource(rows, sourceMode, sourceProvider) ? "usable" : null;
   const baseTier = bookmakerCount < 2
     ? score >= 0.72
       ? "weak"
@@ -322,11 +347,10 @@ export function scoreOddsBoard(rows, market, options = {}) {
         : score >= 0.45
           ? "weak"
           : "unusable";
-  const tier = completenessCap
-    ? boardTierRank(completenessCap) < boardTierRank(baseTier)
-      ? completenessCap
-      : baseTier
-    : baseTier;
+  const caps = [completenessCap, timestampCap, depthCap, sourceModeCap].filter(Boolean);
+  const tier = caps.reduce((current, cap) => (
+    boardTierRank(cap) < boardTierRank(current) ? cap : current
+  ), baseTier);
 
   return {
     tier,

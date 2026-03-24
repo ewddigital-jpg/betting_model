@@ -136,6 +136,58 @@ To run the full collector bot manually:
 npm.cmd run collect
 ```
 
+## Operations
+
+The repo already has a built-in local automation loop. You do not need a second scheduler inside the app.
+
+What already runs automatically when the server is up:
+
+- background collector runs
+- urgent collector refreshes near kickoff
+- reminder checks
+- scheduled training checks
+
+Start the system continuously with:
+
+```bash
+npm.cmd run start
+```
+
+That starts the web app and the background jobs together.
+
+For a daily forward-validation/report run:
+
+```bash
+npm.cmd run ops:daily
+```
+
+That updates:
+
+- [reports/forward-validation-latest.json](/Users/danie/OneDrive%20-%20SekII%20Z%C3%BCrich/Dokumente/Playground/reports/forward-validation-latest.json)
+- [reports/forward-validation-latest.md](/Users/danie/OneDrive%20-%20SekII%20Z%C3%BCrich/Dokumente/Playground/reports/forward-validation-latest.md)
+- [reports/forward-validation-history.jsonl](/Users/danie/OneDrive%20-%20SekII%20Z%C3%BCrich/Dokumente/Playground/reports/forward-validation-history.jsonl)
+
+Recommended local schedule on Windows:
+
+- server: run continuously after logon using `npm.cmd run start`
+- forward validation: once daily, e.g. `07:00`, using `npm.cmd run ops:daily`
+
+Recommended daily check:
+
+- open [http://localhost:3000/api/health](http://localhost:3000/api/health)
+- review [reports/forward-validation-latest.md](/Users/danie/OneDrive%20-%20SekII%20Z%C3%BCrich/Dokumente/Playground/reports/forward-validation-latest.md)
+- watch these fields in `forward-validation-history.jsonl`:
+  - `usableOrBetterMatches`
+  - `strongPriceMatches`
+  - `settledPriceTrustworthyBets`
+  - `freshnessMedianMinutes`
+
+This is intentionally simple:
+
+- the server owns collector automation
+- the daily task owns report generation
+- SQLite `collector_runs` plus `forward-validation-history.jsonl` provide basic operational logging
+
 To import public availability data only:
 
 ```bash

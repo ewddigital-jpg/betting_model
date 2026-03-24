@@ -326,7 +326,11 @@ export const __collectorTestables = {
   gradeRecommendation,
   snapshotMarketForRecommendation,
   isEligibleForForwardRecommendation,
-  normalizeStoredRecommendationState
+  normalizeStoredRecommendationState,
+  buildNumericDistribution,
+  buildTrustworthySampleSize,
+  buildOperationalDiagnostics,
+  summarizeRunSourceEntries
 };
 
 export function gradeRecommendationSnapshots() {
@@ -438,6 +442,44 @@ function summarizeAnalysis(records) {
 function averageOrNull(values, digits = 2) {
   const valid = values.filter(Number.isFinite);
   return valid.length ? round(average(valid, 0), digits) : null;
+}
+
+function percentileOrNull(values, percentile, digits = 1) {
+  const valid = values.filter(Number.isFinite).sort((left, right) => left - right);
+
+  if (!valid.length) {
+    return null;
+  }
+
+  if (valid.length === 1) {
+    return round(valid[0], digits);
+  }
+
+  const bounded = Math.min(1, Math.max(0, percentile));
+  const position = (valid.length - 1) * bounded;
+  const lowerIndex = Math.floor(position);
+  const upperIndex = Math.ceil(position);
+
+  if (lowerIndex === upperIndex) {
+    return round(valid[lowerIndex], digits);
+  }
+
+  const weight = position - lowerIndex;
+  const interpolated = valid[lowerIndex] + ((valid[upperIndex] - valid[lowerIndex]) * weight);
+  return round(interpolated, digits);
+}
+
+function buildNumericDistribution(values, digits = 1) {
+  const valid = values.filter(Number.isFinite);
+
+  return {
+    count: valid.length,
+    min: valid.length ? round(Math.min(...valid), digits) : null,
+    median: percentileOrNull(valid, 0.5, digits),
+    p75: percentileOrNull(valid, 0.75, digits),
+    p90: percentileOrNull(valid, 0.9, digits),
+    max: valid.length ? round(Math.max(...valid), digits) : null
+  };
 }
 
 function buildCollectorSummary(syncResults, analyzedMatches, availabilityImport = null, newsImport = null, advancedStatsImport = null) {
@@ -666,7 +708,7 @@ function summarizeSnapshotSet(rows) {
   const wins = settledBets.filter((row) => row.bet_result === "won");
   const losses = settledBets.filter((row) => row.bet_result === "lost");
   const roiRows = settledBets.filter((row) => row.roi !== null && row.roi !== undefined);
-  const clvRows = bets.filter((row) => row.closing_line_value !== null && row.closing_line_value !== undefined);
+  const clvRows = settledBets.filter((row) => row.closing_line_value !== null && row.closing_line_value !== undefined);
   const staleRows = rows.filter((row) => Number(row.stale_odds_flag) === 1);
   const quotaRows = rows.filter((row) => Number(row.quota_degraded_flag) === 1);
   const weakPriceRows = rows.filter((row) => Number(row.price_trustworthy_flag) !== 1);
@@ -701,6 +743,134 @@ function summarizeSnapshotSet(rows) {
     averageSourceReliabilityScore: reliableSourceRows.length
       ? averageOrNull(reliableSourceRows.map((row) => row.source_reliability_score).filter(Number.isFinite), 2)
       : null
+  };
+}
+
+function buildProbabilityBuckets(rows) {
+  const settledBets = rows.filter((row) =>
+    (row.bet_result === "won" || row.bet_result === "lost") &&
+    Number.isFinite(row.model_probability)
+  );
+  const buckets = Array.from({ length: 10 }, (_, index) => ({
+    bucket: `${index * 10}-${index === 9 ? 100 : (index + 1) * 10}%`,
+    lowerBound: round(index / 10, 2),
+    upperBound: round(index === 9 ? 1 : (index + 1) / 10, 2),
+    settledBets: 0,
+    wins: 0,
+    hitRate: null,
+    averagePredictedProbability: null,
+    averageMarketProbability: null
+  }));
+
+  for (const row of settledBets) {
+    const probability = row.model_probability;
+    const index = Math.min(9, Math.max(0, Math.floor(probability * 10)));
+    const bucket = buckets[index];
+    bucket.settledBets += 1;
+    bucket.wins += row.bet_result === "won" ? 1 : 0;
+    bucket.averagePredictedProbability = averageOrNull([
+      ...(bucket.averagePredictedProbability === null ? [] : [bucket.averagePredictedProbability]),
+      probability
+    ], 4);
+    if (Number.isFinite(row.market_probability)) {
+      bucket.averageMarketProbability = averageOrNull([
+        ...(bucket.averageMarketProbability === null ? [] : [bucket.averageMarketProbability]),
+        row.market_probability
+      ], 4);
+    }
+  }
+
+  return buckets
+    .map((bucket) => {
+      const rowsInBucket = settledBets.filter((row) => {
+        const probability = row.model_probability;
+        const index = Math.min(9, Math.max(0, Math.floor(probability * 10)));
+        return `${index * 10}-${index === 9 ? 100 : (index + 1) * 10}%` === bucket.bucket;
+      });
+
+      return {
+        ...bucket,
+        hitRate: bucket.settledBets ? round((bucket.wins / bucket.settledBets) * 100, 1) : null,
+        averagePredictedProbability: averageOrNull(rowsInBucket.map((row) => row.model_probability).filter(Number.isFinite), 4),
+        averageMarketProbability: averageOrNull(rowsInBucket.map((row) => row.market_probability).filter(Number.isFinite), 4)
+      };
+    })
+    .filter((bucket) => bucket.settledBets > 0);
+}
+
+const EDGE_BUCKET_DEFINITIONS = [
+  { label: "0-2%", min: 0, max: 2 },
+  { label: "2-5%", min: 2, max: 5 },
+  { label: "5-10%", min: 5, max: 10 },
+  { label: "10%+", min: 10, max: Infinity }
+];
+
+function edgeBucketLabel(edge) {
+  if (!Number.isFinite(edge) || edge < 0) {
+    return null;
+  }
+
+  return EDGE_BUCKET_DEFINITIONS.find((bucket) => edge >= bucket.min && edge < bucket.max)?.label ?? null;
+}
+
+function buildEdgeBuckets(rows) {
+  const settledBets = rows.filter((row) =>
+    (row.bet_result === "won" || row.bet_result === "lost") &&
+    Number.isFinite(row.edge)
+  );
+
+  return EDGE_BUCKET_DEFINITIONS.map((bucket) => {
+    const bucketRows = settledBets.filter((row) => edgeBucketLabel(row.edge) === bucket.label);
+    return {
+      bucket: bucket.label,
+      settledBets: bucketRows.length,
+      hitRate: bucketRows.length
+        ? round((bucketRows.filter((row) => row.bet_result === "won").length / bucketRows.length) * 100, 1)
+        : null,
+      averageEdge: averageOrNull(bucketRows.map((row) => row.edge).filter(Number.isFinite), 2),
+      averageRoi: averageOrNull(bucketRows.map((row) => row.roi).filter(Number.isFinite), 2),
+      averageClv: averageOrNull(bucketRows.map((row) => row.closing_line_value).filter(Number.isFinite), 2)
+    };
+  }).filter((bucket) => bucket.settledBets > 0);
+}
+
+function buildCalibrationAudit(rows) {
+  const bets = rows.filter((row) => row.action !== "No Bet");
+  const settledBets = bets.filter((row) => row.bet_result === "won" || row.bet_result === "lost");
+  const markets = sortForwardMarkets(FORWARD_MARKET_ORDER.map((market) => ({
+    market,
+    settledBets: settledBets.filter((row) => row.best_market === market).length,
+    probabilityBuckets: buildProbabilityBuckets(settledBets.filter((row) => row.best_market === market))
+  })));
+
+  return {
+    samples: {
+      trackedRows: rows.length,
+      betRows: bets.length,
+      settledBetRows: settledBets.length
+    },
+    settledBetProbabilityBuckets: buildProbabilityBuckets(settledBets),
+    byMarket: markets
+  };
+}
+
+function buildEdgeQualityAudit(rows) {
+  const bets = rows.filter((row) => row.action !== "No Bet");
+  const settledBets = bets.filter((row) => row.bet_result === "won" || row.bet_result === "lost");
+  const markets = sortForwardMarkets(FORWARD_MARKET_ORDER.map((market) => ({
+    market,
+    settledBets: settledBets.filter((row) => row.best_market === market).length,
+    edgeBuckets: buildEdgeBuckets(settledBets.filter((row) => row.best_market === market))
+  })));
+
+  return {
+    samples: {
+      trackedRows: rows.length,
+      betRows: bets.length,
+      settledBetRows: settledBets.length
+    },
+    settledBetEdgeBuckets: buildEdgeBuckets(settledBets),
+    byMarket: markets
   };
 }
 
@@ -906,7 +1076,8 @@ function isUsableOrBetterPriceRow(row) {
   return ["strong", "usable"].includes(String(row.board_quality_tier ?? "")) &&
     Number(row.stale_odds_flag) !== 1 &&
     hasMarketProbability(row) &&
-    hasBookmakerDepth(row);
+    hasBookmakerDepth(row) &&
+    Number(row.price_trustworthy_flag) === 1;
 }
 
 function isStrongPriceRow(row) {
@@ -1034,6 +1205,130 @@ function sourceReliabilityBands(rows) {
   }));
 }
 
+function settledBetRows(rows) {
+  return rows.filter((row) =>
+    row.action !== "No Bet" &&
+    (row.bet_result === "won" || row.bet_result === "lost")
+  );
+}
+
+function buildTrustworthySampleSize(rows) {
+  const settledBets = settledBetRows(rows);
+
+  return {
+    settledBets: settledBets.length,
+    settledPriceTrustworthyBets: settledBets.filter((row) => Number(row.price_trustworthy_flag) === 1).length,
+    settledUsableOrBetterBets: settledBets.filter(isUsableOrBetterPriceRow).length,
+    settledStrongPriceBets: settledBets.filter(isStrongPriceRow).length
+  };
+}
+
+function buildMissingFieldCounts(rows) {
+  return {
+    missingBoardQualityTier: rows.filter((row) => row.board_quality_tier === null || row.board_quality_tier === undefined).length,
+    missingMarketProbability: rows.filter((row) => !Number.isFinite(row.market_probability)).length,
+    missingBookmakerCount: rows.filter((row) => !Number.isFinite(row.bookmaker_count)).length
+  };
+}
+
+function summarizeOperationalSubset(rows) {
+  return {
+    trackedMatches: rows.length,
+    staleBoards: rows.filter((row) => Number(row.stale_odds_flag) === 1).length,
+    weakBoards: rows.filter((row) => row.board_quality_tier === "weak").length,
+    unusableBoards: rows.filter((row) => row.board_quality_tier === "unusable").length,
+    usableOrBetterBoards: rows.filter(isUsableOrBetterPriceRow).length,
+    strongBoards: rows.filter(isStrongPriceRow).length,
+    quotaDegradedBoards: rows.filter((row) => Number(row.quota_degraded_flag) === 1).length,
+    fallbackUsedBoards: rows.filter((row) => Number(row.fallback_used_flag) === 1).length,
+    freshnessDistribution: buildNumericDistribution(rows.map((row) => row.odds_freshness_minutes), 1),
+    bookmakerDepthDistribution: buildNumericDistribution(rows.map((row) => row.bookmaker_count), 1),
+    ...buildMissingFieldCounts(rows),
+    ...buildTrustworthySampleSize(rows)
+  };
+}
+
+function kickoffWindowBucket(row) {
+  const generatedAt = row.generated_at ?? row.generatedAt ?? null;
+  const kickoffTime = row.utc_date ?? row.utcDate ?? null;
+
+  if (!generatedAt || !kickoffTime) {
+    return "unknown";
+  }
+
+  const hours = (new Date(kickoffTime).getTime() - new Date(generatedAt).getTime()) / 3_600_000;
+
+  if (!Number.isFinite(hours)) {
+    return "unknown";
+  }
+
+  if (hours <= 1) {
+    return "<=1h";
+  }
+
+  if (hours <= 3) {
+    return "1-3h";
+  }
+
+  if (hours <= 6) {
+    return "3-6h";
+  }
+
+  if (hours <= 24) {
+    return "6-24h";
+  }
+
+  return ">24h";
+}
+
+function groupedOperationalBreakdown(rows, keys, keyName = "key") {
+  const grouped = new Map();
+
+  for (const row of rows) {
+    const key = keys(row);
+    const current = grouped.get(key) ?? [];
+    current.push(row);
+    grouped.set(key, current);
+  }
+
+  return Array.from(grouped.entries())
+    .map(([key, subset]) => ({
+      [keyName]: key,
+      ...summarizeOperationalSubset(subset)
+    }))
+    .sort((left, right) => right.trackedMatches - left.trackedMatches || String(left[keyName]).localeCompare(String(right[keyName])));
+}
+
+function buildLatestSnapshotAgeByMatch(rows, limit = 25) {
+  const safeLimit = Math.max(1, Math.min(Number(limit) || 25, 100));
+
+  return [...rows]
+    .map((row) => ({
+      matchId: row.match_id,
+      competitionCode: row.competition_code,
+      market: row.best_market,
+      homeTeam: row.home_team_name,
+      awayTeam: row.away_team_name,
+      generatedAt: row.generated_at,
+      kickoffTime: row.utc_date,
+      oddsSnapshotAt: row.odds_snapshot_at,
+      oddsFreshnessMinutes: row.odds_freshness_minutes,
+      boardQualityTier: row.board_quality_tier,
+      bookmakerCount: row.bookmaker_count,
+      boardProvider: row.board_provider ?? "unknown",
+      boardSourceMode: row.board_source_mode ?? "unknown",
+      staleOdds: Number(row.stale_odds_flag) === 1,
+      quotaDegraded: Number(row.quota_degraded_flag) === 1,
+      fallbackUsed: Number(row.fallback_used_flag) === 1
+    }))
+    .sort((left, right) => {
+      const leftFreshness = Number.isFinite(left.oddsFreshnessMinutes) ? left.oddsFreshnessMinutes : Number.NEGATIVE_INFINITY;
+      const rightFreshness = Number.isFinite(right.oddsFreshnessMinutes) ? right.oddsFreshnessMinutes : Number.NEGATIVE_INFINITY;
+      return rightFreshness - leftFreshness;
+    })
+    .slice(0, safeLimit);
+}
+
 function providerHealth(rows) {
   const grouped = new Map();
 
@@ -1089,25 +1384,205 @@ function providerHealth(rows) {
     .sort((left, right) => right.matches - left.matches);
 }
 
+function readCollectorRunDiagnostics(limit = 12) {
+  const db = getDb();
+  const safeLimit = Math.max(1, Math.min(Number(limit) || 12, 30));
+  const runs = db.prepare(`
+    SELECT id, started_at, finished_at, trigger_source, status
+    FROM collector_runs
+    ORDER BY datetime(started_at) DESC, id DESC
+    LIMIT ?
+  `).all(safeLimit);
+  const rowsByRun = db.prepare(`
+    SELECT action, board_quality_tier, stale_odds_flag, quota_degraded_flag, fallback_used_flag,
+           market_probability, bookmaker_count, price_trustworthy_flag, bet_result
+    FROM recommendation_snapshots
+    WHERE collector_run_id = ?
+  `);
+
+  return runs.map((run) => ({
+    runId: run.id,
+    startedAt: run.started_at,
+    finishedAt: run.finished_at,
+    triggerSource: run.trigger_source,
+    status: run.status,
+    ...summarizeOperationalSubset(rowsByRun.all(run.id))
+  }));
+}
+
+function summarizeRunSourceEntries(entries) {
+  const cacheHitZeroEventsEntries = entries.filter((entry) =>
+    entry.requestStrategy === "cache-hit" &&
+    Number(entry.oddsEvents ?? 0) === 0
+  );
+  const liveFetchZeroEventsEntries = entries.filter((entry) =>
+    entry.sourceMode === "live" &&
+    Number(entry.oddsEvents ?? 0) === 0
+  );
+  const quotaDegradedEntries = entries.filter((entry) => entry.quotaDegraded);
+  const noFreshOddsForTrackedEntries = entries.filter((entry) =>
+    Number(entry.trackedMatchCount ?? 0) > 0 &&
+    Number(entry.oddsEvents ?? 0) === 0
+  );
+  const distinctRunCount = (subset) => new Set(subset.map((entry) => entry.runId)).size;
+  const groupRunEntries = (keySelector, keyName) => {
+    const grouped = new Map();
+
+    for (const entry of entries) {
+      const key = keySelector(entry);
+      const current = grouped.get(key) ?? {
+        [keyName]: key,
+        entries: 0,
+        trackedMatchCount: 0,
+        oddsEvents: 0,
+        quotaDegradedEntries: 0,
+        fallbackUsedEntries: 0,
+        noFreshOddsEntries: 0
+      };
+
+      current.entries += 1;
+      current.trackedMatchCount += Number(entry.trackedMatchCount ?? 0);
+      current.oddsEvents += Number(entry.oddsEvents ?? 0);
+      if (entry.quotaDegraded) {
+        current.quotaDegradedEntries += 1;
+      }
+      if (entry.fallbackUsed) {
+        current.fallbackUsedEntries += 1;
+      }
+      if (Number(entry.trackedMatchCount ?? 0) > 0 && Number(entry.oddsEvents ?? 0) === 0) {
+        current.noFreshOddsEntries += 1;
+      }
+
+      grouped.set(key, current);
+    }
+
+    return Array.from(grouped.values())
+      .sort((left, right) => right.trackedMatchCount - left.trackedMatchCount || String(left[keyName]).localeCompare(String(right[keyName])));
+  };
+
+  return {
+    totalEntries: entries.length,
+    cacheHitZeroEventsEntries: cacheHitZeroEventsEntries.length,
+    cacheHitZeroEventsRuns: distinctRunCount(cacheHitZeroEventsEntries),
+    liveFetchZeroEventsEntries: liveFetchZeroEventsEntries.length,
+    liveFetchZeroEventsRuns: distinctRunCount(liveFetchZeroEventsEntries),
+    quotaDegradedEntries: quotaDegradedEntries.length,
+    quotaDegradedRuns: distinctRunCount(quotaDegradedEntries),
+    noFreshOddsForTrackedEntries: noFreshOddsForTrackedEntries.length,
+    noFreshOddsForTrackedRuns: distinctRunCount(noFreshOddsForTrackedEntries),
+    byRequestStrategy: groupRunEntries((entry) => entry.requestStrategy ?? "unknown", "requestStrategy"),
+    byCompetition: groupRunEntries((entry) => entry.competitionCode ?? "unknown", "competitionCode")
+  };
+}
+
+function readCollectorRunSourceDiagnostics(limit = 30) {
+  const db = getDb();
+  const safeLimit = Math.max(1, Math.min(Number(limit) || 30, 60));
+  const runs = db.prepare(`
+    SELECT id, started_at, finished_at, trigger_source, status, summary_json
+    FROM collector_runs
+    WHERE summary_json IS NOT NULL AND summary_json != '{}'
+    ORDER BY datetime(started_at) DESC, id DESC
+    LIMIT ?
+  `).all(safeLimit);
+
+  const entries = runs.flatMap((run) => {
+    const summary = run.summary_json ? JSON.parse(run.summary_json) : null;
+    const syncResults = Array.isArray(summary?.syncResults) ? summary.syncResults : [];
+
+    return syncResults
+      .filter((result) => result?.oddsDiagnostics)
+      .map((result) => {
+        const diagnostics = result.oddsDiagnostics;
+        return {
+          runId: run.id,
+          startedAt: run.started_at,
+          finishedAt: run.finished_at,
+          triggerSource: run.trigger_source,
+          runStatus: run.status,
+          competitionCode: result.competition ?? "unknown",
+          provider: diagnostics.provider ?? "unknown",
+          sourceLabel: diagnostics.sourceLabel ?? null,
+          sourceMode: diagnostics.sourceMode ?? "unknown",
+          requestStrategy: diagnostics.requestStrategy ?? "unknown",
+          trackedMatchCount: Number(diagnostics.trackedMatchCount ?? 0),
+          oddsEvents: Number(diagnostics.oddsEvents ?? 0),
+          quotaDegraded: Boolean(diagnostics.quotaDegraded),
+          fallbackUsed: Boolean(diagnostics.fallbackUsed),
+          fromCache: Boolean(diagnostics.fromCache),
+          staleCache: Boolean(diagnostics.staleCache)
+        };
+      });
+  });
+
+  return {
+    summary: summarizeRunSourceEntries(entries),
+    recentEntries: entries.slice(0, 40)
+  };
+}
+
+function buildOperationalDiagnostics(rows) {
+  return {
+    aggregate: summarizeOperationalSubset(rows),
+    freshnessDistribution: buildNumericDistribution(rows.map((row) => row.odds_freshness_minutes), 1),
+    bookmakerDepthDistribution: buildNumericDistribution(rows.map((row) => row.bookmaker_count), 1),
+    missingFieldCounts: buildMissingFieldCounts(rows),
+    trustworthySampleSize: buildTrustworthySampleSize(rows),
+    byMarket: sortForwardMarkets(FORWARD_MARKET_ORDER.map((market) => ({
+      market,
+      ...summarizeOperationalSubset(rows.filter((row) => row.best_market === market))
+    }))),
+    byProvider: groupedOperationalBreakdown(rows, (row) => row.board_provider ?? "unknown", "provider"),
+    byCompetition: groupedOperationalBreakdown(rows, (row) => row.competition_code ?? "unknown", "competitionCode"),
+    byProviderSource: groupedOperationalBreakdown(rows, (row) => {
+      const provider = row.board_provider ?? "unknown";
+      const sourceMode = row.board_source_mode ?? "unknown";
+      return `${provider} / ${sourceMode}`;
+    }, "providerSource"),
+    byProviderCompetition: groupedOperationalBreakdown(rows, (row) => {
+      const competition = row.competition_code ?? "unknown";
+      const provider = row.board_provider ?? "unknown";
+      return `${competition} / ${provider}`;
+    }, "providerCompetition"),
+    byKickoffWindow: groupedOperationalBreakdown(rows, kickoffWindowBucket, "kickoffWindow"),
+    latestSnapshotAgeByMatch: buildLatestSnapshotAgeByMatch(rows),
+    recentCollectorRuns: readCollectorRunDiagnostics(),
+    runSourceDiagnostics: readCollectorRunSourceDiagnostics()
+  };
+}
+
 function readLatestForwardRows(limit = 300, competitionCode = null) {
   const db = getDb();
   const safeLimit = Math.max(50, Math.min(Number(limit) || 300, 1000));
   const competitionClause = competitionCode ? "AND rs.competition_code = ?" : "";
+  const semanticPriceContextSql = `
+    CASE
+      WHEN rs.board_quality_tier IS NOT NULL
+        AND (
+          rs.market_probability IS NOT NULL
+          OR rs.bookmaker_count IS NOT NULL
+          OR rs.odds_coverage_status IS NOT NULL
+          OR rs.board_provider IS NOT NULL
+        )
+      THEN 1
+      ELSE 0
+    END
+  `;
 
   return db.prepare(`
-    WITH latest_pre_kickoff AS (
-      SELECT
-        rs.*,
-        matches.utc_date,
-        home_team.name AS home_team_name,
-        away_team.name AS away_team_name,
-        ROW_NUMBER() OVER (
-          PARTITION BY rs.match_id
-          ORDER BY datetime(rs.generated_at) DESC, rs.id DESC
-        ) AS rank_per_match
-      FROM recommendation_snapshots rs
-      JOIN matches ON matches.id = rs.match_id
-      JOIN teams home_team ON home_team.id = matches.home_team_id
+      WITH latest_pre_kickoff AS (
+        SELECT
+          rs.*,
+          matches.utc_date,
+          home_team.name AS home_team_name,
+          away_team.name AS away_team_name,
+          ROW_NUMBER() OVER (
+            PARTITION BY rs.match_id
+            ORDER BY ${semanticPriceContextSql} DESC, datetime(rs.generated_at) DESC, rs.id DESC
+          ) AS rank_per_match
+        FROM recommendation_snapshots rs
+        JOIN matches ON matches.id = rs.match_id
+        JOIN teams home_team ON home_team.id = matches.home_team_id
       JOIN teams away_team ON away_team.id = matches.away_team_id
       WHERE datetime(rs.generated_at) <= datetime(matches.utc_date)
         ${competitionClause}
@@ -1136,6 +1611,9 @@ export function getForwardValidationReport(limit = 300, competitionCode = null) 
   const allTrackedSummary = summarizeSnapshotSet(rows);
   const strongPriceSummary = summarizeSnapshotSet(strongPriceRows);
   const usableOrBetterSummary = summarizeSnapshotSet(usableOrBetterRows);
+  const calibrationAudit = buildCalibrationAudit(rows);
+  const edgeQualityAudit = buildEdgeQualityAudit(rows);
+  const operationalDiagnostics = buildOperationalDiagnostics(rows);
   const byMarket = sortForwardMarkets(FORWARD_MARKET_ORDER.map((market) => ({
     market,
     marketRole: market === "Over / Under 2.5" ? "primary" : market === "BTTS" ? "experimental" : "secondary",
@@ -1227,11 +1705,14 @@ export function getForwardValidationReport(limit = 300, competitionCode = null) 
       quotaImpactedCollectorRuns: quotaImpact.quotaImpactedRuns,
       checkedCollectorRuns: quotaImpact.checkedRuns
     },
-    blockDiagnostics: {
-      blockedMatches: rows.filter((row) => row.action === "No Bet").length,
-      counts: blockDiagnostics
-    },
-    edgeDiagnosis,
+      blockDiagnostics: {
+        blockedMatches: rows.filter((row) => row.action === "No Bet").length,
+        counts: blockDiagnostics
+      },
+      operationalDiagnostics,
+      calibrationAudit,
+      edgeDiagnosis,
+      edgeQualityAudit,
     byMarket,
     byConfidence,
     recent: rows.slice(0, 20).map((row) => ({

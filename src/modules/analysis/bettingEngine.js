@@ -242,7 +242,7 @@ function buildPriceQualityPackage(marketKey, bestOption, rows, selectedBookmaker
     blockReasons.push("quota-degraded");
   }
 
-  if (bookmakerDepthMissing || coverageStatus !== "complete") {
+  if (bookmakerDepthMissing) {
     blockReasons.push("missing-bookmaker-depth");
   }
 
@@ -250,6 +250,8 @@ function buildPriceQualityPackage(marketKey, bestOption, rows, selectedBookmaker
   const priceTrustworthy = ["strong", "usable"].includes(boardQualityTier) &&
     refreshedRecently &&
     hasMarketProbability &&
+    !boardQuotaDegraded &&
+    !board?.fallbackUsed &&
     !bookmakerDepthMissing &&
     dataCompletenessScore >= 0.9;
   let status = boardQualityTier;
@@ -408,6 +410,38 @@ function resolveBoardSource(rows, fallbackProvider = "unknown", fallbackLabel = 
   };
 }
 
+function isUsableBoardTier(quality) {
+  return ["strong", "usable"].includes(quality?.tier);
+}
+
+function isSafetyPreferredFallback(liveQuality, cachedQuality) {
+  if (!cachedQuality?.refreshedRecently) {
+    return false;
+  }
+
+  if (!liveQuality) {
+    return true;
+  }
+
+  if (!liveQuality.refreshedRecently) {
+    return true;
+  }
+
+  if ((cachedQuality.completenessScore ?? 0) > (liveQuality.completenessScore ?? 0)) {
+    return true;
+  }
+
+  if ((cachedQuality.bookmakerCount ?? 0) > (liveQuality.bookmakerCount ?? 0)) {
+    return true;
+  }
+
+  if ((cachedQuality.sourceReliabilityScore ?? 0) > (liveQuality.sourceReliabilityScore ?? 0)) {
+    return true;
+  }
+
+  return false;
+}
+
 function resolveBoardSelection(matchId, definition, context, features, beforeDate = null) {
   const liveRows = collapseLatestPerBookmaker(latestSnapshotGroups(matchId, definition.snapshotMarket, beforeDate));
   const persistedLiveBoard = readOddsMarketBoard(matchId, definition.snapshotMarket, "live");
@@ -434,13 +468,17 @@ function resolveBoardSelection(matchId, definition, context, features, beforeDat
         sourceMode: cachedBoard?.source_mode ?? "trusted_cache"
       })
     : null;
-  const useFallback = cachedQuality
-    && ["strong", "usable"].includes(cachedQuality.tier)
-    && (
+  const liveHealthy = liveRows.length > 0 && isUsableBoardTier(liveQuality) && liveQuality.refreshedRecently;
+  const useFallback = Boolean(
+    cachedQuality &&
+    isUsableBoardTier(cachedQuality) &&
+    cachedQuality.refreshedRecently &&
+    (
       !liveRows.length ||
       ["weak", "unusable"].includes(liveQuality.tier) ||
-      liveQuality.score < cachedQuality.score
-    );
+      (!liveHealthy && isSafetyPreferredFallback(liveQuality, cachedQuality))
+    )
+  );
 
   if (useFallback) {
     return {
