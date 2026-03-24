@@ -250,7 +250,7 @@ function readMarketBaseline(matchId, beforeDate = null) {
       : null,
     bookmakerMargin: latestProbabilities ? round(latestProbabilities.margin, 4) : null,
     openingRetrievedAt: openingRows[0]?.retrieved_at ?? null,
-    latestRetrievedAt: latestRows[latestRows.length - 1]?.retrieved_at ?? null
+    latestRetrievedAt: latestRows.reduce((max, row) => (!max || row.retrieved_at > max ? row.retrieved_at : max), null)
   };
 }
 

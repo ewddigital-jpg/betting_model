@@ -1611,7 +1611,7 @@ function applyTrustGuardrail(marketKey, trust, action, policy) {
     };
   }
 
-  if (action === "Small Edge" && trust.score < policy.minPlayableTrust) {
+  if (action === "Small Edge" && trust.score < policy.minTrust) {
     return {
       forceNoBet: true,
       reason: "No Bet. The edge is too thin.",

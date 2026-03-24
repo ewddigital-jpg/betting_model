@@ -30,6 +30,7 @@ function buildUrls(compId, compSlug, compCode) {
     {
       season: null,
       compCode,
+      compId,
       scheduleUrl: `https://fbref.com/en/comps/${compId}/schedule/${compSlug}-Scores-and-Fixtures`,
       dumpKey: `fbref-${compCode.toLowerCase()}-schedule-current`
     },
@@ -37,6 +38,7 @@ function buildUrls(compId, compSlug, compCode) {
     ...SEASONS.map((year) => ({
       season: year,
       compCode,
+      compId,
       scheduleUrl: `https://fbref.com/en/comps/${compId}/${year}-${year + 1}/schedule/${year}-${year + 1}-${compSlug}-Scores-and-Fixtures`,
       dumpKey: `fbref-${compCode.toLowerCase()}-schedule-${year}-${year + 1}`
     }))
@@ -80,12 +82,25 @@ function deriveSeason(dateString) {
 
 // ─── Table ID candidates ─────────────────────────────────────────────────────
 
-function buildTableIds(season) {
+function currentSeasonStart() {
+  const now = new Date();
+  const year = now.getUTCFullYear();
+  return now.getUTCMonth() + 1 >= 7 ? year : year - 1;
+}
+
+function buildTableIds(season, compId) {
   const base = ["sched_all", "sched_eur", "schedule"];
   if (!season) {
-    return [...base, "sched_2025-2026_1", "sched_2024-2025_1"];
+    const start = currentSeasonStart();
+    const prev = start - 1;
+    return [
+      `sched_${start}-${start + 1}_${compId}_1`,
+      `sched_${prev}-${start}_${compId}_1`,
+      `sched_${start}-${start + 1}_1`,
+      ...base
+    ];
   }
-  return [`sched_${season}-${season + 1}_1`, ...base];
+  return [`sched_${season}-${season + 1}_${compId}_1`, `sched_${season}-${season + 1}_1`, ...base];
 }
 
 // ─── Row parsing ─────────────────────────────────────────────────────────────
@@ -139,7 +154,7 @@ async function fetchScheduleRows(entry) {
 
   if (!doc.ok) return [];
 
-  for (const tableId of buildTableIds(entry.season)) {
+  for (const tableId of buildTableIds(entry.season, entry.compId)) {
     const rows = extractTableRows(doc.text, tableId);
     const parsed = rows
       .map((row) => parseScheduleRow(row, entry.compCode))
