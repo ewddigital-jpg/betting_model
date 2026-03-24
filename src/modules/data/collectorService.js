@@ -1781,7 +1781,7 @@ export function getForwardValidationReport(limit = 300, competitionCode = null) 
 
 function snapshotSystemMetrics(competitionCode = null) {
   const dashboard = getPerformanceDashboard(100, competitionCode);
-  const blindTest = runBlindEvaluation(competitionCode, 100);
+  const blindTest = runBlindEvaluation(competitionCode, 150);
   const modelStatus = getModelTrainingStatus();
   const decisionPolicyStatus = getDecisionPolicyStatus();
   const trustReadiness = buildTrustReadiness({

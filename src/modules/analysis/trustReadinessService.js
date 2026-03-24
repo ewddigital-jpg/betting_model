@@ -53,9 +53,9 @@ export function buildTrustReadiness({
   const upcoming = getUpcomingMatchesView(competitionCode);
   const upcomingCount = upcoming.length;
   const upcomingWithOdds = upcoming.filter((match) => match.hasOdds).length;
-  const likelyLineups = upcoming.filter((match) => match.lineupStatus === "Likely").length;
-  const confirmedLineups = upcoming.filter((match) => match.lineupStatus === "Confirmed").length;
-  const waitingLineups = upcoming.filter((match) => match.lineupStatus === "Waiting").length;
+  const likelyLineups = upcoming.filter((match) => match.lineupStatus === "Predicted").length;
+  const confirmedLineups = upcoming.filter((match) => match.lineupStatus === "Official").length;
+  const waitingLineups = upcoming.filter((match) => match.lineupStatus === "No lineup read" || match.lineupStatus === "Pending").length;
   const fragileTrust = upcoming.filter((match) => (match.trust?.label ?? "Fragile") === "Fragile").length;
 
   const oddsCoverage = ratio(upcomingWithOdds, upcomingCount);
@@ -87,8 +87,8 @@ export function buildTrustReadiness({
   }
 
   if (lineupCoverage < 0.65) {
-    blockers.push(`Expected lineups are only Likely or Confirmed on ${confirmedLineups + likelyLineups} of ${upcomingCount || 0} upcoming matches.`);
-    nextSteps.push("Wait for the final pre-kickoff refresh window. Trust should only rise when matches move to Likely or Confirmed lineups.");
+    blockers.push(`Expected lineups are only Predicted or Official on ${confirmedLineups + likelyLineups} of ${upcomingCount || 0} upcoming matches.`);
+    nextSteps.push("Wait for the final pre-kickoff refresh window. Trust should only rise when matches move to Predicted or Official lineups.");
   }
 
   if (forwardSettledBets < 40) {
@@ -122,7 +122,7 @@ export function buildTrustReadiness({
       },
       lineupCoverage: {
         score: Math.round(lineupCoverage * 100),
-        current: `${confirmedLineups} confirmed, ${likelyLineups} likely`,
+        current: `${confirmedLineups} official, ${likelyLineups} predicted`,
         label: "Lineup readiness"
       },
       forwardEvidence: {

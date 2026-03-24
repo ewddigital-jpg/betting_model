@@ -262,6 +262,7 @@ async function importMatchAvailability(match, seeds) {
   const providers = [
     { name: "sportmonks-availability", seed: null },
     { name: "api-football", seed: null },
+    { name: "uefa-competition-news", seed: null },
     ...seeds
       .filter((seed) => seed.provider !== "transfermarkt-rss")
       .map((seed) => ({ name: seed.provider, seed }))
