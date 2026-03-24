@@ -350,24 +350,7 @@ export async function fetchSourceDocument(url, dumpKey, options = {}) {
     : readFirstDumpFile(dumpDirectory, ".csv");
   const headers = { ...DEFAULT_HEADERS, ...(options.headers ?? {}) };
 
-  try {
-    const response = await fetch(url, {
-      headers,
-      redirect: "follow"
-    });
-
-    if (response.ok) {
-      return {
-        ok: true,
-        source: "remote",
-        url,
-        text: await response.text()
-      };
-    }
-  } catch {
-    // fall through to dump files
-  }
-
+  // Prefer local dump files when present (avoids bot-detection on 200 responses)
   if (htmlDumpPath && fs.existsSync(htmlDumpPath)) {
     return {
       ok: true,
@@ -393,6 +376,25 @@ export async function fetchSourceDocument(url, dumpKey, options = {}) {
       url,
       text: fs.readFileSync(csvDumpPath, "utf8")
     };
+  }
+
+  // No dump file — try live network fetch
+  try {
+    const response = await fetch(url, {
+      headers,
+      redirect: "follow"
+    });
+
+    if (response.ok) {
+      return {
+        ok: true,
+        source: "remote",
+        url,
+        text: await response.text()
+      };
+    }
+  } catch {
+    // network unavailable
   }
 
   return {
