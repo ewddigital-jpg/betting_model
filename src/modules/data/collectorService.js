@@ -130,8 +130,18 @@ function readClosingLineStats(snapshot, matchUtcDate = null) {
   };
 }
 
+function recoverStaleRuns(db) {
+  db.prepare(`
+    UPDATE collector_runs
+    SET finished_at = datetime('now'), status = 'failed', error_message = 'Run interrupted (process killed before completion)'
+    WHERE status = 'running'
+      AND datetime(started_at) < datetime('now', '-15 minutes')
+  `).run();
+}
+
 function beginCollectorRun(triggerSource) {
   const db = getDb();
+  recoverStaleRuns(db);
   const startedAt = isoNow();
   const result = db.prepare(`
     INSERT INTO collector_runs (started_at, finished_at, trigger_source, status, summary_json, error_message)
