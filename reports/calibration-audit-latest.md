@@ -1,6 +1,6 @@
 # Calibration Audit
 
-Generated at: 2026-03-19T11:14:44.220Z
+Generated at: 2026-03-25T15:23:10.836Z
 Sample size: 1000 finished matches
 
 ## Precondition
@@ -14,9 +14,9 @@ Sample size: 1000 finished matches
 
 | Market | Sample | Lean Accuracy % | Log Loss | Brier | Avg Selected P | Overconfidence Gap |
 | --- | --- | --- | --- | --- | --- | --- |
-| 1X2 | 1000 | 49.8 | 1.0273 | 0.6164 | 0.4982 | -0.0002 |
-| Over / Under 2.5 | 1000 | 55.5 | 0.6914 | 0.249 | 0.5452 | 0.0098 |
-| BTTS | 1000 | 50.5 | 0.6994 | 0.2529 | 0.5413 | -0.0363 |
+| 1X2 | 1000 | 45.2 | 1.0003 | 0.5975 | 0.4431 | 0.0089 |
+| Over / Under 2.5 | 1000 | 57 | 0.6816 | 0.2443 | 0.5607 | 0.0093 |
+| BTTS | 1000 | 52.1 | 0.7011 | 0.2539 | 0.5526 | -0.0316 |
 
 ## Reliability Curves
 
@@ -24,27 +24,27 @@ Sample size: 1000 finished matches
 
 | Bucket | Count | Expected % | Actual % | Gap % |
 | --- | --- | --- | --- | --- |
-| 30-40% | 137 | 38 | 44.5 | 6.5 |
-| 40-50% | 414 | 44.9 | 43.5 | -1.4 |
-| 50-60% | 309 | 54.6 | 54.7 | 0.1 |
-| 60-70% | 120 | 64.1 | 59.2 | -4.9 |
-| 70-80% | 20 | 72.8 | 85 | 12.2 |
+| 10-20% | 17 | 16.8 | 0 | -16.8 |
+| 20-30% | 93 | 25.5 | 15.1 | -10.4 |
+| 30-40% | 134 | 36.9 | 35.8 | -1.1 |
+| 40-50% | 494 | 45.3 | 45.7 | 0.5 |
+| 50-60% | 233 | 53.6 | 60.5 | 6.9 |
+| 60-70% | 28 | 63.2 | 78.6 | 15.4 |
+| 70-80% | 1 | 72.2 | 100 | 27.8 |
 
 ### Over / Under 2.5
 
 | Bucket | Count | Expected % | Actual % | Gap % |
 | --- | --- | --- | --- | --- |
-| 30-40% | 2 | 39.1 | 0 | -39.1 |
-| 40-50% | 5 | 43.9 | 20 | -23.9 |
-| 50-60% | 920 | 54 | 56.4 | 2.4 |
-| 60-70% | 73 | 62 | 47.9 | -14 |
+| 50-60% | 887 | 55.3 | 55.6 | 0.2 |
+| 60-70% | 113 | 61.8 | 68.1 | 6.4 |
 
 ### BTTS
 
 | Bucket | Count | Expected % | Actual % | Gap % |
 | --- | --- | --- | --- | --- |
-| 50-60% | 959 | 53.8 | 50.1 | -3.7 |
-| 60-70% | 41 | 62.1 | 61 | -1.1 |
+| 50-60% | 965 | 55 | 51.6 | -3.4 |
+| 60-70% | 35 | 61 | 65.7 | 4.7 |
 
 ## Segment Analysis
 
@@ -54,23 +54,24 @@ By region
 
 | Segment | Sample | Lean Accuracy % | Log Loss | Brier | Overconfidence Gap |
 | --- | --- | --- | --- | --- | --- |
-| Domestic | 788 | 49.5 | 1.0336 | 0.6208 | -0.0058 |
-| Europe | 212 | 50.9 | 1.0039 | 0.5998 | 0.0204 |
+| Domestic | 0 | - | - | - | - |
+| Europe | 1000 | 45.2 | 1.0003 | 0.5975 | 0.0089 |
 
 By selected side
 
 | Side | Sample | Lean Accuracy % | Log Loss | Brier | Overconfidence Gap |
 | --- | --- | --- | --- | --- | --- |
-| home | 713 | 51.2 | 1.0132 | 0.6061 | -0.0072 |
-| away | 287 | 46.3 | 1.0623 | 0.6419 | 0.017 |
+| home | 795 | 49.4 | 1.0104 | 0.6047 | 0.0193 |
+| away | 204 | 28.9 | 0.9617 | 0.5704 | -0.0305 |
+| draw | 1 | 0 | 0.7798 | 0.4403 | -0.255 |
 
 By favorite / balanced / underdog
 
 | Profile | Sample | Lean Accuracy % | Log Loss | Brier | Overconfidence Gap |
 | --- | --- | --- | --- | --- | --- |
-| favorites | 140 | 62.9 | 0.8988 | 0.526 | -0.0246 |
-| balanced | 723 | 48.3 | 1.0465 | 0.6294 | -0.0079 |
-| underdogs | 137 | 44.5 | 1.0573 | 0.6399 | 0.065 |
+| favorites | 29 | 79.3 | 0.6928 | 0.3782 | 0.1584 |
+| balanced | 727 | 50.5 | 1.0216 | 0.6125 | 0.0252 |
+| underdogs | 244 | 25.4 | 0.9732 | 0.579 | -0.0576 |
 
 ### Over / Under 2.5
 
@@ -78,23 +79,23 @@ By region
 
 | Segment | Sample | Lean Accuracy % | Log Loss | Brier | Overconfidence Gap |
 | --- | --- | --- | --- | --- | --- |
-| Domestic | 788 | 53.7 | 0.6984 | 0.2524 | -0.0078 |
-| Europe | 212 | 62.3 | 0.6654 | 0.2362 | 0.0753 |
+| Domestic | 0 | - | - | - | - |
+| Europe | 1000 | 57 | 0.6816 | 0.2443 | 0.0093 |
 
 By selected side
 
 | Side | Sample | Lean Accuracy % | Log Loss | Brier | Overconfidence Gap |
 | --- | --- | --- | --- | --- | --- |
-| over | 665 | 57.1 | 0.6891 | 0.2479 | 0.0208 |
-| under | 335 | 52.2 | 0.6958 | 0.2513 | -0.012 |
+| over | 969 | 57.4 | 0.6816 | 0.2443 | 0.0118 |
+| under | 31 | 45.2 | 0.6842 | 0.2456 | -0.0689 |
 
 By favorite / balanced / underdog
 
 | Profile | Sample | Lean Accuracy % | Log Loss | Brier | Overconfidence Gap |
 | --- | --- | --- | --- | --- | --- |
-| favorites | 73 | 47.9 | 0.7557 | 0.2799 | -0.1404 |
-| balanced | 925 | 56.2 | 0.6868 | 0.2468 | 0.0225 |
-| underdogs | 2 | 0 | 0.4668 | 0.1391 | -0.3912 |
+| favorites | 114 | 67.5 | 0.63 | 0.2191 | 0.0581 |
+| balanced | 886 | 55.6 | 0.6883 | 0.2476 | 0.003 |
+| underdogs | 0 | - | - | - | - |
 
 ### BTTS
 
@@ -102,29 +103,28 @@ By region
 
 | Segment | Sample | Lean Accuracy % | Log Loss | Brier | Overconfidence Gap |
 | --- | --- | --- | --- | --- | --- |
-| Domestic | 788 | 50.5 | 0.7016 | 0.2539 | -0.034 |
-| Europe | 212 | 50.5 | 0.6916 | 0.2492 | -0.0448 |
+| Domestic | 0 | - | - | - | - |
+| Europe | 1000 | 52.1 | 0.7011 | 0.2539 | -0.0316 |
 
 By selected side
 
 | Side | Sample | Lean Accuracy % | Log Loss | Brier | Overconfidence Gap |
 | --- | --- | --- | --- | --- | --- |
-| yes | 630 | 53.8 | 0.6888 | 0.2478 | -0.0044 |
-| no | 370 | 44.9 | 0.7175 | 0.2616 | -0.0906 |
+| yes | 961 | 52.1 | 0.7014 | 0.254 | -0.0327 |
+| no | 39 | 51.3 | 0.6934 | 0.25 | -0.0054 |
 
 By favorite / balanced / underdog
 
 | Profile | Sample | Lean Accuracy % | Log Loss | Brier | Overconfidence Gap |
 | --- | --- | --- | --- | --- | --- |
-| favorites | 42 | 59.5 | 0.7071 | 0.2542 | -0.0255 |
-| balanced | 958 | 50.1 | 0.6991 | 0.2529 | -0.0368 |
+| favorites | 35 | 65.7 | 0.6402 | 0.2241 | 0.0468 |
+| balanced | 965 | 51.6 | 0.7033 | 0.255 | -0.0344 |
 | underdogs | 0 | - | - | - | - |
 
 ## Diagnostics
 
 | Finding | Impact | Evidence |
 | --- | --- | --- |
-| Over / Under 2.5 overconfident tail | 14 | 60-70% bucket expected 62% but hit 47.9%. |
 
 ## Recommendation
 

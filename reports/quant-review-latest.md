@@ -1,9 +1,9 @@
 # Quant Review
 
-- Generated at: 2026-03-18T10:39:56.980Z
+- Generated at: 2026-03-25T15:18:13.244Z
 - Requested sample: 1000
 - Evaluated matches: 1000
-- Test window: 2025-11-22T12:30:00Z to 2026-03-16T20:00:00Z
+- Test window: 2024-07-31T18:30:00.000Z to 2026-03-19T20:00:00.000Z
 
 ## Overall Summary
 - Total modeled matches: 1000
@@ -13,13 +13,9 @@
 - Average edge: n/a%
 - Average ROI: n/a%
 - Net units: n/a
-- Finished matches with pre-kickoff odds: 0/1869 (0%)
+- Finished matches with pre-kickoff odds: 687/1463 (47%)
 
 ## Warnings
-- Historical price archive missing - betting performance cannot be validated.
-- Odds snapshots exist only for upcoming scheduled matches, not for finished matches.
-- The current odds collector is archiving live/upcoming boards only, so historical match prices were never stored before those matches finished.
-- All stored snapshots belong to matches that are still scheduled, which means the archive started too late for historical validation.
 - The current historical replay generated zero bets, so ROI and CLV conclusions are not yet available.
 
 ## Final Diagnosis

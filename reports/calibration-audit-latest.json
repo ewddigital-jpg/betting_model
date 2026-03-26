@@ -1,114 +1,114 @@
 {
-  "generatedAt": "2026-03-19T11:14:44.220Z",
+  "generatedAt": "2026-03-25T15:23:10.836Z",
   "requestedSample": 1000,
   "byMarket": {
     "1X2": {
       "sample": 1000,
-      "leanAccuracy": 49.8,
-      "logLoss": 1.0273,
-      "brier": 0.6164,
-      "avgSelectedProbability": 0.4982,
-      "overconfidenceGap": -0.0002
+      "leanAccuracy": 45.2,
+      "logLoss": 1.0003,
+      "brier": 0.5975,
+      "avgSelectedProbability": 0.4431,
+      "overconfidenceGap": 0.0089
     },
     "Over / Under 2.5": {
       "sample": 1000,
-      "leanAccuracy": 55.5,
-      "logLoss": 0.6914,
-      "brier": 0.249,
-      "avgSelectedProbability": 0.5452,
-      "overconfidenceGap": 0.0098
+      "leanAccuracy": 57,
+      "logLoss": 0.6816,
+      "brier": 0.2443,
+      "avgSelectedProbability": 0.5607,
+      "overconfidenceGap": 0.0093
     },
     "BTTS": {
       "sample": 1000,
-      "leanAccuracy": 50.5,
-      "logLoss": 0.6994,
-      "brier": 0.2529,
-      "avgSelectedProbability": 0.5413,
-      "overconfidenceGap": -0.0363
+      "leanAccuracy": 52.1,
+      "logLoss": 0.7011,
+      "brier": 0.2539,
+      "avgSelectedProbability": 0.5526,
+      "overconfidenceGap": -0.0316
     }
   },
   "reliability": {
     "1X2": [
       {
+        "bucket": "10-20%",
+        "count": 17,
+        "expectedPct": 16.8,
+        "actualPct": 0,
+        "gapPct": -16.8
+      },
+      {
+        "bucket": "20-30%",
+        "count": 93,
+        "expectedPct": 25.5,
+        "actualPct": 15.1,
+        "gapPct": -10.4
+      },
+      {
         "bucket": "30-40%",
-        "count": 137,
-        "expectedPct": 38,
-        "actualPct": 44.5,
-        "gapPct": 6.5
+        "count": 134,
+        "expectedPct": 36.9,
+        "actualPct": 35.8,
+        "gapPct": -1.1
       },
       {
         "bucket": "40-50%",
-        "count": 414,
-        "expectedPct": 44.9,
-        "actualPct": 43.5,
-        "gapPct": -1.4
+        "count": 494,
+        "expectedPct": 45.3,
+        "actualPct": 45.7,
+        "gapPct": 0.5
       },
       {
         "bucket": "50-60%",
-        "count": 309,
-        "expectedPct": 54.6,
-        "actualPct": 54.7,
-        "gapPct": 0.1
+        "count": 233,
+        "expectedPct": 53.6,
+        "actualPct": 60.5,
+        "gapPct": 6.9
       },
       {
         "bucket": "60-70%",
-        "count": 120,
-        "expectedPct": 64.1,
-        "actualPct": 59.2,
-        "gapPct": -4.9
+        "count": 28,
+        "expectedPct": 63.2,
+        "actualPct": 78.6,
+        "gapPct": 15.4
       },
       {
         "bucket": "70-80%",
-        "count": 20,
-        "expectedPct": 72.8,
-        "actualPct": 85,
-        "gapPct": 12.2
+        "count": 1,
+        "expectedPct": 72.2,
+        "actualPct": 100,
+        "gapPct": 27.8
       }
     ],
     "Over / Under 2.5": [
       {
-        "bucket": "30-40%",
-        "count": 2,
-        "expectedPct": 39.1,
-        "actualPct": 0,
-        "gapPct": -39.1
-      },
-      {
-        "bucket": "40-50%",
-        "count": 5,
-        "expectedPct": 43.9,
-        "actualPct": 20,
-        "gapPct": -23.9
-      },
-      {
         "bucket": "50-60%",
-        "count": 920,
-        "expectedPct": 54,
-        "actualPct": 56.4,
-        "gapPct": 2.4
+        "count": 887,
+        "expectedPct": 55.3,
+        "actualPct": 55.6,
+        "gapPct": 0.2
       },
       {
         "bucket": "60-70%",
-        "count": 73,
-        "expectedPct": 62,
-        "actualPct": 47.9,
-        "gapPct": -14
+        "count": 113,
+        "expectedPct": 61.8,
+        "actualPct": 68.1,
+        "gapPct": 6.4
       }
     ],
     "BTTS": [
       {
         "bucket": "50-60%",
-        "count": 959,
-        "expectedPct": 53.8,
-        "actualPct": 50.1,
-        "gapPct": -3.7
+        "count": 965,
+        "expectedPct": 55,
+        "actualPct": 51.6,
+        "gapPct": -3.4
       },
       {
         "bucket": "60-70%",
-        "count": 41,
-        "expectedPct": 62.1,
-        "actualPct": 61,
-        "gapPct": -1.1
+        "count": 35,
+        "expectedPct": 61,
+        "actualPct": 65.7,
+        "gapPct": 4.7
       }
     ]
   },
@@ -116,184 +116,192 @@
     "1X2": {
       "byRegion": {
         "Domestic": {
-          "sample": 788,
-          "leanAccuracy": 49.5,
-          "logLoss": 1.0336,
-          "brier": 0.6208,
-          "avgSelectedProbability": 0.5007,
-          "overconfidenceGap": -0.0058
+          "sample": 0,
+          "leanAccuracy": null,
+          "logLoss": null,
+          "brier": null,
+          "avgSelectedProbability": null,
+          "overconfidenceGap": null
         },
         "Europe": {
-          "sample": 212,
-          "leanAccuracy": 50.9,
-          "logLoss": 1.0039,
-          "brier": 0.5998,
-          "avgSelectedProbability": 0.489,
-          "overconfidenceGap": 0.0204
+          "sample": 1000,
+          "leanAccuracy": 45.2,
+          "logLoss": 1.0003,
+          "brier": 0.5975,
+          "avgSelectedProbability": 0.4431,
+          "overconfidenceGap": 0.0089
         }
       },
       "bySide": {
         "home": {
-          "sample": 713,
-          "leanAccuracy": 51.2,
-          "logLoss": 1.0132,
-          "brier": 0.6061,
-          "avgSelectedProbability": 0.5191,
-          "overconfidenceGap": -0.0072
+          "sample": 795,
+          "leanAccuracy": 49.4,
+          "logLoss": 1.0104,
+          "brier": 0.6047,
+          "avgSelectedProbability": 0.475,
+          "overconfidenceGap": 0.0193
         },
         "away": {
-          "sample": 287,
-          "leanAccuracy": 46.3,
-          "logLoss": 1.0623,
-          "brier": 0.6419,
-          "avgSelectedProbability": 0.4464,
-          "overconfidenceGap": 0.017
+          "sample": 204,
+          "leanAccuracy": 28.9,
+          "logLoss": 0.9617,
+          "brier": 0.5704,
+          "avgSelectedProbability": 0.3198,
+          "overconfidenceGap": -0.0305
+        },
+        "draw": {
+          "sample": 1,
+          "leanAccuracy": 0,
+          "logLoss": 0.7798,
+          "brier": 0.4403,
+          "avgSelectedProbability": 0.255,
+          "overconfidenceGap": -0.255
         }
       },
       "byProfile": {
         "favorites": {
-          "sample": 140,
-          "leanAccuracy": 62.9,
-          "logLoss": 0.8988,
-          "brier": 0.526,
-          "avgSelectedProbability": 0.6532,
-          "overconfidenceGap": -0.0246
+          "sample": 29,
+          "leanAccuracy": 79.3,
+          "logLoss": 0.6928,
+          "brier": 0.3782,
+          "avgSelectedProbability": 0.6347,
+          "overconfidenceGap": 0.1584
         },
         "balanced": {
-          "sample": 723,
-          "leanAccuracy": 48.3,
-          "logLoss": 1.0465,
-          "brier": 0.6294,
-          "avgSelectedProbability": 0.4906,
-          "overconfidenceGap": -0.0079
+          "sample": 727,
+          "leanAccuracy": 50.5,
+          "logLoss": 1.0216,
+          "brier": 0.6125,
+          "avgSelectedProbability": 0.4796,
+          "overconfidenceGap": 0.0252
         },
         "underdogs": {
-          "sample": 137,
-          "leanAccuracy": 44.5,
-          "logLoss": 1.0573,
-          "brier": 0.6399,
-          "avgSelectedProbability": 0.3803,
-          "overconfidenceGap": 0.065
+          "sample": 244,
+          "leanAccuracy": 25.4,
+          "logLoss": 0.9732,
+          "brier": 0.579,
+          "avgSelectedProbability": 0.3117,
+          "overconfidenceGap": -0.0576
         }
       }
     },
     "Over / Under 2.5": {
       "byRegion": {
         "Domestic": {
-          "sample": 788,
-          "leanAccuracy": 53.7,
-          "logLoss": 0.6984,
-          "brier": 0.2524,
-          "avgSelectedProbability": 0.5446,
-          "overconfidenceGap": -0.0078
+          "sample": 0,
+          "leanAccuracy": null,
+          "logLoss": null,
+          "brier": null,
+          "avgSelectedProbability": null,
+          "overconfidenceGap": null
         },
         "Europe": {
-          "sample": 212,
-          "leanAccuracy": 62.3,
-          "logLoss": 0.6654,
-          "brier": 0.2362,
-          "avgSelectedProbability": 0.5474,
-          "overconfidenceGap": 0.0753
+          "sample": 1000,
+          "leanAccuracy": 57,
+          "logLoss": 0.6816,
+          "brier": 0.2443,
+          "avgSelectedProbability": 0.5607,
+          "overconfidenceGap": 0.0093
         }
       },
       "bySide": {
         "over": {
-          "sample": 665,
-          "leanAccuracy": 57.1,
-          "logLoss": 0.6891,
-          "brier": 0.2479,
-          "avgSelectedProbability": 0.5507,
-          "overconfidenceGap": 0.0208
+          "sample": 969,
+          "leanAccuracy": 57.4,
+          "logLoss": 0.6816,
+          "brier": 0.2443,
+          "avgSelectedProbability": 0.562,
+          "overconfidenceGap": 0.0118
         },
         "under": {
-          "sample": 335,
-          "leanAccuracy": 52.2,
-          "logLoss": 0.6958,
-          "brier": 0.2513,
-          "avgSelectedProbability": 0.5344,
-          "overconfidenceGap": -0.012
+          "sample": 31,
+          "leanAccuracy": 45.2,
+          "logLoss": 0.6842,
+          "brier": 0.2456,
+          "avgSelectedProbability": 0.5205,
+          "overconfidenceGap": -0.0689
         }
       },
       "byProfile": {
         "favorites": {
-          "sample": 73,
-          "leanAccuracy": 47.9,
-          "logLoss": 0.7557,
-          "brier": 0.2799,
-          "avgSelectedProbability": 0.6198,
-          "overconfidenceGap": -0.1404
+          "sample": 114,
+          "leanAccuracy": 67.5,
+          "logLoss": 0.63,
+          "brier": 0.2191,
+          "avgSelectedProbability": 0.6173,
+          "overconfidenceGap": 0.0581
         },
         "balanced": {
-          "sample": 925,
-          "leanAccuracy": 56.2,
-          "logLoss": 0.6868,
-          "brier": 0.2468,
-          "avgSelectedProbability": 0.5397,
-          "overconfidenceGap": 0.0225
+          "sample": 886,
+          "leanAccuracy": 55.6,
+          "logLoss": 0.6883,
+          "brier": 0.2476,
+          "avgSelectedProbability": 0.5534,
+          "overconfidenceGap": 0.003
         },
         "underdogs": {
-          "sample": 2,
-          "leanAccuracy": 0,
-          "logLoss": 0.4668,
-          "brier": 0.1391,
-          "avgSelectedProbability": 0.3913,
-          "overconfidenceGap": -0.3912
+          "sample": 0,
+          "leanAccuracy": null,
+          "logLoss": null,
+          "brier": null,
+          "avgSelectedProbability": null,
+          "overconfidenceGap": null
         }
       }
     },
     "BTTS": {
       "byRegion": {
         "Domestic": {
-          "sample": 788,
-          "leanAccuracy": 50.5,
-          "logLoss": 0.7016,
-          "brier": 0.2539,
-          "avgSelectedProbability": 0.5391,
-          "overconfidenceGap": -0.034
+          "sample": 0,
+          "leanAccuracy": null,
+          "logLoss": null,
+          "brier": null,
+          "avgSelectedProbability": null,
+          "overconfidenceGap": null
         },
         "Europe": {
-          "sample": 212,
-          "leanAccuracy": 50.5,
-          "logLoss": 0.6916,
-          "brier": 0.2492,
-          "avgSelectedProbability": 0.5495,
-          "overconfidenceGap": -0.0448
+          "sample": 1000,
+          "leanAccuracy": 52.1,
+          "logLoss": 0.7011,
+          "brier": 0.2539,
+          "avgSelectedProbability": 0.5526,
+          "overconfidenceGap": -0.0316
         }
       },
       "bySide": {
         "yes": {
-          "sample": 630,
-          "leanAccuracy": 53.8,
-          "logLoss": 0.6888,
-          "brier": 0.2478,
-          "avgSelectedProbability": 0.5425,
-          "overconfidenceGap": -0.0044
+          "sample": 961,
+          "leanAccuracy": 52.1,
+          "logLoss": 0.7014,
+          "brier": 0.254,
+          "avgSelectedProbability": 0.554,
+          "overconfidenceGap": -0.0327
         },
         "no": {
-          "sample": 370,
-          "leanAccuracy": 44.9,
-          "logLoss": 0.7175,
-          "brier": 0.2616,
-          "avgSelectedProbability": 0.5393,
-          "overconfidenceGap": -0.0906
+          "sample": 39,
+          "leanAccuracy": 51.3,
+          "logLoss": 0.6934,
+          "brier": 0.25,
+          "avgSelectedProbability": 0.5182,
+          "overconfidenceGap": -0.0054
         }
       },
       "byProfile": {
         "favorites": {
-          "sample": 42,
-          "leanAccuracy": 59.5,
-          "logLoss": 0.7071,
-          "brier": 0.2542,
-          "avgSelectedProbability": 0.6207,
-          "overconfidenceGap": -0.0255
+          "sample": 35,
+          "leanAccuracy": 65.7,
+          "logLoss": 0.6402,
+          "brier": 0.2241,
+          "avgSelectedProbability": 0.6103,
+          "overconfidenceGap": 0.0468
         },
         "balanced": {
-          "sample": 958,
-          "leanAccuracy": 50.1,
-          "logLoss": 0.6991,
-          "brier": 0.2529,
-          "avgSelectedProbability": 0.5378,
-          "overconfidenceGap": -0.0368
+          "sample": 965,
+          "leanAccuracy": 51.6,
+          "logLoss": 0.7033,
+          "brier": 0.255,
+          "avgSelectedProbability": 0.5505,
+          "overconfidenceGap": -0.0344
         },
         "underdogs": {
           "sample": 0,
@@ -308,37 +316,31 @@
   },
   "coverageContext": {
     "1X2": {
-      "europeSample": 212,
-      "domesticSample": 788,
-      "europeAvgXgCoverage": 0.1,
-      "domesticAvgXgCoverage": 0.84,
-      "europeAvgDataCoverage": 0.82,
-      "domesticAvgDataCoverage": 1
+      "europeSample": 1000,
+      "domesticSample": 0,
+      "europeAvgXgCoverage": 0,
+      "domesticAvgXgCoverage": null,
+      "europeAvgDataCoverage": 0.74,
+      "domesticAvgDataCoverage": null
     },
     "Over / Under 2.5": {
-      "europeSample": 212,
-      "domesticSample": 788,
-      "europeAvgXgCoverage": 0.1,
-      "domesticAvgXgCoverage": 0.84,
-      "europeAvgDataCoverage": 0.82,
-      "domesticAvgDataCoverage": 1
+      "europeSample": 1000,
+      "domesticSample": 0,
+      "europeAvgXgCoverage": 0,
+      "domesticAvgXgCoverage": null,
+      "europeAvgDataCoverage": 0.74,
+      "domesticAvgDataCoverage": null
     },
     "BTTS": {
-      "europeSample": 212,
-      "domesticSample": 788,
-      "europeAvgXgCoverage": 0.1,
-      "domesticAvgXgCoverage": 0.84,
-      "europeAvgDataCoverage": 0.82,
-      "domesticAvgDataCoverage": 1
+      "europeSample": 1000,
+      "domesticSample": 0,
+      "europeAvgXgCoverage": 0,
+      "domesticAvgXgCoverage": null,
+      "europeAvgDataCoverage": 0.74,
+      "domesticAvgDataCoverage": null
     }
   },
-  "diagnostics": [
-    {
-      "label": "Over / Under 2.5 overconfident tail",
-      "impact": 14,
-      "note": "60-70% bucket expected 62% but hit 47.9%."
-    }
-  ],
+  "diagnostics": [],
   "recommendations": [
     {
       "rank": 1,

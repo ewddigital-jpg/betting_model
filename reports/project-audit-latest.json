@@ -1,14 +1,14 @@
 {
-  "generatedAt": "2026-03-23T18:30:55.423Z",
+  "generatedAt": "2026-03-26T10:33:38.622Z",
   "competitionCode": null,
   "scoreboard": {
-    "trustPercent": 29,
-    "blindLeanAccuracy": 52,
-    "blindLogLoss": 0.998,
-    "forwardSettledBets": 7,
-    "historicalOddsCoverage": "8/8544",
-    "historicalLineupCoverage": "25/645",
-    "collectorStatus": "partial",
+    "trustPercent": 53,
+    "blindLeanAccuracy": 57.9,
+    "blindLogLoss": 0.954,
+    "forwardSettledBets": 0,
+    "historicalOddsCoverage": "106/140",
+    "historicalLineupCoverage": "138/140",
+    "collectorStatus": "success",
     "latestTrainingStatus": "rejected",
     "latestDecisionStatus": "rejected"
   },
@@ -16,51 +16,16 @@
     {
       "priority": "P1",
       "title": "System credibility is still low",
-      "detail": "Trust readiness is 29% against an 80% target. The app is still in evidence-building mode, not proven mode.",
+      "detail": "Trust readiness is 53% against an 80% target. The app is still in evidence-building mode, not proven mode.",
       "action": "Improve proof before adding more aggression: keep archiving odds, keep grading forward bets, and stay conservative on markets without late team-news clarity.",
       "prompt": "Review the trust-readiness blockers and tighten whichever factor is hurting the score most right now without making the model more reckless."
     },
     {
-      "priority": "P1",
-      "title": "Latest collector run is not fully clean",
-      "detail": "The latest collector status is partial. Partial or failed syncs can poison confidence and stale the pre-match view.",
-      "action": "Inspect the latest sync errors first and stabilize data freshness before changing the model logic.",
-      "prompt": "Inspect the latest collector summary, identify the failing provider or rate-limit issue, and make the data pipeline more robust without reducing coverage."
-    },
-    {
-      "priority": "P1",
-      "title": "Historical odds coverage is still too thin",
-      "detail": "Only 8 of the last 8544 finished matches have archived bookmaker prices.",
-      "action": "Improve odds matching and pre-kickoff snapshot depth. Without historical prices, the betting layer cannot be trained honestly.",
-      "prompt": "Audit why finished matches are missing odds snapshots and improve the odds-matching or snapshot strategy so more historical bets become trainable."
-    },
-    {
-      "priority": "P1",
-      "title": "Probability calibration is still loose",
-      "detail": "Average Brier score across supported markets is about 0.2422. The probabilities still read less sharply than they should.",
-      "action": "Calibrate output probabilities and reduce confidence inflation in unstable bands.",
-      "prompt": "Audit the blind calibration buckets and tighten the most overconfident probability bands without flattening the entire model."
-    },
-    {
-      "priority": "P2",
-      "title": "Historical lineup archive is incomplete",
-      "detail": "Only 25 of the last 645 finished matches have stored confirmed lineups.",
-      "action": "Keep backfilling finished fixtures and improve source coverage for missing lineup rows.",
-      "prompt": "Audit which finished competitions or teams still lack archived lineups and improve the historical lineup backfill coverage."
-    },
-    {
       "priority": "P2",
       "title": "Forward graded bet sample is still small",
-      "detail": "Only 7 settled forward bets are graded in the live dashboard.",
+      "detail": "Only 0 settled forward bets are graded in the live dashboard.",
       "action": "Keep collecting and grading. Do not overreact to short-term ROI noise yet.",
       "prompt": "Review the forward recommendation history and improve the grading dashboard or evidence tracking rather than forcing more bets."
-    },
-    {
-      "priority": "P2",
-      "title": "Separate decision policies are not promoted yet",
-      "detail": "The market-specific decision layer still has not earned promotion, which means 1X2, totals, and BTTS are still relying on conservative defaults.",
-      "action": "Increase priced historical evidence and refine the policy trainer before trying to promote a market layer.",
-      "prompt": "Inspect the decision-policy training blockers and improve the priced historical sample so market-specific policies can be trained honestly."
     }
   ],
   "recommendedTasks": [
@@ -73,123 +38,96 @@
     },
     {
       "rank": 2,
-      "priority": "P1",
-      "title": "Latest collector run is not fully clean",
-      "action": "Inspect the latest sync errors first and stabilize data freshness before changing the model logic.",
-      "prompt": "Inspect the latest collector summary, identify the failing provider or rate-limit issue, and make the data pipeline more robust without reducing coverage."
-    },
-    {
-      "rank": 3,
-      "priority": "P1",
-      "title": "Historical odds coverage is still too thin",
-      "action": "Improve odds matching and pre-kickoff snapshot depth. Without historical prices, the betting layer cannot be trained honestly.",
-      "prompt": "Audit why finished matches are missing odds snapshots and improve the odds-matching or snapshot strategy so more historical bets become trainable."
-    },
-    {
-      "rank": 4,
-      "priority": "P1",
-      "title": "Probability calibration is still loose",
-      "action": "Calibrate output probabilities and reduce confidence inflation in unstable bands.",
-      "prompt": "Audit the blind calibration buckets and tighten the most overconfident probability bands without flattening the entire model."
-    },
-    {
-      "rank": 5,
       "priority": "P2",
-      "title": "Historical lineup archive is incomplete",
-      "action": "Keep backfilling finished fixtures and improve source coverage for missing lineup rows.",
-      "prompt": "Audit which finished competitions or teams still lack archived lineups and improve the historical lineup backfill coverage."
+      "title": "Forward graded bet sample is still small",
+      "action": "Keep collecting and grading. Do not overreact to short-term ROI noise yet.",
+      "prompt": "Review the forward recommendation history and improve the grading dashboard or evidence tracking rather than forcing more bets."
     }
   ],
   "prompts": [
     "Review the trust-readiness blockers and tighten whichever factor is hurting the score most right now without making the model more reckless.",
-    "Inspect the latest collector summary, identify the failing provider or rate-limit issue, and make the data pipeline more robust without reducing coverage.",
-    "Audit why finished matches are missing odds snapshots and improve the odds-matching or snapshot strategy so more historical bets become trainable.",
-    "Audit the blind calibration buckets and tighten the most overconfident probability bands without flattening the entire model.",
-    "Audit which finished competitions or teams still lack archived lineups and improve the historical lineup backfill coverage."
+    "Review the forward recommendation history and improve the grading dashboard or evidence tracking rather than forcing more bets."
   ],
   "trustReadiness": {
-    "trustPercent": 29,
+    "trustPercent": 53,
     "targetPercent": 80,
     "status": "building",
     "components": {
       "oddsCoverage": {
-        "score": 27,
-        "current": "3/11",
+        "score": 31,
+        "current": "5/16",
         "label": "Odds coverage"
       },
       "lineupCoverage": {
-        "score": 0,
-        "current": "0 confirmed, 0 likely",
+        "score": 70,
+        "current": "0 official, 16 predicted",
         "label": "Lineup readiness"
       },
       "forwardEvidence": {
-        "score": 9,
-        "current": "7",
+        "score": 0,
+        "current": "0",
         "label": "Forward graded bets"
       },
       "blindEvidence": {
-        "score": 71,
-        "current": "100",
+        "score": 100,
+        "current": "140",
         "label": "Blind sample"
       },
       "calibration": {
-        "score": 58,
-        "current": 0.242,
+        "score": 61,
+        "current": 0.239,
         "label": "Calibration"
       }
     },
     "blockers": [
-      "Odds are only attached to 3 of 11 upcoming matches.",
-      "Expected lineups are only Likely or Confirmed on 0 of 11 upcoming matches.",
-      "Only 7 settled forward bets are graded so far.",
-      "Calibration is still loose with an average Brier score around 0.242.",
-      "The separate trained market decision layer has not earned promotion yet."
+      "Odds are only attached to 5 of 16 upcoming matches.",
+      "Only 0 settled forward bets are graded so far.",
+      "Calibration is still loose with an average Brier score around 0.239."
     ],
     "nextSteps": [
       "Keep the collector and reminder jobs running so more pre-kickoff odds snapshots are saved.",
-      "Wait for the final pre-kickoff refresh window. Trust should only rise when matches move to Likely or Confirmed lineups.",
       "Let the app build a bigger graded sample before trusting small ROI swings.",
       "Keep archiving results and prices so calibration can tighten over the next training cycles.",
-      "More settled priced samples are needed before the app can promote trained 1X2, totals, and BTTS decision rules."
+      "Tomorrow, prefer matches tagged Likely or Confirmed and avoid Fragile trust unless the price moves far enough."
     ]
   },
   "dashboardSummary": {
-    "trackedMatches": 9,
-    "bets": 7,
-    "passes": 2,
-    "settledBets": 7,
-    "wins": 2,
-    "losses": 5,
-    "hitRate": 28.6,
-    "averageEdge": 26.69,
-    "averageOdds": 2.98,
-    "roi": -22.14,
-    "averageClv": -0.1,
-    "beatClosingLineRate": 85.7,
+    "trackedMatches": 0,
+    "bets": 0,
+    "passes": 0,
+    "settledBets": 0,
+    "wins": 0,
+    "losses": 0,
+    "hitRate": null,
+    "averageEdge": null,
+    "averageOdds": null,
+    "roi": null,
+    "averageClv": null,
+    "beatClosingLineRate": null,
     "staleOddsMatches": 0,
     "quotaDegradedMatches": 0,
-    "weakPriceMatches": 9,
+    "weakPriceMatches": 0,
     "usableOrBetterMatches": 0,
     "strongPriceMatches": 0,
     "strongPriceBets": 0,
-    "weakPriceBets": 7,
+    "weakPriceBets": 0,
     "averageOddsFreshnessMinutes": null,
     "averageDataCompletenessScore": null,
     "averageSourceReliabilityScore": null
   },
   "blindSummary": {
-    "modeledMatches": 100,
-    "bets": 0,
-    "passes": 100,
-    "settledBets": 0,
-    "wins": 0,
-    "losses": 0,
-    "leanAccuracy": 52,
-    "hitRate": null,
-    "averageEdge": null,
-    "averageOdds": null,
-    "averageRoi": null,
-    "logLoss": 0.998,
+    "modeledMatches": 140,
+    "bets": 50,
+    "passes": 90,
+    "settledBets": 50,
+    "wins": 23,
+    "losses": 27,
+    "leanAccuracy": 57.9,
+    "hitRate": 46,
+    "averageEdge": 46.3,
+    "averageOdds": 3.23,
+    "averageRoi": 33.7,
+    "logLoss": 0.954,
     "warning": "Blind sample uses only data and odds snapshots available before kickoff. It is still limited by missing historical odds coverage."
   },
   "upcomingShortlist": {

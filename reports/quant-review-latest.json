@@ -1,25 +1,21 @@
 {
-  "generatedAt": "2026-03-18T10:39:56.980Z",
+  "generatedAt": "2026-03-25T15:18:13.244Z",
   "requestedSample": 1000,
   "warnings": [
-    "Historical price archive missing - betting performance cannot be validated.",
-    "Odds snapshots exist only for upcoming scheduled matches, not for finished matches.",
-    "The current odds collector is archiving live/upcoming boards only, so historical match prices were never stored before those matches finished.",
-    "All stored snapshots belong to matches that are still scheduled, which means the archive started too late for historical validation.",
     "The current historical replay generated zero bets, so ROI and CLV conclusions are not yet available."
   ],
   "summary": {
     "totalModeledMatches": 1000,
     "totalMarketOpportunities": 3000,
     "totalBets": 0,
-    "totalWithOdds": 0,
+    "totalWithOdds": 341,
     "betsPerMarket": {
       "1X2": 0,
       "Over / Under 2.5": 0,
       "BTTS": 0
     },
     "oddsCoveragePerMarket": {
-      "1X2": 0,
+      "1X2": 34.1,
       "Over / Under 2.5": 0,
       "BTTS": 0
     },
@@ -30,43 +26,39 @@
     "netUnits": null,
     "averageOdds": null,
     "averageClv": null,
-    "historicalOddsCoverage": 0,
+    "historicalOddsCoverage": 11.4,
     "oddsArchive": {
-      "totalSnapshots": 13750,
-      "totalQuotes": 38526,
-      "upcomingSnapshots": 13750,
-      "finishedSnapshots": 0,
-      "preKickoffSnapshots": 13750,
+      "totalSnapshots": 687,
+      "totalQuotes": 2061,
+      "upcomingSnapshots": 0,
+      "finishedSnapshots": 687,
+      "preKickoffSnapshots": 687,
       "postKickoffSnapshots": 0,
-      "matchesWithAnySnapshots": 13,
-      "finishedMatchesWithAnySnapshots": 0,
-      "finishedMatchesWithPreKickoffOdds": 0,
-      "finishedMatchesWithOpeningOdds": 0,
-      "finishedMatchesWithClosingOdds": 0,
-      "totalFinishedMatches": 1869,
-      "finishedCoveragePct": 0,
-      "preKickoffCoveragePct": 0,
-      "closingCoveragePct": 0,
-      "warnings": [
-        "Odds snapshots exist only for upcoming scheduled matches, not for finished matches.",
-        "The current odds collector is archiving live/upcoming boards only, so historical match prices were never stored before those matches finished.",
-        "All stored snapshots belong to matches that are still scheduled, which means the archive started too late for historical validation."
-      ]
+      "matchesWithAnySnapshots": 687,
+      "finishedMatchesWithAnySnapshots": 687,
+      "finishedMatchesWithPreKickoffOdds": 687,
+      "finishedMatchesWithOpeningOdds": 687,
+      "finishedMatchesWithClosingOdds": 687,
+      "totalFinishedMatches": 1463,
+      "finishedCoveragePct": 47,
+      "preKickoffCoveragePct": 47,
+      "closingCoveragePct": 47,
+      "warnings": []
     },
     "leanAccuracy": {
-      "oneXTwo": 49.8,
-      "totals25": 55.7,
-      "btts": 50.4
+      "oneXTwo": 45.3,
+      "totals25": 57,
+      "btts": 52.1
     },
     "logLoss": {
-      "oneXTwo": 1.0295,
-      "totals25": 0.6926,
-      "btts": 0.7001
+      "oneXTwo": 1.0003,
+      "totals25": 0.6816,
+      "btts": 0.7011
     },
-    "dataCoverageAverage": 0.96,
+    "dataCoverageAverage": 0.74,
     "forwardSettledLikeSample": 0,
-    "firstMatchDate": "2025-11-22T12:30:00Z",
-    "lastMatchDate": "2026-03-16T20:00:00Z"
+    "firstMatchDate": "2024-07-31T18:30:00.000Z",
+    "lastMatchDate": "2026-03-19T20:00:00.000Z"
   },
   "byMarket": {
     "1X2": {
@@ -80,11 +72,11 @@
       "netUnits": null,
       "confidenceDistribution": {},
       "modeledMatches": 1000,
-      "leanAccuracy": 49.8,
-      "logLoss": 1.0295,
-      "brier": 0.3997,
-      "bookmakerBaselineLogLoss": null,
-      "bookmakerBaselineBrier": null
+      "leanAccuracy": 45.3,
+      "logLoss": 1.0003,
+      "brier": 0.3905,
+      "bookmakerBaselineLogLoss": 0.9216,
+      "bookmakerBaselineBrier": 0.348
     },
     "Over / Under 2.5": {
       "bets": 0,
@@ -97,9 +89,9 @@
       "netUnits": null,
       "confidenceDistribution": {},
       "modeledMatches": 1000,
-      "leanAccuracy": 55.7,
-      "logLoss": 0.6926,
-      "brier": 0.2496,
+      "leanAccuracy": 57,
+      "logLoss": 0.6816,
+      "brier": 0.2443,
       "bookmakerBaselineLogLoss": null,
       "bookmakerBaselineBrier": null
     },
@@ -114,9 +106,9 @@
       "netUnits": null,
       "confidenceDistribution": {},
       "modeledMatches": 1000,
-      "leanAccuracy": 50.4,
-      "logLoss": 0.7001,
-      "brier": 0.2532,
+      "leanAccuracy": 52.1,
+      "logLoss": 0.7011,
+      "brier": 0.2539,
       "bookmakerBaselineLogLoss": null,
       "bookmakerBaselineBrier": null
     }
@@ -187,14 +179,14 @@
   },
   "competitionSplit": {
     "CL": {
-      "matches": 107,
+      "matches": 494,
       "bets": 0,
       "hitRate": null,
       "averageEdge": null,
       "roi": null
     },
     "EL": {
-      "matches": 96,
+      "matches": 506,
       "bets": 0,
       "hitRate": null,
       "averageEdge": null,
@@ -348,97 +340,115 @@
   },
   "calibration": {
     "1X2": {
-      "brier": 0.3997,
-      "bookmakerBaselineBrier": null,
+      "brier": 0.3905,
+      "bookmakerBaselineBrier": 0.348,
       "calibrationBuckets": [
         {
+          "bucket": "10-20%",
+          "count": 17,
+          "expected": 16.8,
+          "actual": 0,
+          "gap": -16.8
+        },
+        {
+          "bucket": "20-30%",
+          "count": 93,
+          "expected": 25.5,
+          "actual": 15.1,
+          "gap": -10.4
+        },
+        {
           "bucket": "30-40%",
-          "count": 137,
-          "expected": 38.1,
-          "actual": 44.5,
-          "gap": 6.4
+          "count": 134,
+          "expected": 36.9,
+          "actual": 35.8,
+          "gap": -1.1
         },
         {
           "bucket": "40-50%",
-          "count": 417,
-          "expected": 44.9,
-          "actual": 43.9,
-          "gap": -1
+          "count": 494,
+          "expected": 45.3,
+          "actual": 46,
+          "gap": 0.7
         },
         {
           "bucket": "50-60%",
-          "count": 309,
-          "expected": 54.6,
-          "actual": 54.7,
-          "gap": 0.1
+          "count": 233,
+          "expected": 53.6,
+          "actual": 60.5,
+          "gap": 6.9
         },
         {
           "bucket": "60-70%",
-          "count": 119,
-          "expected": 64.1,
-          "actual": 58.8,
-          "gap": -5.2
+          "count": 28,
+          "expected": 63.2,
+          "actual": 78.6,
+          "gap": 15.4
         },
         {
           "bucket": "70-80%",
-          "count": 18,
-          "expected": 72.9,
-          "actual": 83.3,
-          "gap": 10.5
+          "count": 1,
+          "expected": 72.2,
+          "actual": 100,
+          "gap": 27.8
         }
       ],
-      "overconfidenceGap": 0.0003
+      "overconfidenceGap": 0.0099
     },
     "Over / Under 2.5": {
-      "brier": 0.2496,
+      "brier": 0.2443,
       "bookmakerBaselineBrier": null,
       "calibrationBuckets": [
         {
           "bucket": "50-60%",
-          "count": 928,
-          "expected": 54,
-          "actual": 56.4,
-          "gap": 2.3
+          "count": 887,
+          "expected": 55.3,
+          "actual": 55.6,
+          "gap": 0.2
         },
         {
           "bucket": "60-70%",
-          "count": 72,
-          "expected": 62,
-          "actual": 47.2,
-          "gap": -14.8
+          "count": 113,
+          "expected": 61.8,
+          "actual": 68.1,
+          "gap": 6.4
         }
       ],
-      "overconfidenceGap": 0.0111
+      "overconfidenceGap": 0.0093
     },
     "BTTS": {
-      "brier": 0.2532,
+      "brier": 0.2539,
       "bookmakerBaselineBrier": null,
       "calibrationBuckets": [
         {
           "bucket": "50-60%",
-          "count": 960,
-          "expected": 53.8,
-          "actual": 49.9,
-          "gap": -3.9
+          "count": 965,
+          "expected": 55,
+          "actual": 51.6,
+          "gap": -3.4
         },
         {
           "bucket": "60-70%",
-          "count": 40,
-          "expected": 62.1,
-          "actual": 62.5,
-          "gap": 0.4
+          "count": 35,
+          "expected": 61,
+          "actual": 65.7,
+          "gap": 4.7
         }
       ],
-      "overconfidenceGap": -0.0371
+      "overconfidenceGap": -0.0316
     }
   },
   "bookmakerBaselineComparison": {
     "1X2": {
-      "comparableMatches": 0,
-      "logLossDelta": null,
-      "brierDelta": null,
-      "modelBetterLogLoss": null,
-      "modelBetterBrier": null
+      "comparableMatches": 341,
+      "modelLogLoss": 0.9948,
+      "bookmakerLogLoss": 0.9216,
+      "logLossDelta": 0.0732,
+      "modelBetterLogLoss": false,
+      "modelBrier": 0.3882,
+      "bookmakerBrier": 0.348,
+      "brierDelta": 0.0402,
+      "modelBetterBrier": false
     },
     "Over / Under 2.5": {
       "comparableMatches": 0,
@@ -460,7 +470,7 @@
       "The model does not show a strong repeatable strength across all three markets."
     ],
     "biggestWeaknesses": [
-      "Historical odds coverage is only 0%, so the betting layer is being judged on a starved price archive.",
+      "Historical odds coverage is only 11.4%, so the betting layer is being judged on a starved price archive.",
       "1X2 is weak or negative, with n/a% ROI over 0 bets.",
       "BTTS is weak or negative, with n/a% ROI over 0 bets.",
       "The system passes too often for a practical betting workflow, with a 100% no-bet rate.",
@@ -469,7 +479,7 @@
     ],
     "showsRealSignal": false,
     "beatsNaiveBookmakerBaseline": {
-      "oneXTwo": null,
+      "oneXTwo": false,
       "totals25": null,
       "btts": null
     },
