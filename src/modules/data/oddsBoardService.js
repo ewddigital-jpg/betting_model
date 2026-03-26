@@ -23,6 +23,11 @@ function sourceReliabilityScore(provider, sourceMode = "live") {
     return 0.72;
   }
 
+  // OddsPortal consensus average aggregates many bookmakers — treat as a reliable historical source.
+  if (provider === "oddsportal-avg" || provider === "oddsportal") {
+    return 0.82;
+  }
+
   return 0;
 }
 
@@ -271,6 +276,7 @@ export function scoreOddsBoard(rows, market, options = {}) {
   const quotaDegraded = Boolean(options.quotaDegraded);
   const sourceProvider = options.sourceProvider ?? "unknown";
   const sourceMode = options.sourceMode ?? "live";
+  const isHistoricalMode = Boolean(options.isHistoricalMode);
   const bookmakerCount = rows.length;
 
   if (!bookmakerCount) {
@@ -296,18 +302,23 @@ export function scoreOddsBoard(rows, market, options = {}) {
   const timestampCoverage = rows.length ? ages.length / rows.length : 0;
   const worstAgeMinutes = ages.length ? round(Math.max(...ages), 1) : null;
   const freshnessMinutes = worstAgeMinutes;
-  const freshnessScore = worstAgeMinutes === null
-    ? 0
-    : worstAgeMinutes <= freshnessTarget
-      ? 1
-      : worstAgeMinutes <= freshnessTarget * 2
-        ? 0.55
-        : worstAgeMinutes <= freshnessTarget * 4
-          ? 0.25
-          : 0;
+  // In historical mode the snapshot is pre-kickoff by definition — treat it as fully fresh.
+  const freshnessScore = isHistoricalMode && worstAgeMinutes !== null
+    ? 1
+    : worstAgeMinutes === null
+      ? 0
+      : worstAgeMinutes <= freshnessTarget
+        ? 1
+        : worstAgeMinutes <= freshnessTarget * 2
+          ? 0.55
+          : worstAgeMinutes <= freshnessTarget * 4
+            ? 0.25
+            : 0;
   const completenessScore = round(average(rows.map((row) => completenessForRow(row, market)), 0), 2);
   const consistencyScore = impliedConsistencyScore(rows, market);
-  const coverageScore = bookmakerDepthScore(bookmakerCount);
+  // In historical mode a single consensus-average source aggregates many bookmakers — score as 3.
+  const effectiveDepthCount = isHistoricalMode && bookmakerCount === 1 ? 3 : bookmakerCount;
+  const coverageScore = bookmakerDepthScore(effectiveDepthCount);
   const reliabilityScore = rowSourceReliability(rows, sourceProvider, sourceMode);
   const coverageStatus = bookmakerCount >= 3 ? "complete" : bookmakerCount >= 2 ? "thin" : bookmakerCount >= 1 ? "partial" : "missing";
   const quotaPenalty = quotaDegraded ? 0.2 : 0;
@@ -323,7 +334,10 @@ export function scoreOddsBoard(rows, market, options = {}) {
       2
     )
   );
-  const refreshedRecently = worstAgeMinutes !== null && worstAgeMinutes <= freshnessTarget && timestampCoverage === 1;
+  // In historical mode the snapshot was taken before kickoff — treat it as fresh regardless of wall-clock age.
+  const refreshedRecently = isHistoricalMode
+    ? timestampCoverage === 1 && worstAgeMinutes !== null
+    : worstAgeMinutes !== null && worstAgeMinutes <= freshnessTarget && timestampCoverage === 1;
   const completenessCap = completenessScore < 0.75
     ? "unusable"
     : completenessScore < 0.95
@@ -336,7 +350,7 @@ export function scoreOddsBoard(rows, market, options = {}) {
       : null;
   const depthCap = bookmakerCount === 2 ? "usable" : null;
   const sourceModeCap = rowsUseCachedSource(rows, sourceMode, sourceProvider) ? "usable" : null;
-  const baseTier = bookmakerCount < 2
+  const baseTier = bookmakerCount < 2 && !isHistoricalMode
     ? score >= 0.72
       ? "weak"
       : "unusable"

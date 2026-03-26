@@ -29,9 +29,13 @@
     "audit:team-identity": "node scripts/team-identity-audit.js",
     "audit:board-quality": "node scripts/audit-board-quality.js",
     "audit:calibration": "node scripts/audit-calibration.js",
+    "scrape:oddsportal": "node scripts/scrape-oddsportal.js",
     "test": "node tests/model.test.js"
   },
   "engines": {
     "node": ">=24.0.0"
+  },
+  "dependencies": {
+    "puppeteer": "^24.40.0"
   }
 }

@@ -1112,7 +1112,7 @@ async function fetchFootballDataBundle(code, competition) {
   const [matchesPayload, standingsPayload, oddsBundle] = await Promise.all([
     fetchCompetitionMatches(code),
     fetchCompetitionStandings(code),
-    fetchCompliantOddsBundle({ ...competition, code })
+    fetchCompliantOddsBundle({ ...competition, code }, { force: competition.forceOdds ?? false })
   ]);
 
   return {
@@ -1139,7 +1139,7 @@ async function fetchSportmonksBundle(code, competition) {
       });
       return { data: [] };
     }),
-    fetchCompliantOddsBundle({ ...competition, code })
+    fetchCompliantOddsBundle({ ...competition, code }, { force: competition.forceOdds ?? false })
   ]);
 
   return {
@@ -1151,12 +1151,37 @@ async function fetchSportmonksBundle(code, competition) {
   };
 }
 
-export async function syncCompetition(code) {
+export async function syncHistoricalSeason(code, sportmonksSeasonId) {
+  const competition = COMPETITION_BY_CODE[code];
+  if (!competition) throw new Error(`Unsupported competition code: ${code}`);
+
+  logger.info("Historical season sync started", { competition: code, sportmonksSeasonId });
+
+  const [seasonPayload, standingsPayload] = await Promise.all([
+    fetchSeasonFixtures(sportmonksSeasonId),
+    fetchSeasonStandings(sportmonksSeasonId).catch(() => ({ data: [] }))
+  ]);
+
+  const matchesPayload  = normalizeSportmonksMatchesPayload(seasonPayload);
+  const standingsParsed = normalizeSportmonksStandingsPayload(standingsPayload, seasonPayload?.data);
+
+  withTransaction(() => {
+    upsertMatchesForCompetition(code, matchesPayload);
+    mergeDuplicateMatches(code);
+    replaceStandingsForCompetition(code, standingsParsed);
+  });
+
+  const matchCount = matchesPayload.matches?.length ?? 0;
+  logger.info("Historical season sync finished", { competition: code, sportmonksSeasonId, matches: matchCount });
+  return { competition: code, sportmonksSeasonId, matches: matchCount };
+}
+
+export async function syncCompetition(code, { forceOdds = false } = {}) {
   if (!COMPETITION_BY_CODE[code]) {
     throw new Error(`Unsupported competition code: ${code}`);
   }
 
-  const competition = COMPETITION_BY_CODE[code];
+  const competition = { ...COMPETITION_BY_CODE[code], forceOdds };
   const provider = selectSyncProvider(competition);
 
   if (!provider) {
@@ -1206,12 +1231,12 @@ export async function syncCompetition(code) {
   };
 }
 
-export async function syncAllCompetitions() {
+export async function syncAllCompetitions({ forceOdds = false } = {}) {
   const results = [];
 
   for (const competition of SUPPORTED_COMPETITIONS) {
     try {
-      const result = await syncCompetition(competition.code);
+      const result = await syncCompetition(competition.code, { forceOdds });
       results.push(result);
     } catch (error) {
       logger.error("Competition sync failed", {
@@ -1241,7 +1266,7 @@ export async function syncFreeModeData() {
     }
   }
 
-  const results = await syncAllCompetitions();
+  const results = await syncAllCompetitions({ forceOdds: false });
   const summary = {
     appCompetitions: results.filter((result) => APP_COMPETITION_CODES.includes(result.competition)),
     historyCompetitions: results.filter((result) => !APP_COMPETITION_CODES.includes(result.competition))

@@ -67,7 +67,7 @@ function buildHistoricalDataset(limit = 240) {
 
     const ratings = buildRatingsUntil(historyRows, match.utc_date);
     const features = buildMatchFeatures(match.id, ratings, { asOfTime: match.utc_date });
-    const model = calculateProbabilities(features);
+    const model = calculateProbabilities(features, { disableMarketBlend: true });
     dataset.push({ match, features, model });
     historyRows.push(byId.get(match.id));
   }
@@ -128,7 +128,8 @@ function evaluatePolicyForMarket(rows, marketKey, branch) {
       features,
       dataCoverageScore: features.context.dataCoverageScore,
       coverageBlend: model.diagnostics.coverageBlend,
-      decisionPolicy: policy
+      decisionPolicy: policy,
+      backtestMode: true
     });
     const market = assessment.markets[marketKey];
     const selection = market.bestOption.shortLabel;

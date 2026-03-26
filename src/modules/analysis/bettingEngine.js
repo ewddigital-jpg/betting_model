@@ -212,10 +212,11 @@ function buildPriceQualityPackage(marketKey, bestOption, rows, selectedBookmaker
   const hasMarketProbability = Number.isFinite(bestOption?.bookmakerMarginAdjustedProbability ?? bestOption?.consensusProbability);
   const dataCompletenessScore = liveBoardQuality.completenessScore;
   const freshnessScore = Math.round(liveBoardQuality.score * 100);
-  const staleOdds = hasBookmakerOdds && !refreshedRecently;
+  const isHistoricalMode = board?.isHistoricalMode ?? false;
+  const staleOdds = !isHistoricalMode && hasBookmakerOdds && !refreshedRecently;
   const missingPriceData = !hasBookmakerOdds || !hasMarketProbability;
   const boardQualityTier = liveBoardQuality.tier;
-  const bookmakerDepthMissing = bookmakerCount < minimumBookmakerDepth(marketKey);
+  const bookmakerDepthMissing = !isHistoricalMode && bookmakerCount < minimumBookmakerDepth(marketKey);
   const blockReasons = [];
 
   if (!hasBookmakerOdds) {
@@ -443,6 +444,11 @@ function isSafetyPreferredFallback(liveQuality, cachedQuality) {
 }
 
 function resolveBoardSelection(matchId, definition, context, features, beforeDate = null) {
+  // When evaluating a historical match (beforeDate is in the past), use beforeDate as "now"
+  // so that freshness/staleness checks are relative to the snapshot time, not today.
+  const isHistoricalMode = Boolean(beforeDate) && new Date(beforeDate).getTime() < Date.now() - 60 * 60 * 1000;
+  const boardNow = isHistoricalMode ? beforeDate : undefined;
+
   const liveRows = collapseLatestPerBookmaker(latestSnapshotGroups(matchId, definition.snapshotMarket, beforeDate));
   const persistedLiveBoard = readOddsMarketBoard(matchId, definition.snapshotMarket, "live");
   const liveSource = resolveBoardSource(
@@ -456,7 +462,9 @@ function resolveBoardSelection(matchId, definition, context, features, beforeDat
     kickoffTime: features?.match?.utc_date ?? null,
     quotaDegraded: liveQuotaDegraded,
     sourceProvider: liveSource.provider,
-    sourceMode: "live"
+    sourceMode: "live",
+    isHistoricalMode,
+    ...(boardNow ? { now: boardNow } : {})
   });
   const cachedBoard = readOddsMarketBoard(matchId, definition.snapshotMarket, "trusted_cache");
   const cachedRows = collapseLatestPerBookmaker(filterRowsBeforeDate(cachedBoard?.rows ?? [], beforeDate));
@@ -465,7 +473,9 @@ function resolveBoardSelection(matchId, definition, context, features, beforeDat
         kickoffTime: features?.match?.utc_date ?? null,
         quotaDegraded: false,
         sourceProvider: cachedBoard?.source_provider ?? "trusted-cache",
-        sourceMode: cachedBoard?.source_mode ?? "trusted_cache"
+        sourceMode: cachedBoard?.source_mode ?? "trusted_cache",
+        isHistoricalMode,
+        ...(boardNow ? { now: boardNow } : {})
       })
     : null;
   const liveHealthy = liveRows.length > 0 && isUsableBoardTier(liveQuality) && liveQuality.refreshedRecently;
@@ -488,7 +498,8 @@ function resolveBoardSelection(matchId, definition, context, features, beforeDat
       sourceLabel: cachedBoard?.source_label ?? null,
       sourceMode: "trusted_cache",
       fallbackUsed: true,
-      sourceReliabilityScore: cachedBoard?.source_reliability_score ?? cachedQuality?.sourceReliabilityScore ?? 0
+      sourceReliabilityScore: cachedBoard?.source_reliability_score ?? cachedQuality?.sourceReliabilityScore ?? 0,
+      isHistoricalMode
     };
   }
 
@@ -499,7 +510,8 @@ function resolveBoardSelection(matchId, definition, context, features, beforeDat
     sourceLabel: liveSource.sourceLabel,
     sourceMode: "live",
     fallbackUsed: false,
-    sourceReliabilityScore: persistedLiveBoard?.source_reliability_score ?? liveQuality.sourceReliabilityScore ?? 0
+    sourceReliabilityScore: persistedLiveBoard?.source_reliability_score ?? liveQuality.sourceReliabilityScore ?? 0,
+    isHistoricalMode
   };
 }
 
@@ -669,7 +681,8 @@ function buildBookmakerRows(matchId, definition, optionDefinitions, context, fea
       provider: boardSelection.provider,
       sourceMode: boardSelection.sourceMode,
       fallbackUsed: boardSelection.fallbackUsed,
-      quality: boardSelection.quality
+      quality: boardSelection.quality,
+      isHistoricalMode: boardSelection.isHistoricalMode
     }
   };
 }
@@ -1873,7 +1886,10 @@ function buildMarketAssessment(matchId, marketKey, teams, features, model, conte
   const priceQuality = buildPriceQualityPackage(marketKey, bestOption, rows, selectedBookmaker, context, features, boardSelection.board);
   const trust = buildTrustPackage(marketKey, bestOption, rows, selectedBookmaker, context, teams, model, features, priceQuality);
   const baseAction = oneXTwoGate.forceNoBet ? "No Bet" : buildRecommendationAction(bestOption.edge, policy);
-  const trustGate = applyTrustGuardrail(marketKey, trust, baseAction, policy);
+  // In backtest mode skip system-level trust guardrails — they reflect current state, not historical.
+  const trustGate = context.backtestMode
+    ? { forceNoBet: false, downgradeAction: null }
+    : applyTrustGuardrail(marketKey, trust, baseAction, policy);
   const priceGate = applyPriceQualityGuardrail(marketKey, priceQuality, trustGate.forceNoBet ? "No Bet" : (trustGate.downgradeAction ?? baseAction));
   const action = oneXTwoGate.forceNoBet
     ? "No Bet"
@@ -1947,7 +1963,7 @@ function buildMarketAssessment(matchId, marketKey, teams, features, model, conte
   };
 }
 
-function buildBestBet(markets) {
+function buildBestBet(markets, backtestMode = false) {
   const marketRankScore = (market) => {
     let score = market.bestOption.edge ?? -999;
     score += (market.trust?.score ?? 0) * 0.06;
@@ -1968,9 +1984,11 @@ function buildBestBet(markets) {
   const candidates = Object.values(markets)
     .filter((market) => {
       const policy = market.policy;
+      // In backtest mode skip system-level trust filter — it reflects current state, not historical.
+      const trustOk = backtestMode || (market.trust?.score ?? 0) >= policy.minTrust;
       return !market.recommendation.isNoBet &&
         (market.bestOption.edge ?? -999) >= policy.minEdge &&
-        (market.trust?.score ?? 0) >= policy.minTrust;
+        trustOk;
     })
     .sort((left, right) => marketRankScore(right) - marketRankScore(left));
 
@@ -2127,11 +2145,13 @@ function buildPrimaryMarketLegacy(markets) {
 
 export function buildBettingAssessment(matchId, model, options = {}) {
   const beforeDate = options.beforeDate ?? null;
+  const backtestMode = Boolean(options.backtestMode);
   const decisionPolicy = resolveDecisionPolicy(options.decisionPolicy ?? null);
   const context = {
     dataCoverageScore: options.dataCoverageScore ?? 0.35,
     coverageBlend: options.coverageBlend ?? 0.5,
-    decisionPolicy
+    decisionPolicy,
+    backtestMode
   };
   const features = options.features;
   const teams = {
@@ -2164,7 +2184,7 @@ export function buildBettingAssessment(matchId, model, options = {}) {
   return {
     markets,
     primaryMarket: buildPrimaryMarket(markets),
-    bestBet: buildBestBet(markets),
+    bestBet: buildBestBet(markets, backtestMode),
     market: {
       hasOdds: oneXTwo.hasOdds,
       selectedBookmaker: legacySelected,

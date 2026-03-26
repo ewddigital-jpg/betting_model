@@ -4,8 +4,8 @@ import { isoNow } from "../../lib/time.js";
 
 export const DEFAULT_MODEL_PARAMETERS = {
   baseline: {
-    homeEloDivisor: 900,
-    awayEloDivisor: 1100
+    homeEloDivisor: 550,
+    awayEloDivisor: 700
   },
   home: {
     intercept: 0,

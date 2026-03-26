@@ -207,23 +207,24 @@ function applyOneXTwoCalibration(probabilities, features, marketDiagnostics) {
   const coverageScore = featureValue(features.context, "dataCoverageScore", 0.35);
   const marketAnchor = featureValue(features.context?.marketBaseline, "bookmakerMarginAdjustedProbability", null);
 
-  let weight = 0.03;
-  weight += clamp((topProbability - 0.5) * 0.35, 0, 0.08);
-  weight += clamp((topGap - 0.08) * 0.45, 0, 0.06);
-  weight += clamp((lineupUncertainty - 0.4) * 0.18, 0, 0.05);
-  weight += clamp((0.6 - availabilityCoverage) * 0.12, 0, 0.04);
-  weight += clamp((0.55 - coverageScore) * 0.1, 0, 0.03);
+  // Calibration only applies for genuine uncertainty — reduce weight for confident cases.
+  let weight = 0.02;
+  weight += clamp((topProbability - 0.5) * 0.2, 0, 0.04);
+  weight += clamp((topGap - 0.08) * 0.3, 0, 0.04);
+  weight += clamp((lineupUncertainty - 0.45) * 0.15, 0, 0.04);
+  weight += clamp((0.6 - availabilityCoverage) * 0.08, 0, 0.02);
+  weight += clamp((0.55 - coverageScore) * 0.08, 0, 0.02);
   weight -= (marketDiagnostics.weight ?? 0) * 0.18;
-  weight = clamp(weight, 0, 0.18);
+  weight = clamp(weight, 0, 0.12);
   const temperature = clamp(
-    1.04 +
-    Math.max(0, topProbability - 0.52) * 0.55 +
-    Math.max(0, topGap - 0.08) * 0.9 +
-    Math.max(0, lineupUncertainty - 0.4) * 0.35 +
-    Math.max(0, 0.6 - coverageScore) * 0.18 -
+    1.02 +
+    Math.max(0, topProbability - 0.52) * 0.3 +
+    Math.max(0, topGap - 0.08) * 0.5 +
+    Math.max(0, lineupUncertainty - 0.45) * 0.2 +
+    Math.max(0, 0.6 - coverageScore) * 0.1 -
     ((marketDiagnostics.weight ?? 0) * 0.45),
-    1.02,
-    1.28
+    1.01,
+    1.14
   );
   const temperatureScaled = applyThreeWayTemperature(probabilities, temperature);
 
@@ -617,7 +618,9 @@ export function calculateProbabilities(features, options = {}) {
   }
 
   const rawNormalized = normalizeProbabilities({ homeWin, draw, awayWin });
-  const marketAdjusted = applyMarketBaseline(rawNormalized, features);
+  const marketAdjusted = options.disableMarketBlend
+    ? { probabilities: rawNormalized, diagnostics: { weight: 0, disagreement: null } }
+    : applyMarketBaseline(rawNormalized, features);
   const calibrated = applyOneXTwoCalibration(marketAdjusted.probabilities, features, marketAdjusted.diagnostics);
   const normalized = calibrated.probabilities;
   const factors = Object.entries(signals.contributionMap).map(([key, contribution]) => ({

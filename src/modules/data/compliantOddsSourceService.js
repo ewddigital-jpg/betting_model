@@ -631,7 +631,7 @@ function isQuotaError(error) {
   return message.includes("OUT_OF_USAGE_CREDITS") || message.includes("Usage quota has been reached");
 }
 
-export async function fetchCompliantOddsBundle(competition) {
+export async function fetchCompliantOddsBundle(competition, { force = false } = {}) {
   const now = isoNow();
   const demandContext = buildLiveOddsDemandContext(competition);
   const demand = demandContext.demand;
@@ -690,7 +690,7 @@ export async function fetchCompliantOddsBundle(competition) {
     };
   }
 
-  if (demand.within48Hours === 0) {
+  if (demand.within48Hours === 0 && !force) {
     return {
       oddsPayload: [],
       oddsDiagnostics: buildDiagnostics({

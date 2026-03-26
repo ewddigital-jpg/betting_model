@@ -147,12 +147,13 @@ function simulateHistoricalRows(competitionCode = null, limit = 100) {
   for (const match of testRows) {
     const ratings = buildRatingsUntil(historyRows, match.utc_date, getActiveHomeAdvantage());
     const features = buildMatchFeatures(match.id, ratings, { asOfTime: match.utc_date });
-    const model = calculateProbabilities(features);
+    const model = calculateProbabilities(features, { disableMarketBlend: true });
     const betting = buildBettingAssessment(match.id, model, {
       beforeDate: match.utc_date,
       features,
       dataCoverageScore: features.context.dataCoverageScore,
-      coverageBlend: model.diagnostics.coverageBlend
+      coverageBlend: model.diagnostics.coverageBlend,
+      backtestMode: true
     });
     const lean = topLean(model.probabilities, features);
     const topMarket = betting.bestBet?.hasBet

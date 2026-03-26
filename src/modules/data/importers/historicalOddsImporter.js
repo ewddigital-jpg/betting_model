@@ -155,6 +155,14 @@ function readMatchLookup() {
   }));
 }
 
+function tokenSimilarity(a, b) {
+  const tokA = a.split(" ").filter((t) => t.length >= 3);
+  const tokB = b.split(" ").filter((t) => t.length >= 3);
+  if (!tokA.length || !tokB.length) return 0;
+  const shared = tokA.filter((t) => tokB.includes(t));
+  return shared.length / Math.max(tokA.length, tokB.length);
+}
+
 function resolveMatch(matches, row) {
   const explicitMatchId = Number(row.match_id ?? row.matchId ?? 0);
   if (Number.isFinite(explicitMatchId) && explicitMatchId > 0) {
@@ -166,12 +174,35 @@ function resolveMatch(matches, row) {
   const normalizedHome = normalizeName(row.home_team ?? row.homeTeam);
   const normalizedAway = normalizeName(row.away_team ?? row.awayTeam);
 
-  return matches.find((match) =>
+  // Pass 1: exact normalized name match
+  const exact = matches.find((match) =>
     (!competitionCode || match.competition_code === competitionCode) &&
     (!matchDate || match.matchDate === matchDate) &&
     match.normalizedHome === normalizedHome &&
     match.normalizedAway === normalizedAway
-  ) ?? null;
+  );
+  if (exact) return exact;
+
+  // Pass 2: token similarity fallback (handles PSG/Paris Saint Germain, Bayern Munich/FC Bayern München etc.)
+  const dateFiltered = matches.filter((match) =>
+    (!competitionCode || match.competition_code === competitionCode) &&
+    (!matchDate || match.matchDate === matchDate)
+  );
+
+  let best = null;
+  let bestScore = 0;
+
+  for (const match of dateFiltered) {
+    const homeSim = tokenSimilarity(match.normalizedHome, normalizedHome);
+    const awaySim = tokenSimilarity(match.normalizedAway, normalizedAway);
+    const score   = homeSim + awaySim;
+    if (score > bestScore && homeSim >= 0.5 && awaySim >= 0.5) {
+      bestScore = score;
+      best = match;
+    }
+  }
+
+  return best ?? null;
 }
 
 function normalizeMarket(value) {
@@ -250,6 +281,10 @@ function normalizeHistoricalOddsRow(matches, row) {
     return null;
   }
 
+  const sourceProvider = bookmakerKey === "oddsportal-avg" || bookmakerKey.startsWith("oddsportal")
+    ? "oddsportal-avg"
+    : String(row.source_provider ?? row.sourceProvider ?? "").trim() || null;
+
   return {
     matchId: match.id,
     market,
@@ -259,6 +294,7 @@ function normalizeHistoricalOddsRow(matches, row) {
     bookmakerKey,
     bookmakerTitle: bookmakerTitle || bookmakerKey,
     isLive: parseIntegerFlag(row.is_live ?? row.isLive, 0),
+    sourceProvider,
     file: row.__file ?? null
   };
 }
@@ -327,14 +363,15 @@ function upsertSnapshot(db, group) {
 
   const result = db.prepare(`
     INSERT INTO odds_snapshots (
-      match_id, bookmaker_key, bookmaker_title, market, home_price, draw_price, away_price, is_live, retrieved_at
+      match_id, bookmaker_key, bookmaker_title, source_provider, market, home_price, draw_price, away_price, is_live, retrieved_at
     )
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     RETURNING id
   `).get(
     group.matchId,
     group.bookmakerKey,
     group.bookmakerTitle,
+    group.sourceProvider ?? null,
     group.market,
     snapshotPayload.home_price,
     snapshotPayload.draw_price,
@@ -416,6 +453,7 @@ export function importHistoricalOddsData() {
         market: row.market,
         bookmakerKey: row.bookmakerKey,
         bookmakerTitle: row.bookmakerTitle,
+        sourceProvider: row.sourceProvider ?? null,
         recordedAt: row.recordedAt,
         isLive: row.isLive,
         rows: []
