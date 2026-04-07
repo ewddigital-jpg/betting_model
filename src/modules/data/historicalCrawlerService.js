@@ -1,5 +1,6 @@
 import { getDb } from "../../db/database.js";
 import { crawlFbrefHistoricalData } from "./publicSources/fbrefHistoricalProvider.js";
+import { crawlFbrefWithPuppeteer } from "./publicSources/fbrefPuppeteerProvider.js";
 import { crawlTransfermarktHistoricalData } from "./publicSources/transfermarktHistoricalProvider.js";
 import { crawlUnderstatHistoricalData } from "./publicSources/understatHistoricalProvider.js";
 import { namesShareCoreTokens, normalizeName } from "./publicSources/historicalCrawlShared.js";
@@ -609,6 +610,7 @@ export async function crawlHistoricalDataset() {
   clearRepairLog(db);
 
   const fbref = await crawlFbrefHistoricalData();
+  const fbrefPuppeteer = await crawlFbrefWithPuppeteer();
   const understat = await crawlUnderstatHistoricalData();
   const transfermarkt = await crawlTransfermarktHistoricalData();
 
@@ -643,6 +645,48 @@ export async function crawlHistoricalDataset() {
     }
 
     for (const row of competition.matches) {
+      const result = processAdvancedRow({
+        db,
+        source: "fbref",
+        row,
+        matchLookup,
+        teams,
+        processedRecords,
+        matchedMatchIds,
+        unresolved,
+        unmatchedTeams,
+        reasonCounts
+      });
+
+      if (result.parsed) {
+        totalMatchesParsed += 1;
+        fbrefMatchesParsed += 1;
+      }
+      if (result.matched) {
+        matchedAdvancedRows += 2;
+        insertedAdvancedRows += result.insertedRows;
+      } else if (result.parsed) {
+        unmatchedAdvancedRows += 2;
+      } else {
+        rejectedRows += 1;
+      }
+      if (result.rejectedLowConfidence) {
+        rejectedLowConfidence += 1;
+      }
+    }
+  }
+
+  for (const season of fbrefPuppeteer) {
+    if (season.scheduleSource === "puppeteer-blocked" || season.scheduleSource === "puppeteer-error") {
+      failedPages.push({
+        source: "fbref-puppeteer",
+        competitionCode: season.competitionCode,
+        season: season.season,
+        scheduleSource: season.scheduleSource
+      });
+    }
+
+    for (const row of season.matches) {
       const result = processAdvancedRow({
         db,
         source: "fbref",
@@ -732,6 +776,7 @@ export async function crawlHistoricalDataset() {
 
   return {
     fbref,
+    fbrefPuppeteer,
     understat,
     transfermarkt,
     totalMatchesParsed,

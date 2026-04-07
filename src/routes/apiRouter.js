@@ -18,6 +18,8 @@ import { getCollectorStatus, getForwardValidationReport, getPerformanceDashboard
 import { importNewsData } from "../modules/data/importers/newsImporter.js";
 import { getOddsCoverageDiagnostics } from "../modules/data/oddsCoverageService.js";
 import { getAdvancedStatsDiagnostics, importAdvancedStatsData } from "../modules/data/importers/xgImporter.js";
+import { importSportmonksStats } from "../modules/data/importers/sportmonksStatsImporter.js";
+import { crawlHistoricalDataset } from "../modules/data/historicalCrawlerService.js";
 import { syncAllCompetitions, syncCompetition } from "../modules/data/syncService.js";
 import { getBackgroundJobStatus } from "../modules/runtime/backgroundJobs.js";
 import { getAutomationDesk } from "../modules/runtime/automationDeskService.js";
@@ -194,6 +196,18 @@ export async function handleApiRequest(request, response, url) {
 
     if (request.method === "POST" && url.pathname === "/api/xg/import") {
       return json(response, 200, importAdvancedStatsData());
+    }
+
+    if (request.method === "POST" && url.pathname === "/api/xg/backfill-sportmonks") {
+      const body = await readBody(request);
+      const limit = Number(body.limit ?? 200);
+      importSportmonksStats({ limit }).then(() => {}).catch(() => {});
+      return json(response, 202, { status: "backfill started", message: `Fetching Sportmonks stats for up to ${limit} matches in background. Check /api/performance when done.` });
+    }
+
+    if (request.method === "POST" && url.pathname === "/api/xg/crawl") {
+      crawlHistoricalDataset().then(() => {}).catch(() => {});
+      return json(response, 202, { status: "crawl started", message: "Fetching xG from FBRef + Understat in background. Check /api/performance in ~2 minutes." });
     }
 
     if (request.method === "POST" && url.pathname === "/api/model/train") {
