@@ -46,12 +46,18 @@ function statValue(statistics, typeId, location) {
   return stat?.data?.value ?? null;
 }
 
+const XG_CAP = 4.0;
+
 function estimateXg(shotsInside, shotsOutside, bigChances) {
   const inside = shotsInside ?? 0;
   const outside = shotsOutside ?? 0;
   const big = bigChances ?? 0;
   const estimate = inside * 0.12 + outside * 0.03 + big * 0.35;
-  return estimate > 0 ? Math.round(estimate * 100) / 100 : null;
+  if (estimate <= 0) {
+    return null;
+  }
+  // Cap at XG_CAP to avoid extreme outliers (e.g. 6-0 wins with many big chances)
+  return Math.round(Math.min(estimate, XG_CAP) * 100) / 100;
 }
 
 function extractStats(statistics, participants, homeParticipantId) {

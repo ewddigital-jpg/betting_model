@@ -1,13 +1,13 @@
 {
-  "generatedAt": "2026-03-26T10:33:38.622Z",
+  "generatedAt": "2026-04-07T06:59:19.005Z",
   "competitionCode": null,
   "scoreboard": {
-    "trustPercent": 53,
-    "blindLeanAccuracy": 57.9,
-    "blindLogLoss": 0.954,
+    "trustPercent": 51,
+    "blindLeanAccuracy": 55,
+    "blindLogLoss": 0.964,
     "forwardSettledBets": 0,
-    "historicalOddsCoverage": "106/140",
-    "historicalLineupCoverage": "138/140",
+    "historicalOddsCoverage": "90/120",
+    "historicalLineupCoverage": "118/120",
     "collectorStatus": "success",
     "latestTrainingStatus": "rejected",
     "latestDecisionStatus": "rejected"
@@ -16,7 +16,7 @@
     {
       "priority": "P1",
       "title": "System credibility is still low",
-      "detail": "Trust readiness is 53% against an 80% target. The app is still in evidence-building mode, not proven mode.",
+      "detail": "Trust readiness is 51% against an 80% target. The app is still in evidence-building mode, not proven mode.",
       "action": "Improve proof before adding more aggression: keep archiving odds, keep grading forward bets, and stay conservative on markets without late team-news clarity.",
       "prompt": "Review the trust-readiness blockers and tighten whichever factor is hurting the score most right now without making the model more reckless."
     },
@@ -49,13 +49,13 @@
     "Review the forward recommendation history and improve the grading dashboard or evidence tracking rather than forcing more bets."
   ],
   "trustReadiness": {
-    "trustPercent": 53,
+    "trustPercent": 51,
     "targetPercent": 80,
     "status": "building",
     "components": {
       "oddsCoverage": {
-        "score": 31,
-        "current": "5/16",
+        "score": 44,
+        "current": "7/16",
         "label": "Odds coverage"
       },
       "lineupCoverage": {
@@ -69,20 +69,20 @@
         "label": "Forward graded bets"
       },
       "blindEvidence": {
-        "score": 100,
-        "current": "140",
+        "score": 71,
+        "current": "100",
         "label": "Blind sample"
       },
       "calibration": {
-        "score": 61,
-        "current": 0.239,
+        "score": 63,
+        "current": 0.237,
         "label": "Calibration"
       }
     },
     "blockers": [
-      "Odds are only attached to 5 of 16 upcoming matches.",
+      "Odds are only attached to 7 of 16 upcoming matches.",
       "Only 0 settled forward bets are graded so far.",
-      "Calibration is still loose with an average Brier score around 0.239."
+      "Calibration is still loose with an average Brier score around 0.237."
     ],
     "nextSteps": [
       "Keep the collector and reminder jobs running so more pre-kickoff odds snapshots are saved.",
@@ -116,18 +116,18 @@
     "averageSourceReliabilityScore": null
   },
   "blindSummary": {
-    "modeledMatches": 140,
-    "bets": 50,
-    "passes": 90,
-    "settledBets": 50,
-    "wins": 23,
-    "losses": 27,
-    "leanAccuracy": 57.9,
-    "hitRate": 46,
-    "averageEdge": 46.3,
-    "averageOdds": 3.23,
-    "averageRoi": 33.7,
-    "logLoss": 0.954,
+    "modeledMatches": 100,
+    "bets": 34,
+    "passes": 66,
+    "settledBets": 34,
+    "wins": 15,
+    "losses": 19,
+    "leanAccuracy": 55,
+    "hitRate": 44.1,
+    "averageEdge": 46.47,
+    "averageOdds": 3.14,
+    "averageRoi": 27.62,
+    "logLoss": 0.964,
     "warning": "Blind sample uses only data and odds snapshots available before kickoff. It is still limited by missing historical odds coverage."
   },
   "upcomingShortlist": {
