@@ -1851,6 +1851,7 @@ function buildMarketAssessment(matchId, marketKey, teams, features, model, conte
       bookmakerImpliedProbability: marketStats.impliedProbability ?? marketOption.impliedProbability ?? 0,
       bookmakerMarginAdjustedProbability: consensus?.[option.key] ?? null,
       edge: edgePercent(option.probability, marketStats.bestOdds ?? marketOption.bookmakerOdds ?? null),
+      averageEdge: edgePercent(option.probability, marketStats.averageOdds ?? marketStats.bestOdds ?? marketOption.bookmakerOdds ?? null),
       targetOdds: requiredOddsForEdge(option.probability, policy.minEdge),
       bestBookmakerTitle: marketStats.bestBookmakerTitle ?? null,
       averageOdds: marketStats.averageOdds ?? null,
@@ -1885,7 +1886,10 @@ function buildMarketAssessment(matchId, marketKey, teams, features, model, conte
     : { forceNoBet: false, reason: null, risk: null };
   const priceQuality = buildPriceQualityPackage(marketKey, bestOption, rows, selectedBookmaker, context, features, boardSelection.board);
   const trust = buildTrustPackage(marketKey, bestOption, rows, selectedBookmaker, context, teams, model, features, priceQuality);
-  const baseAction = oneXTwoGate.forceNoBet ? "No Bet" : buildRecommendationAction(bestOption.edge, policy);
+  // Use averageEdge (consensus market) for action qualification — bestEdge is kept
+  // for display only. This prevents a single soft bookmaker from inflating the edge
+  // enough to cross the policy minimum while the consensus line offers no real value.
+  const baseAction = oneXTwoGate.forceNoBet ? "No Bet" : buildRecommendationAction(bestOption.averageEdge ?? bestOption.edge, policy);
   // In backtest mode skip system-level trust guardrails — they reflect current state, not historical.
   const trustGate = context.backtestMode
     ? { forceNoBet: false, downgradeAction: null }
@@ -1926,6 +1930,7 @@ function buildMarketAssessment(matchId, marketKey, teams, features, model, conte
     bestOption,
     recommendation: {
       action,
+      baseAction,
       marketRole: definition.role,
       headline: buildRecommendationHeadline(definition.name, bestOption.shortLabel, action),
       confidence: confidence.label,
@@ -1965,17 +1970,31 @@ function buildMarketAssessment(matchId, marketKey, teams, features, model, conte
 
 function buildBestBet(markets, backtestMode = false) {
   const marketRankScore = (market) => {
-    let score = market.bestOption.edge ?? -999;
-    score += (market.trust?.score ?? 0) * 0.06;
-    score += (market.recommendation.credibilityScore ?? 0) * 0.03;
+    const bestOdds = market.bestOption.bookmakerOdds ?? null;
+    const avgOdds = market.bestOption.averageOdds ?? bestOdds;
+    const rankingEdge = avgOdds != null
+      ? edgePercent(market.bestOption.modelProbability, avgOdds)
+      : (market.bestOption.edge ?? -12);
+    const rankingAction = market.recommendation.baseAction ?? market.recommendation.action;
+    const actionBoost = rankingAction === "Strong Value"
+      ? 5
+      : rankingAction === "Playable Edge"
+        ? 3
+        : rankingAction === "Small Edge"
+          ? 1
+          : 0;
+    const outlierPenalty = (bestOdds != null && avgOdds != null && avgOdds > 0)
+      ? Math.max(0, ((bestOdds / avgOdds) - 1.12) * 18)
+      : 0;
+    let score = rankingEdge + (market.trust?.score ?? 0) * 0.06 + (market.recommendation.credibilityScore ?? 0) * 0.03 + actionBoost - outlierPenalty;
 
     if (market.key === "totals25") {
-      score += 2.2;
+      score += 3.6;
     } else if (market.key === "oneXTwo") {
-      score -= 0.35;
+      score -= 0.8;
       score -= Math.max(0, (market.bestOption.disagreement ?? 0) * 8);
     } else if (market.key === "btts") {
-      score -= 1.4;
+      score -= 6.0;
     }
 
     return score;
@@ -1986,8 +2005,9 @@ function buildBestBet(markets, backtestMode = false) {
       const policy = market.policy;
       // In backtest mode skip system-level trust filter — it reflects current state, not historical.
       const trustOk = backtestMode || (market.trust?.score ?? 0) >= policy.minTrust;
+      const avgEdge = market.bestOption.averageEdge ?? market.bestOption.edge ?? -999;
       return !market.recommendation.isNoBet &&
-        (market.bestOption.edge ?? -999) >= policy.minEdge &&
+        avgEdge >= policy.minEdge &&
         trustOk;
     })
     .sort((left, right) => marketRankScore(right) - marketRankScore(left));
@@ -2017,18 +2037,26 @@ function buildBestBet(markets, backtestMode = false) {
 }
 
 function primaryMarketScore(market) {
-  const edge = market.bestOption.edge ?? -12;
-  const trustScore = market.trust?.score ?? 0;
-  const credibilityScore = market.recommendation.credibilityScore ?? 0;
-  const actionBoost = market.recommendation.action === "Strong Value"
+  const bestOdds = market.bestOption.bookmakerOdds ?? null;
+  const avgOdds = market.bestOption.averageOdds ?? bestOdds;
+  const rankingEdge = avgOdds != null
+    ? edgePercent(market.bestOption.modelProbability, avgOdds)
+    : (market.bestOption.edge ?? -12);
+  const rankingAction = market.recommendation.baseAction ?? market.recommendation.action;
+  const actionBoost = rankingAction === "Strong Value"
     ? 5
-    : market.recommendation.action === "Playable Edge"
+    : rankingAction === "Playable Edge"
       ? 3
-      : market.recommendation.action === "Small Edge"
+      : rankingAction === "Small Edge"
         ? 1
         : 0;
+  const outlierPenalty = (bestOdds != null && avgOdds != null && avgOdds > 0)
+    ? Math.max(0, ((bestOdds / avgOdds) - 1.12) * 18)
+    : 0;
+  const trustScore = market.trust?.score ?? 0;
+  const credibilityScore = market.recommendation.credibilityScore ?? 0;
 
-  let score = edge + (trustScore * 0.06) + (credibilityScore * 0.03) + actionBoost;
+  let score = rankingEdge + (trustScore * 0.06) + (credibilityScore * 0.03) + actionBoost - outlierPenalty;
 
   if (market.key === "totals25") {
     score += 3.6;
@@ -2036,7 +2064,7 @@ function primaryMarketScore(market) {
     score -= 0.8;
     score -= Math.max(0, (market.bestOption.disagreement ?? 0) * 8);
   } else if (market.key === "btts") {
-    score -= 2.4;
+    score -= 6.0;
   }
 
   return score;
@@ -2098,18 +2126,33 @@ export const __bettingEngineTestables = {
 
 function buildPrimaryMarketLegacy(markets) {
   const marketRankScore = (market) => {
-    const edge = market.bestOption.edge ?? -12;
+    const bestOdds = market.bestOption.bookmakerOdds ?? null;
+    const avgOdds = market.bestOption.averageOdds ?? bestOdds;
+    // Use consensus (average) odds for ranking to avoid outlier bookmaker lines
+    // inflating edge. If averageOdds is unavailable, fall back to bestOdds.
+    const rankingEdge = avgOdds != null
+      ? edgePercent(market.bestOption.modelProbability, avgOdds)
+      : (market.bestOption.edge ?? -12);
     const trustScore = market.trust?.score ?? 0;
     const credibilityScore = market.recommendation.credibilityScore ?? 0;
-    const actionBoost = market.recommendation.action === "Strong Value"
+    // Use baseAction (pre-guardrail) for ranking so that a stale-odds or
+    // fallback-board downgrade on one market doesn't unfairly suppress it.
+    const rankingAction = market.recommendation.baseAction ?? market.recommendation.action;
+    const actionBoost = rankingAction === "Strong Value"
       ? 5
-      : market.recommendation.action === "Playable Edge"
+      : rankingAction === "Playable Edge"
         ? 3
-        : market.recommendation.action === "Small Edge"
+        : rankingAction === "Small Edge"
           ? 1
           : 0;
 
-    let score = edge + (trustScore * 0.06) + (credibilityScore * 0.03) + actionBoost;
+    // Penalise outlier bookmaker lines: if best odds are >12% above average odds
+    // the line is likely soft and the edge is not reliably realisable.
+    const outlierPenalty = (bestOdds != null && avgOdds != null && avgOdds > 0)
+      ? Math.max(0, ((bestOdds / avgOdds) - 1.12) * 18)
+      : 0;
+
+    let score = rankingEdge + (trustScore * 0.06) + (credibilityScore * 0.03) + actionBoost - outlierPenalty;
 
     if (market.key === "totals25") {
       score += 3.6;
@@ -2117,7 +2160,7 @@ function buildPrimaryMarketLegacy(markets) {
       score -= 0.8;
       score -= Math.max(0, (market.bestOption.disagreement ?? 0) * 8);
     } else if (market.key === "btts") {
-      score -= 2.4;
+      score -= 6.0;
     }
 
     return score;

@@ -412,10 +412,20 @@ function summarizeRecentMatches(matches, teamId) {
 function averageForWindow(history, teamId, ratings, size, key, fallback) {
   const slice = history.slice(0, size);
 
-  return normalizeGoalAverage(
-    average(slice.map((match) => perspective(match, teamId, ratings)[key]), fallback),
-    fallback
-  );
+  // For goals-scored metrics, dampen contributions from matches against weak
+  // opponents (ELO < BASE_RATING - 100) so blowout wins vs poor teams don't
+  // inflate expected-goals projections against elite opponents.
+  const values = slice.map((match) => {
+    const view = perspective(match, teamId, ratings);
+    const value = view[key];
+    if (key === "goalsFor" && view.opponentElo < BASE_RATING - 100) {
+      const weaknessFactor = Math.max(0.4, (view.opponentElo - (BASE_RATING - 400)) / 300);
+      return value * weaknessFactor;
+    }
+    return value;
+  });
+
+  return normalizeGoalAverage(average(values, fallback), fallback);
 }
 
 function averageGoalDiffWindow(history, teamId, ratings, size, fallback = 0) {
